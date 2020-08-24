@@ -1,54 +1,49 @@
 import numpy as np
 
 
-def saf(P, X):
+def dominates(a: np.ndarray, b: np.ndarray, maximize: bool = False):
     """
-    Calculates summary attainment front distances
-    Calculates the distance of n, m-dimensional points X from the summary attainment front defined by points P
+    returns True if a dominates b, else returns False
 
-    :param P [np.array]: points in the pareto front, shape[?,m]
-    :param X [np.array]: points for which the distance to the summary attainment front is to be calculated, shape[n,m]
-    :param beta [float]: if not None, the saf distance is passed through sigmoid function with beta=squashed
-    :param normalized [Bool]: if not None, the saf distance for points in X is normalized to a range from 0-1
-
-    :return [np.array]: numpy array of saf distances between points in X and saf defined by P, shape[X.shape]
+    :param np.ndarray a: dominating query point
+    :param np.ndarray b: dominated query point
+    :param bool maximize: True for finding domination relation in a
+    maximisation problem, False for minimisaiton problem.
+    :return bool: True if a dominate b, else returns False"
     """
-    assert P.shape[1] == X.shape[1]  # check dimensionality of P is the same as that for X
-
-    D = np.zeros((X.shape[0], P.shape[0]))
-
-    for i, p in enumerate(P):
-        D[:, i] = np.max(p - X, axis=1).reshape(-1)
-    Dq = np.min(D, axis=1)
-    return Dq
-
-
-def dominates(A, B, maximize=False):
-    "does A dominate B"
     if maximize:
-        return np.all(A>B)
+        return np.all(a > b)
     else:
-        return np.all(A<B)
+        return np.all(a < b)
 
 
-def Pareto_split(X, maximize=False):
-    """function to determine the pareto set of a set of values x in X
+def Pareto_split(data, maximize: bool = False, return_indices=False):
+    """
+    separates the data points in data into non-dominated and dominated.
 
-    args:
-        X[np.array] set of 2D points (n,2)
-
-    returns:
-        p_set[np.array] set of 2D points (n,2) making up the Pareto set from X
-        d_set[np.array] set of 2D points (n,2) making up the dominated points from X
-
+    :param np.ndarray data: the input data (n_points, data_dimension)
+    :param bool maximize: True for finding non-dominated points in a
+    maximisation problem, else for minimisaiton.
+    :param bool return_indices: if True returns the indices of the
+    non-dominated and dominate points if False returns the point values
+    themselves.
+    :return tuple: (non-dominated points, dominated points)
     """
 
-    dom_mat = np.zeros((X.shape[0], X.shape[0]))
-    for i, A in enumerate(X):
-        for j, B in enumerate(X):
+    dom_mat = np.zeros((data.shape[0], data.shape[0]))
+    for i, A in enumerate(data):
+        for j, B in enumerate(data):
             dom_mat[i, j] = dominates(A, B, maximize=maximize)
 
-    p = X[np.argwhere(np.all(dom_mat == 0, axis=0)).reshape(-1)]
-    d = X[np.argwhere(np.any(dom_mat != 0, axis=0)).reshape(-1)]
-    return p, d
+    # calculate non-dominated and dominated data point indices
+    p_ind = np.argwhere(np.all(dom_mat == 0, axis=0)).reshape(-1)
+    d_ind = np.argwhere(np.any(dom_mat != 0, axis=0)).reshape(-1)
+
+    if return_indices:
+        # return indices
+        return p_ind, d_ind
+    else:
+        # return data points
+        return data[p_ind], data[d_ind]
+
 

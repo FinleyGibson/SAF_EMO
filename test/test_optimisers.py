@@ -1,9 +1,11 @@
 import unittest
+from parameterized import parameterized_class
+from testsuite.surrogates import GP
 from testsuite.optimisers import *
-from testsuite.surrogates import Surrogate
+from testsuite.surrogates import GP
 
 
-class TestOptimiserClass(unittest.TestCase):
+class TestBaseOptimiserClass(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
@@ -28,7 +30,6 @@ class TestOptimiserClass(unittest.TestCase):
         # generate test data
         x_evaluated = self.opt.x[np.random.randint(len(self.opt.x))]
         x_notevaluated = np.ones_like(x_evaluated)*11
-
         # check test data
         assert(x_evaluated in self.opt.x)
         assert(x_notevaluated not in self.opt.x)
@@ -43,10 +44,15 @@ class TestOptimiserClass(unittest.TestCase):
 
     def test_compute_hypervolume(self):
         a = self.opt._compute_hypervolume()
-        print(a)
-        print(self.opt.x)
+        self.assertIsInstance(a, float)
 
 
+@parameterized_class([
+    {"name": "GP_unscaled", "surrogate": GP, "args": [], "kwargs": {"scaled": False}},
+    {"name": "GP_scaled", "surrogate": GP, "args": [], "kwargs": {"scaled": True}},
+    {"name": "GP_unscaled", "surrogate": RF, "args": [], "kwargs": {"extra_trees": False}},
+    {"name": "GP_unscaled", "surrogate": RF, "args": [], "kwargs": {"extra_trees": True}}
+])
 class TestBayesianOptimiserClass(unittest.TestCase):
 
     @classmethod
@@ -63,13 +69,29 @@ class TestBayesianOptimiserClass(unittest.TestCase):
                                  np.sum([np.cos(xii) ** 2 for xii in x])])
 
         limits = np.array([[0], [10]])
-        surr = Surrogate(x=, y, "GP", multi_surrogate=True)
+        surr = cls.surrogate(*cls.args, **cls.kwargs)
         cls.opt = BayesianOptimiser(objective_function=test_function, limits=limits, surrogate=surr, n_initial=10,
                                     seed=None, acquisition_function="saf_mu", cmaes_restarts=0)
 
-    def test_one(self):
-        print(self.opt.x)
-        print(self.opt.surrogate.x)
+    def test_step(self):
+        """
+        test the optimisation step
+        :return:
+        """
+        n_optimsation_steps = self.opt.x.shape[0]
+        self.assertEqual(self.opt.n_evaluations, n_optimsation_steps)
+        self.opt.step()
+        self.assertEqual(self.opt.n_evaluations, n_optimsation_steps+1)
+        self.assertEqual(self.opt.x.shape[0], n_optimsation_steps+1)
+        self.assertEqual(self.opt.y.shape[0], n_optimsation_steps+1)
+
+    def test_optimise(self):
+        n_optimsation_steps = self.opt.x.shape[0]
+        self.assertEqual(self.opt.n_evaluations, n_optimsation_steps)
+        self.opt.optimise(n_steps=2)
+        self.assertEqual(self.opt.n_evaluations, n_optimsation_steps+2)
+        self.assertEqual(self.opt.x.shape[0], n_optimsation_steps+2)
+        self.assertEqual(self.opt.y.shape[0], n_optimsation_steps+2)
 
 
 if __name__ == '__main__':
