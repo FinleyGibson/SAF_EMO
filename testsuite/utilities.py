@@ -1,5 +1,20 @@
 import numpy as np
 
+def optional_inversion(f):
+    """decorator to invert the value of a function, and turn maximisation
+    problem to minimization problem. Invoke by passing a keyword argument
+    invert=True to the decorated function"""
+    def wrapper(*args, **kwargs):
+        try:
+            if kwargs["invert"] is True:
+                del(kwargs["invert"])
+                return -f(*args, **kwargs)
+            else:
+                del(kwargs["invert"])
+                return f(*args, **kwargs)
+        except KeyError:
+            return f(*args, **kwargs)
+    return wrapper
 
 def dominates(a: np.ndarray, b: np.ndarray, maximize: bool = False):
     """

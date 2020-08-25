@@ -5,12 +5,12 @@ import inspect
 import os
 import pickle
 import _csupport as cs
+from typing import Union
 from scipy.stats import norm
-
-from testsuite.utilities import Pareto_split
-import testsuite.acquisition_functions as acq_f
-from testsuite.surrogates import GP, MultiSurrogate
 from evoalgos.performance import FonsecaHyperVolume
+
+from testsuite.utilities import Pareto_split, optional_inversion
+from testsuite.surrogates import GP, MultiSurrogate, MonoSurrogate
 
 
 def increment_evaluation_count(f):
@@ -20,7 +20,8 @@ def increment_evaluation_count(f):
     def wrapper(self, *args, **kwargs):
         self.n_evaluations += 1
         return_value = f(self, *args, **kwargs)
-        if self.n_evaluations%self.log_interval == 0:
+        if self.n_evaluations%self.log_interval == 0 \
+                or self.n_evaluations == self.budget:
             self.log_optimisation(save=True)
         else:
             self.log_optimisation(save=False)
@@ -30,11 +31,13 @@ def increment_evaluation_count(f):
 
 
 class Optimiser:
-    def __init__(self, objective_function, limits, n_initial=10, budget=30,
-                 seed=None, ref_vector=None, log_dir="./log_data",
-                 log_interval=None):
+    def __init__(self, objective_function, limits,
+                 n_initial=10, budget=30, of_args=[], seed=None, ref_vector=None,
+                 log_dir="./log_data", log_interval=None):
+
         self.objective_function = objective_function
-        self.seed = seed if seed else np.random.randint(0, 10000)
+        self.of_args = of_args
+        self.seed = seed if seed is not None else np.random.randint(0, 10000)
         self.limits = [np.array(limits[0]), np.array(limits[1])]
         self.n_initial = n_initial
         self.budget = budget
@@ -50,11 +53,14 @@ class Optimiser:
         # TODO obj_sense currently only allows minimisation of objectives.
         self.obj_sense = [-1]*self.n_objectives
 
-        # set up logging
-        # if no ref_vector provided, use max of initial evaluations
         # TODO only allows for minimisation problems
+        # if no ref_vector provided, use max of initial evaluations
         self.ref_vector = ref_vector if ref_vector else self.y.max(axis=0)
         self.hpv = FonsecaHyperVolume(self.ref_vector) # used to find hypervolume
+        # hv is stored to prevent repeated computation.
+        self.current_hv = self._compute_hypervolume()
+
+        # set up logging
         self.log_dir = log_dir
         self.log_filename = self._generate_filename()
         if not os.path.exists(log_dir):
@@ -70,7 +76,10 @@ class Optimiser:
         """
         x = np.array(lhsmdu.sample(x_dims, n_samples, randomSeed=self.seed)).T\
             * (limits[1]-limits[0])+limits[0]
-        y = self.objective_function(x)
+        try:
+            y = self.objective_function(x)
+        except:
+            y = np.array([self.objective_function(xi, *self.of_args) for xi in x])
 
         # update evaluation number
         self.n_evaluations += n_samples
@@ -146,11 +155,12 @@ class Optimiser:
                 "at eval {}".format(try_count-1, self.n_evaluations+1))
 
         # get objective function evaluation for the new point
-        y_new = self.objective_function(x_new)
+        y_new = self.objective_function(x_new, *self.of_args)
 
         # update observations with new observed point
         self.x = np.vstack((self.x, x_new))
         self.y = np.vstack((self.y, y_new))
+        self.current_hv = self._compute_hypervolume()
 
     def log_optimisation(self, save=False):
         """
@@ -162,16 +172,15 @@ class Optimiser:
             # increment_evaluation_count decorator.
             self.log_data["x"] = self.x
             self.log_data["y"] = self.y
-            self.log_data["hypervolume"].append(self._compute_hypervolume())
+            self.log_data["hypervolume"].append(self.current_hv)
             self.log_data["n_evaluations"] = self.n_evaluations
         except TypeError:
             # initial information logging called by Optimiser __init__
-            log_data = {"objective_function":
-                        inspect.getsource(self.objective_function),
+            log_data = {"objective_function": self.objective_function.__name__,
                         "limits": self.limits,
                         "n_initial": self.n_initial,
                         "seed": self.seed,
-                        "hypervolume": [self._compute_hypervolume()],
+                        "hypervolume": [self.current_hv],
                         "x": self.x,
                         "y": self.y,
                         "log_dir": self.log_dir,
@@ -258,35 +267,30 @@ class Optimiser:
 
 class BayesianOptimiser(Optimiser):
     def __init__(self, objective_function, limits, surrogate,
-                 n_initial=10, budget=30, seed=None,
-                 acquisition_function="saf_mu", ref_vector=None,
+                 of_args=[], n_initial=10, budget=30, seed=None, ref_vector=None,
                  log_dir="./log_data", log_interval=None,
                  cmaes_restarts=0):
 
         self.surrogate = surrogate
-        self.acquisition_function = getattr(acq_f, acquisition_function)
 
         super().__init__(objective_function=objective_function, limits=limits,
-                         n_initial=n_initial, budget=budget, seed=seed,
-                         ref_vector=ref_vector, log_dir=log_dir,
+                         of_args=of_args, n_initial=n_initial, budget=budget,
+                         seed=seed, ref_vector=ref_vector, log_dir=log_dir,
                          log_interval=log_interval)
 
         self.cmaes_restarts = cmaes_restarts
 
-    def _generate_filename(self):
+    def _generate_filename(self, *args):
         """include surrogate and acquisition function for logging"""
         try:
             # multi-surrogate
-            file_name = super()._generate_filename(
+            return super()._generate_filename(
                 self.surrogate.__class__.__name__,
-                self.surrogate.surrogate.__name__,
-                self.acquisition_function.__name__.replace("_", ""))
+                self.surrogate.surrogate.__name__, *args)
         except AttributeError:
             # mono-surrogate
-            file_name = super()._generate_filename(
-                self.surrogate.__class__.__name__,
-                self.acquisition_function.__name__.replace("_", ""))
-        return file_name
+            return super()._generate_filename(
+                self.surrogate.__class__.__name__, *args)
 
     def get_next_x(self, excluded_indices=None):
         """
@@ -320,7 +324,6 @@ class BayesianOptimiser(Optimiser):
 
         # optimise the acquisition function using cm-aes algorithm for
         # parameter space with dimensions >1, else use random search.
-        alpha_arguments = [self.surrogate, y]
         if self.surrogate.x_dims > 1:
             # optimise acquisition function using random search
             seed = np.random.uniform(self.limits[0], self.limits[1],
@@ -329,8 +332,7 @@ class BayesianOptimiser(Optimiser):
                            sigma0=0.25,
                            options={'bounds':
                                     [self.limits[0], self.limits[1]]},
-                           restarts=self.cmaes_restarts,
-                           args=alpha_arguments)
+                           restarts=self.cmaes_restarts)
             x_new = res[0]
         else:
             # TODO fix use of argmin to accommodate maximisation cases.
@@ -338,112 +340,140 @@ class BayesianOptimiser(Optimiser):
             n_search_points = 1000
             search_points = np.random.uniform(self.limits[0], self.limits[1],
                                               n_search_points)
-            res_index = np.argmin([self.alpha(search_point, *alpha_arguments)
+            res_index = np.argmin([self.alpha(search_point)
                                    for search_point in search_points])
 
             x_new = np.array(search_points[res_index:res_index + 1])
 
         return x_new.reshape(1, -1)
 
-    def alpha(self, x_put, *args, **kwargs):
-        """
-        evaluates the predicted efficacy of the putative solution x_put,
-        based on predictions from the surrogate and the acquisition
-        function.
-        :param np.ndarray x_put: putative solution to the objective
-        function (1, x_dims)
-        :param args: args to acquisition_function
-        :param kwargs: kwargs to acquisition_function
-        :return float:  assessment of x_put efficacy as a solution to
-        the objective function.
-        """
-        efficacy_put = self.acquisition_function(x_put, *args, **kwargs)
-        return efficacy_put
+    def alpha(self, x_put):
+        assert NotImplementedError
 
 
-class SmsEgo(Optimiser):
+class Saf(BayesianOptimiser):
+    def __init__(self, objective_function, limits, surrogate,
+                 of_args=[], n_initial=10, budget=30, seed=None, ref_vector=None,
+                 ei=True, log_dir="./log_data", log_interval=None,
+                 cmaes_restarts=0):
 
-    def __init__(self, objective_function, limits, surrogate, n_initial=10,
-                 budget=30, seed=None, ref_vector=None, log_dir="./log_data",
-                 log_interval=None, cmaes_restarts=0):
+        self.ei = ei
 
-        self.surrogate = surrogate
-        super().__init__(objective_function=objective_function, limits=limits,
-                         n_initial=n_initial, budget=budget, seed=seed,
-                         ref_vector=ref_vector, log_dir=log_dir,
-                         log_interval=log_interval)
+        super().__init__(objective_function=objective_function,
+                         limits=limits,
+                         surrogate=surrogate,
+                         of_args=of_args,
+                         n_initial=n_initial,
+                         budget=budget,
+                         seed=seed,
+                         ref_vector=ref_vector,
+                         log_dir=log_dir,
+                         log_interval=log_interval,
+                         cmaes_restarts=cmaes_restarts)
 
-        self.gain = -norm.ppf(0.5 * (0.5 ** (1 / self.n_objectives)))
-        self.cmaes_restarts = cmaes_restarts
+    def alpha(self, x_put):
+        if self.ei:
+            efficacy_put = self.saf_ei(x_put, self.surrogate, self.y,
+                                       invert=True)
+        else:
+            p, d = Pareto_split(self.y)
+            y_mean, y_std = self.surrogate.predict(x_put)
+            efficacy_put = self.saf(y_mean, p, invert=True)
+        return efficacy_put[0]
 
     def _generate_filename(self):
-        """include surrogate and acquisition function for logging"""
-        try:
-            # multi-surrogate
-            file_name = super()._generate_filename(
-                self.surrogate.__class__.__name__,
-                self.surrogate.surrogate.__name__)
-        except AttributeError:
-            # mono-surrogate
-            file_name = super()._generate_filename(
-                self.surrogate.__class__.__name__)
-        return file_name
-
-    def get_next_x(self, excluded_indices=None):
-        """
-        Gets the next point to be evaluated by the objective function.
-
-        :param excluded_indices: list of indices for self.x and self.y
-        to exclude when building the surrogate model. This allows BO to
-        navigate niche cases where the optimisation of the acquisition
-        function returns a point which has already been evaluated.
-        Re-evaluating this point would incur cost without advancing the
-        optimisation. Excluding the point being repeated is the method
-        to avoid this.
-
-        :return np.ndarray: next point to be evaluated by the objective
-        function and added to self.x
-        """
-        if excluded_indices is not None:
-            # handle observations to be excluded from the model.
-            x = self.x[[i for i in range(len(self.x))
-                        if i not in excluded_indices]]
-            y = self.y[[i for i in range(len(self.x))
-                        if i not in excluded_indices]]
+        if self.ei:
+            return super()._generate_filename("saf_ei")
         else:
-            x = self.x
-            y = self.y
+            return super()._generate_filename("saf_mean")
 
-        # update surrogate
-        self.surrogate.update(x, y)
+    @staticmethod
+    @optional_inversion
+    def saf(y: np.ndarray, p: np.ndarray) -> np.ndarray:
+        """
+        Calculates summary attainment front distances.
+        Calculates the distance of n, m-dimensional points X from the
+        summary attainment front defined by points P
 
-        # optimise the acquisition function using cm-aes algorithm for
-        # parameter space with dimensions >1, else use random search.
-        alpha_arguments = [self.surrogate, y]
-        if self.surrogate.x_dims > 1:
-            # optimise acquisition function using random search
-            seed = np.random.uniform(self.limits[0], self.limits[1],
-                                     self.surrogate.x_dims)
-            # ans = self.alpha(seed, *alpha_arguments)
-            res = cma.fmin(self.alpha, seed,
-                           sigma0=0.25,
-                           options={'bounds':
-                                        [self.limits[0], self.limits[1]]},
-                           restarts=self.cmaes_restarts,
-                           args=alpha_arguments)
-            x_new = res[0]
+        :param np.array p: points in the pareto front, shape[?,m]
+        :param np.array y: points for which the distance to the summary
+        attainment front is to be calculated, shape[n,m]
+
+        :return np.array: numpy array of saf distances between points in
+        X and saf defined by P, shape[X.shape]
+        """
+        # check dimensionality of P is the same as that for X
+        assert p.shape[1] == y.shape[1]
+
+        D = np.zeros((y.shape[0], p.shape[0]))
+
+        for i, p in enumerate(p):
+            D[:, i] = np.max(p - y, axis=1).reshape(-1)
+        Dq = np.min(D, axis=1)
+        return Dq
+
+    @optional_inversion
+    def saf_ei(self, x_put: np.ndarray, surrogate: Union[MonoSurrogate, MultiSurrogate],
+                       z_pop: np.array, n_samples: int = 10000,
+                       return_samples=False) \
+            -> Union[np.ndarray, tuple]:
+
+        if x_put.ndim == 1:
+            x_put = x_put.reshape(1, -1)
+
+        assert (x_put.ndim == 2)
+        assert x_put.shape[0] == 1
+        # TODO implement multiple point saf_ei computation simultaneously.
+
+        # split dominated and non-dominated solutions so far
+        p, d = Pareto_split(z_pop)
+
+        mu_put, var_put = surrogate.predict(x_put)
+        mu_put = mu_put.reshape(-1)
+        var_put = var_put.reshape(-1)
+
+        # best saf value observed so far.
+        f_star = np.max(self.saf(z_pop, p))  # should be 0 in current cases
+
+        # sample from surrogate
+        samples = np.array([np.random.normal(mu, var ** 0.5, n_samples)
+                            for mu, var in zip(mu_put, var_put)]).T
+        saf_samples = self.saf(samples, p)
+        saf_samples[saf_samples > f_star] = f_star
+
+        if return_samples:
+            return samples, saf_samples
         else:
-            # TODO fix use of argmin to accommodate maximisation cases.
-            # optimise acquisition function using cma-es
-            n_search_points = 1000
-            search_points = np.random.uniform(self.limits[0], self.limits[1],
-                                              n_search_points)
-            res_index = np.argmin([self.alpha(search_point, *alpha_arguments)
-                                   for search_point in search_points])
+            return np.mean(saf_samples)
 
-            x_new = np.array(search_points[res_index:res_index + 1])
 
-        return x_new.reshape(1, -1)
+class SmsEgo(BayesianOptimiser):
+
+    def __init__(self, objective_function, limits, surrogate, of_args=[],
+                 n_initial=10, budget=30, seed=None, ref_vector=None,
+                 ei=True, log_dir="./log_data", log_interval=None,
+                 cmaes_restarts=0):
+
+        self.ei = ei
+        super().__init__(objective_function=objective_function,
+                         limits=limits,
+                         surrogate=surrogate,
+                         of_args=of_args,
+                         n_initial=n_initial,
+                         budget=budget,
+                         seed=seed,
+                         ref_vector=ref_vector,
+                         log_dir=log_dir,
+                         log_interval=log_interval,
+                         cmaes_restarts=cmaes_restarts)
+
+        self.gain = -norm.ppf(0.5 * (0.5 ** (1 / self.n_objectives)))
+
+    def _generate_filename(self):
+        if self.ei:
+            return super()._generate_filename("smsego_ei")
+        else:
+            return super()._generate_filename("smsego_mean")
 
     def _penalty(self, y, y_test):
         '''
@@ -463,7 +493,7 @@ class SmsEgo(Optimiser):
         c = 1 - (1/2**self.n_objectives)
         b_count = self.budget - len(self.x) - 1
 
-        epsilon = (np.max(self.y, axis=0) - np.min(self.y, axis=0))/\
+        epsilon = (np.max(self.y, axis=0) - np.min(self.y, axis=0))/ \
                   (n_pfr + (c * b_count))
 
         yt = y_test - (epsilon * self.obj_sense)
@@ -472,35 +502,10 @@ class SmsEgo(Optimiser):
              else 0 for i in range(y.shape[0])]
         return (max([0, max(l)]))
 
-    def _compare_add_solution(self, y, ytest, obj_sense):
-        '''
-        Compare and add a solution to the data set given its not dominated.
-
-        Parameters.
-        -----------
-        y (np.array): current Pareto front objective vectors.
-        y_test (np.array): candidate for adding to the archive.
-
-        Returns latest Pareto front.
-        '''
-        result = np.ones(y.shape[0])
-        for i in range(y.shape[0]):
-            result[i] = cs.compare_solutions(y[i], ytest, self.obj_sense)
-            if result[i] == 0:
-                return y
-        inds = np.where(result == 3)[0]
-        try:
-            return np.concatenate([y[inds], ytest])
-        except ValueError:
-            print("Likely error in y: ", y[inds])
-            return ytest
-
+    @optional_inversion
     def _scalarise_y(self, y_put, y_put_std):
         # split y into dominated and non-dominated points
         p_inds, d_inds = Pareto_split(self.y, return_indices=True)
-        p, d = self.y[p_inds], self.y[d_inds]
-
-        current_hv = self._compute_hypervolume()
 
         # lower confidence bounds
         lcb = y_put - (self.gain * np.multiply(self.obj_sense, y_put_std))
@@ -508,14 +513,11 @@ class SmsEgo(Optimiser):
         # calculate penalty
         n_pfr = len(p_inds)
         c = 1 - (1 / 2 ** self.n_objectives)
-        b_count = self.budget - self.n_evaluations -1 # TODO is this supposed to be the remaining budget
-        epsilon = (np.max(self.y, axis=0) - np.min(self.y, axis=0)) / (
-                    n_pfr + (c * b_count))
 
-        self.epsilon = epsilon
-        self.c = c
-        self.n_prf = n_pfr
-        self.b_count = b_count
+        # TODO is b_count supposed to be the remaining budget?
+        b_count = self.budget - self.n_evaluations -1
+        epsilon = (np.max(self.y, axis=0) - np.min(self.y, axis=0)) / (
+                n_pfr + (c * b_count))
 
         yt = y_put - (epsilon * self.obj_sense)
         l = [-1 + np.prod(1 + y_put - self.y[i]) if
@@ -524,27 +526,19 @@ class SmsEgo(Optimiser):
         penalty = (max([0, max(l)]))
 
         if penalty > 0:
-            return -np.array([-penalty])
+            return -penalty
 
         # new front
         new_hv = self._compute_hypervolume(np.vstack((self.y, lcb)))
-        return -np.array([new_hv - current_hv])
 
-    def alpha(self, x_put, *args, **kwargs):
-            """
-            evaluates the predicted efficacy of the putative solution x_put,
-            based on predictions from the surrogate and the acquisition
-            function.
-            :param np.ndarray x_put: putative solution to the objective
-            function (1, x_dims)
-            :param args: args to acquisition_function
-            :param kwargs: kwargs to acquisition_function
-            :return float:  assessment of x_put efficacy as a solution to
-            the objective function.
-            """
-            yp, stdp = self.surrogate.predict(x_put)
-            ans = self._scalarise_y(yp, stdp)
-            return ans
+        return new_hv - self.current_hv
+
+    def alpha(self, x_put):
+        yp, stdp = self.surrogate.predict(x_put)
+        if self.ei:
+            return self._scalarise_y(yp, stdp, invert=True)
+        else:
+            return self._scalarise_y(yp, 0., invert=True)
 
 
 if __name__ == "__main__":
@@ -578,7 +572,11 @@ if __name__ == "__main__":
     limits = [np.zeros((n_dims)), np.array(range(1, n_dims + 1)) * 2]
 
     gp_surr_multi = MultiSurrogate(GP, scaled=True)
-    opt = SmsEgo(objective_function=test_function, limits=limits, surrogate=gp_surr_multi, n_initial=10, seed=None)
-
+    # opt = Saf(objective_function=test_function, ei=True,  limits=limits, surrogate=gp_surr_multi, n_initial=10, seed=None)
+    # opt = Saf(objective_function=test_function, ei=False,  limits=limits, surrogate=gp_surr_multi, n_initial=10, seed=None)
+    # opt = SmsEgo(objective_function=test_function, ei=True,  limits=limits, surrogate=gp_surr_multi, n_initial=10, seed=None)
+    opt = SmsEgo(objective_function=test_function, ei=False,  limits=limits, surrogate=gp_surr_multi, n_initial=10, seed=None)
+    # ans = test_function(opt.x)
+    opt.optimise(n_steps=1)
     opt.optimise(n_steps=5)
     print("done")
