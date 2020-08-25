@@ -52,6 +52,7 @@ class Optimiser:
 
         # set up logging
         # if no ref_vector provided, use max of initial evaluations
+        # TODO only allows for minimisation problems
         self.ref_vector = ref_vector if ref_vector else self.y.max(axis=0)
         self.hpv = FonsecaHyperVolume(self.ref_vector) # used to find hypervolume
         self.log_dir = log_dir
@@ -108,7 +109,7 @@ class Optimiser:
             try_count += 1
 
         if try_count > 1 and self._already_evaluated(x_new):
-            # TODO error handling like this to be removed. Dev work only
+            # TODO error handling like this to be removed. Dev use only
             # Error#01 -> failed to find a unique solution after 3 optimsations
             # of the acquisition function
             self.log_data["errors"].append(
@@ -150,7 +151,6 @@ class Optimiser:
         # update observations with new observed point
         self.x = np.vstack((self.x, x_new))
         self.y = np.vstack((self.y, y_new))
-        # self.log_optimisation()
 
     def log_optimisation(self, save=False):
         """
@@ -163,7 +163,7 @@ class Optimiser:
             self.log_data["x"] = self.x
             self.log_data["y"] = self.y
             self.log_data["hypervolume"].append(self._compute_hypervolume())
-            self.log_data["n_evaluations"] += self.log_interval
+            self.log_data["n_evaluations"] = self.n_evaluations
         except TypeError:
             # initial information logging called by Optimiser __init__
             log_data = {"objective_function":
@@ -529,19 +529,6 @@ class SmsEgo(Optimiser):
         # new front
         new_hv = self._compute_hypervolume(np.vstack((self.y, lcb)))
         return -np.array([new_hv - current_hv])
-
-    # def _scalarise_y(self, yp, stdp):
-    # #     lower confidence bounds
-            # yl = yp - (self.gain * np.multiply(self.obj_sense, stdp))
-            # p_inds, d_inds = Pareto_split(self.y, return_indices=True)
-            # pen = self._penalty(self.y[p_inds], yl)
-            # if pen > 0:
-            #     return -np.array([-pen])
-            # # new front
-            # hv_prev = self._compute_hypervolume()
-            # hv_new = self._compute_hypervolume(np.vstack((self.y, yl)))
-            # # yn = self._compare_add_solution(self.y[p_inds], yl, self.obj_sense)
-            # return -np.array([hv_new-hv_prev])
 
     def alpha(self, x_put, *args, **kwargs):
             """

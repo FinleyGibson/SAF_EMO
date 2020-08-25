@@ -2,4 +2,5 @@
 *outcmaes*
 *ipynb_checkpoints*
 *.pkl
-
+*log_data*
+*.pyc
