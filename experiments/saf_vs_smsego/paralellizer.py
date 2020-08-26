@@ -26,19 +26,35 @@ x_limits[1] = np.array(range(1,n_dim+1))*2
 fun =wfg.WFG6
 args = [k, n_obj] # number of objectives as argument
 
+
+def test_function(x):
+    if x.ndim == 2:
+        assert (x.shape[1] == n_dim)
+    else:
+        squeezable = np.where([a == 1 for a in x.shape])[0]
+        for i in squeezable[::-1]:
+            x = x.squeeze(i)
+
+    if x.ndim == 1:
+        assert (x.shape[0] == n_dims)
+        x = x.reshape(1, -1)
+    return np.array([fun(xi, k, n_obj) for xi in x])
+
+
 ans = fun(np.ones_like(x_limits[0]), k, n_obj)
 surrogate = MultiSurrogate(GP, scaled=True)
 
 optimisers = []
-for n in range(10):
-    optimisers += [Saf(fun, x_limits, surrogate, of_args=args, n_initial=10, budget=30, seed=n, ei=True, log_dir="./log_data", log_interval=10, cmaes_restarts=2),
-                  Saf(fun, x_limits, surrogate,  of_args=args, n_initial=10, budget=30, seed=n, ei=False, log_dir="./log_data", log_interval=10, cmaes_restarts=2),
-                  SmsEgo(fun, x_limits, surrogate, of_args=args, n_initial=10, budget=30, seed=n, ei=False, log_dir="./log_data", log_interval=10, cmaes_restarts=2),
-                  SmsEgo(fun, x_limits, surrogate, of_args=args, n_initial=10, budget=30, seed=n, ei=False, log_dir="./log_data", log_interval=10, cmaes_restarts=2)]
+for n in range(1):
+    optimisers += [Saf(test_function, x_limits, surrogate, n_initial=10, budget=20, seed=n, ei=True, log_dir="./log_data", cmaes_restarts=2),
+                  Saf(test_function, x_limits, surrogate,  n_initial=10, budget=20, seed=n, ei=False, log_dir="./log_data", cmaes_restarts=2),
+                  SmsEgo(test_function, x_limits, surrogate, n_initial=10, budget=20, seed=n, ei=False, log_dir="./log_data", cmaes_restarts=2),
+                  SmsEgo(test_function, x_limits, surrogate, n_initial=10, budget=20, seed=n, ei=True, log_dir="./log_data", cmaes_restarts=2)]
 
+optimisers = [SmsEgo(test_function, x_limits, surrogate, n_initial=10, budget=20, seed=n, ei=True, log_dir="./log_data", cmaes_restarts=2)]
 
 def objective_function(optimiser):
-    optimiser.optimise(n_steps=100)
+    optimiser.optimise()
 
 ## establish parallel processing pool
 n_proc = mp.cpu_count()

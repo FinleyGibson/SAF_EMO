@@ -7,6 +7,7 @@ import pickle
 import _csupport as cs
 from typing import Union
 from scipy.stats import norm
+from scipy.special import erf
 from evoalgos.performance import FonsecaHyperVolume
 
 from testsuite.utilities import Pareto_split, optional_inversion
@@ -79,7 +80,7 @@ class Optimiser:
         try:
             y = self.objective_function(x)
         except:
-            y = np.array([self.objective_function(xi, *self.of_args) for xi in x])
+            y = np.array([self.objective_function(xi, *self.of_args).flatten() for xi in x])
 
         # update evaluation number
         self.n_evaluations += n_samples
@@ -371,16 +372,6 @@ class Saf(BayesianOptimiser):
                          log_interval=log_interval,
                          cmaes_restarts=cmaes_restarts)
 
-    def alpha(self, x_put):
-        if self.ei:
-            efficacy_put = self.saf_ei(x_put, self.surrogate, self.y,
-                                       invert=True)
-        else:
-            p, d = Pareto_split(self.y)
-            y_mean, y_std = self.surrogate.predict(x_put)
-            efficacy_put = self.saf(y_mean, p, invert=True)
-        return efficacy_put[0]
-
     def _generate_filename(self):
         if self.ei:
             return super()._generate_filename("saf_ei")
@@ -445,6 +436,16 @@ class Saf(BayesianOptimiser):
             return samples, saf_samples
         else:
             return np.mean(saf_samples)
+
+    def alpha(self, x_put):
+        if self.ei:
+            efficacy_put = self.saf_ei(x_put, self.surrogate, self.y,
+                                       invert=True)
+        else:
+            p, d = Pareto_split(self.y)
+            y_mean, y_std = self.surrogate.predict(x_put)
+            efficacy_put = self.saf(y_mean, p, invert=True)
+        return efficacy_put[0]
 
 
 class SmsEgo(BayesianOptimiser):
@@ -538,8 +539,56 @@ class SmsEgo(BayesianOptimiser):
         if self.ei:
             return self._scalarise_y(yp, stdp, invert=True)
         else:
-            return self._scalarise_y(yp, 0., invert=True)
+            return self._scalarise_y(yp, np.zeros_like(stdp), invert=True)
 
+
+class Mpoi(BayesianOptimiser):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    def _generate_filename(self):
+        return super()._generate_filename("Mpoi")
+
+    @optional_inversion
+    def _scalarise_y(self, y_put, std_put):
+        '''
+        Calculate the minimum probability of improvement compared to current
+        Pareto front. Refer to the paper for full details.
+
+        parameters:
+        -----------
+        x (np.array): decision vectors.
+        cfunc (function): cheap constraint function.
+        cargs (tuple): argument for constraint function.
+        ckwargs (dict): keyword arguments for constraint function.
+
+        Returns scalarised cost.
+        '''
+
+        assert(isinstance(y_put, np.ndarray))
+        assert(isinstance(std_put, np.ndarray))
+        assert(y_put.ndim > 1)
+        assert(std_put.ndim > 1)
+
+        p = Pareto_split(self.y)[0]
+        res = np.zeros((y_put.shape[0], 1))
+        for i in range(y_put.shape[0]):
+            m = (y_put[i] - p) / (np.sqrt(2) * std_put[i])
+            pdom = 1 - np.prod(0.5 * (1 + erf(m)), axis=1)
+            res[i] = np.min(pdom)
+        return res
+
+    def alpha(self, x_put):
+        yp, varp = self.surrogate.predict(x_put)
+        efficacy_put = self._scalarise_y(yp, varp ** 0.5, invert=True)
+        try:
+            return float(efficacy_put)
+        except TypeError as e:
+            print("acqusition function returned type not convertable to float")
+            print("type: ", type(efficacy_put))
+            print(efficacy_put)
+            raise e
 
 if __name__ == "__main__":
     import matplotlib.pyplot as plt
@@ -568,15 +617,15 @@ if __name__ == "__main__":
             x = x.reshape(1, -1)
         return np.array([func(xi, k, n_objectives) for xi in x])
 
-
     limits = [np.zeros((n_dims)), np.array(range(1, n_dims + 1)) * 2]
-
     gp_surr_multi = MultiSurrogate(GP, scaled=True)
+    opt = Mpoi(objective_function=test_function, limits=limits, surrogate=gp_surr_multi, n_initial=10, seed=None)
+    print("hello")
     # opt = Saf(objective_function=test_function, ei=True,  limits=limits, surrogate=gp_surr_multi, n_initial=10, seed=None)
-    # opt = Saf(objective_function=test_function, ei=False,  limits=limits, surrogate=gp_surr_multi, n_initial=10, seed=None)
-    # opt = SmsEgo(objective_function=test_function, ei=True,  limits=limits, surrogate=gp_surr_multi, n_initial=10, seed=None)
-    opt = SmsEgo(objective_function=test_function, ei=False,  limits=limits, surrogate=gp_surr_multi, n_initial=10, seed=None)
-    # ans = test_function(opt.x)
+    # # opt = Saf(objective_function=test_function, ei=False,  limits=limits, surrogate=gp_surr_multi, n_initial=10, seed=None)
+    # # opt = SmsEgo(objective_function=test_function, ei=True,  limits=limits, surrogate=gp_surr_multi, n_initial=10, seed=None)
+    # opt = SmsEgo(objective_function=test_function, ei=False,  limits=limits, surrogate=gp_surr_multi, n_initial=10, seed=None)
+    # # ans = test_function(opt.x)
     opt.optimise(n_steps=1)
-    opt.optimise(n_steps=5)
-    print("done")
+    # opt.optimise(n_steps=50)
+    # print("done")
