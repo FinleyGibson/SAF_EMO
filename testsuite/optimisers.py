@@ -75,6 +75,7 @@ class Optimiser:
         evaluates the objective function at these locaitons
         :param n_samples: number of initial samples to make
         """
+        np.random.seed(self.seed)
         x = np.array(lhsmdu.sample(x_dims, n_samples, randomSeed=self.seed)).T\
             * (limits[1]-limits[0])+limits[0]
         try:
@@ -404,33 +405,28 @@ class Saf(BayesianOptimiser):
         return Dq
 
     @optional_inversion
-    def saf_ei(self, x_put: np.ndarray, surrogate: Union[MonoSurrogate, MultiSurrogate],
-                       z_pop: np.array, n_samples: int = 10000,
-                       return_samples=False) \
-            -> Union[np.ndarray, tuple]:
+    def saf_ei(self, y_put: np.ndarray, std_put, n_samples: int = 10000,
+               return_samples=False) -> Union[np.ndarray, tuple]:
 
-        if x_put.ndim == 1:
-            x_put = x_put.reshape(1, -1)
+        if y_put.ndim < 2:
+            y_put = y_put.reshape(1, -1)
+        if std_put.ndim < 2:
+            y_var = std_put.reshape(1, -1)
 
-        assert (x_put.ndim == 2)
-        assert x_put.shape[0] == 1
         # TODO implement multiple point saf_ei computation simultaneously.
 
         # split dominated and non-dominated solutions so far
-        p, d = Pareto_split(z_pop)
-
-        mu_put, var_put = surrogate.predict(x_put)
-        mu_put = mu_put.reshape(-1)
-        var_put = var_put.reshape(-1)
+        p, d = Pareto_split(self.y)
 
         # best saf value observed so far.
-        f_star = np.max(self.saf(z_pop, p))  # should be 0 in current cases
+        f_star = np.max(self.saf(self.y, p))  # should be 0 in current cases
+        assert(f_star == 0)
 
         # sample from surrogate
-        samples = np.array([np.random.normal(mu, var ** 0.5, n_samples)
-                            for mu, var in zip(mu_put, var_put)]).T
+        samples = np.random.normal(0, 1, size=(n_samples, y_put.shape[1])) * \
+                  std_put + y_put
         saf_samples = self.saf(samples, p)
-        saf_samples[saf_samples > f_star] = f_star
+        saf_samples[saf_samples < f_star] = f_star
 
         if return_samples:
             return samples, saf_samples
@@ -439,12 +435,12 @@ class Saf(BayesianOptimiser):
 
     def alpha(self, x_put):
         if self.ei:
-            efficacy_put = self.saf_ei(x_put, self.surrogate, self.y,
-                                       invert=True)
+            y_put, var_put = self.surrogate.predict(x_put)
+            efficacy_put = self.saf_ei(y_put, var_put**0.5, invert=True)
         else:
             p, d = Pareto_split(self.y)
-            y_mean, y_std = self.surrogate.predict(x_put)
-            efficacy_put = self.saf(y_mean, p, invert=True)
+            y_put, var_put = self.surrogate.predict(x_put)
+            efficacy_put = self.saf(y_put, p, invert=True)
         return efficacy_put[0]
 
 
@@ -504,12 +500,12 @@ class SmsEgo(BayesianOptimiser):
         return (max([0, max(l)]))
 
     @optional_inversion
-    def _scalarise_y(self, y_put, y_put_std):
+    def _scalarise_y(self, y_put, y_std):
         # split y into dominated and non-dominated points
         p_inds, d_inds = Pareto_split(self.y, return_indices=True)
 
         # lower confidence bounds
-        lcb = y_put - (self.gain * np.multiply(self.obj_sense, y_put_std))
+        lcb = y_put - (self.gain * np.multiply(self.obj_sense, y_std))
 
         # calculate penalty
         n_pfr = len(p_inds)
@@ -535,11 +531,12 @@ class SmsEgo(BayesianOptimiser):
         return new_hv - self.current_hv
 
     def alpha(self, x_put):
-        yp, stdp = self.surrogate.predict(x_put)
+        y_put, var_put = self.surrogate.predict(x_put)
         if self.ei:
-            return self._scalarise_y(yp, stdp, invert=True)
+            return self._scalarise_y(y_put, var_put**0.5, invert=True)
         else:
-            return self._scalarise_y(yp, np.zeros_like(stdp), invert=True)
+            return self._scalarise_y(y_put, np.zeros_like(var_put**0.5),
+                                     invert=True)
 
 
 class Mpoi(BayesianOptimiser):
@@ -580,8 +577,8 @@ class Mpoi(BayesianOptimiser):
         return res
 
     def alpha(self, x_put):
-        yp, varp = self.surrogate.predict(x_put)
-        efficacy_put = self._scalarise_y(yp, varp ** 0.5, invert=True)
+        y_put, var_put = self.surrogate.predict(x_put)
+        efficacy_put = self._scalarise_y(y_put, var_put ** 0.5, invert=True)
         try:
             return float(efficacy_put)
         except TypeError as e:
@@ -589,6 +586,36 @@ class Mpoi(BayesianOptimiser):
             print("type: ", type(efficacy_put))
             print(efficacy_put)
             raise e
+
+
+class ParEgo(BayesianOptimiser):
+    def __init__(self, *args, s, rho, **kwargs):
+        self.s = s
+        self.rho = rho
+        super().__init__(*args, **kwargs)
+
+    def scalarise_y(self, y_put):
+        """
+        Transform cost functions with augmented chebyshev -- ParEGO infill
+        criterion.
+        See Knowles(2006) for full details.
+
+        Parameters.
+        -----------
+        x (np.array): decision vectors.
+        kwargs (dict): dictionary of options. They are.
+                    's' (int): number of lambda vectors.
+                    'rho' (float): rho from ParEGO
+
+        Returns an array of transformed cost.
+        """
+        y = self.m_obj_eval(x)
+        self.X = x
+        y_norm = self.normalise(y)
+        lambda_i = self.get_lambda(self.s, y.shape[1])
+        new_y = np.max(y_norm * lambda_i, axis=1) + (self.rho * np.dot(y, lambda_i))
+        return np.reshape(-new_y, (-1, 1))
+
 
 if __name__ == "__main__":
     import matplotlib.pyplot as plt

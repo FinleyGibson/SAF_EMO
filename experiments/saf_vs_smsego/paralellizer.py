@@ -46,10 +46,10 @@ surrogate = MultiSurrogate(GP, scaled=True)
 
 optimisers = []
 for n in range(1):
-    optimisers += [Saf(test_function, x_limits, surrogate, n_initial=10, budget=20, seed=n, ei=True, log_dir="./log_data", cmaes_restarts=2),
-                  Saf(test_function, x_limits, surrogate,  n_initial=10, budget=20, seed=n, ei=False, log_dir="./log_data", cmaes_restarts=2),
-                  SmsEgo(test_function, x_limits, surrogate, n_initial=10, budget=20, seed=n, ei=False, log_dir="./log_data", cmaes_restarts=2),
-                  SmsEgo(test_function, x_limits, surrogate, n_initial=10, budget=20, seed=n, ei=True, log_dir="./log_data", cmaes_restarts=2)]
+    optimisers += [Saf(test_function, x_limits, surrogate, n_initial=10, budget=13, seed=n, ei=True, log_dir="./log_data", cmaes_restarts=2),
+                  Saf(test_function, x_limits, surrogate,  n_initial=10, budget=13, seed=n, ei=False, log_dir="./log_data", cmaes_restarts=2),
+                  SmsEgo(test_function, x_limits, surrogate, n_initial=10, budget=13, seed=n, ei=False, log_dir="./log_data", cmaes_restarts=2),
+                  SmsEgo(test_function, x_limits, surrogate, n_initial=10, budget=13, seed=n, ei=True, log_dir="./log_data", cmaes_restarts=2)]
 
 optimisers = [SmsEgo(test_function, x_limits, surrogate, n_initial=10, budget=20, seed=n, ei=True, log_dir="./log_data", cmaes_restarts=2)]
 
