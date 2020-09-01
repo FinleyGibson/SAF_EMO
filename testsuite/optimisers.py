@@ -5,6 +5,7 @@ import time
 import os
 import pickle
 import _csupport as cs
+import uuid
 from typing import Union
 from scipy.stats import norm
 from scipy.special import erf
@@ -70,9 +71,9 @@ class Optimiser:
 
         # set up logging
         self.log_dir = log_dir
-        self.log_filename = self._generate_filename()
         if not os.path.exists(log_dir):
             os.makedirs(self.log_dir)
+        self.log_filename = self._generate_filename()
         self.log_data = None
         self.log_optimisation()
 
@@ -269,13 +270,8 @@ class Optimiser:
             os.makedirs(self.log_dir)
 
         # generate unique filename, accommodating repeat optimisations
-        repeat = -1
-        filename = None
-        while filename is None or os.path.exists(os.path.join(self.log_dir,
-                                                              filename+".pkl")):
-            repeat += 1
-            filename = file_dir+"_{:03d}".format(repeat)
-
+        unique_code = str(uuid.uuid1())
+        filename = file_dir +'seed_{}__'.format(self.seed) + unique_code
         return filename
 
     def _already_evaluated(self, x_put, thresh=1e-9):
@@ -403,9 +399,9 @@ class Saf(BayesianOptimiser):
 
     def _generate_filename(self):
         if self.ei:
-            return super()._generate_filename("saf_ei")
+            return super()._generate_filename("ei")
         else:
-            return super()._generate_filename("saf_mean")
+            return super()._generate_filename("mean")
 
     @staticmethod
     @optional_inversion
@@ -494,9 +490,9 @@ class SmsEgo(BayesianOptimiser):
 
     def _generate_filename(self):
         if self.ei:
-            return super()._generate_filename("smsego_ei")
+            return super()._generate_filename("ei")
         else:
-            return super()._generate_filename("smsego_mean")
+            return super()._generate_filename("mean")
 
     def _penalty(self, y, y_test):
         '''

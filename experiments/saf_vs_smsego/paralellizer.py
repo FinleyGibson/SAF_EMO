@@ -46,10 +46,10 @@ surrogate = MultiSurrogate(GP, scaled=True)
 
 optimisers = []
 for n in range(10):
-    optimisers += [Saf(test_function, x_limits, surrogate, n_initial=10, budget=100, seed=n, ei=True, log_dir="./log_data", cmaes_restarts=2),
-                  Saf(test_function, x_limits, surrogate,  n_initial=10, budget=100, seed=n, ei=False, log_dir="./log_data", cmaes_restarts=2),
-                  SmsEgo(test_function, x_limits, surrogate, n_initial=10, budget=100, seed=n, ei=False, log_dir="./log_data", cmaes_restarts=2),
-                  SmsEgo(test_function, x_limits, surrogate, n_initial=10, budget=100, seed=n, ei=True, log_dir="./log_data", cmaes_restarts=2)]
+    optimisers += [Saf(test_function, x_limits, surrogate, n_initial=10, budget=13, seed=n, ei=True, log_dir="./log_data", cmaes_restarts=2),
+                  Saf(test_function, x_limits, surrogate,  n_initial=10, budget=13, seed=n, ei=False, log_dir="./log_data", cmaes_restarts=2),
+                  SmsEgo(test_function, x_limits, surrogate, n_initial=10, budget=13, seed=n, ei=False, log_dir="./log_data", cmaes_restarts=2),
+                  SmsEgo(test_function, x_limits, surrogate, n_initial=10, budget=13, seed=n, ei=True, log_dir="./log_data", cmaes_restarts=2)]
 
 def objective_function(optimiser):
     optimiser.optimise()
@@ -57,7 +57,7 @@ def objective_function(optimiser):
 ## establish parallel processing pool
 n_proc = mp.cpu_count()
 print("{} processors found".format(n_proc))
-n_proc_cap = 12
+n_proc_cap = 4
 pool = mp.Pool(min(n_proc, n_proc_cap))
 
 pool.map(objective_function, optimisers)
