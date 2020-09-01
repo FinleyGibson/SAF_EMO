@@ -1,5 +1,6 @@
 import numpy as np
 
+
 def optional_inversion(f):
     """decorator to invert the value of a function, and turn maximisation
     problem to minimization problem. Invoke by passing a keyword argument
@@ -16,20 +17,28 @@ def optional_inversion(f):
             return f(*args, **kwargs)
     return wrapper
 
+
 def dominates(a: np.ndarray, b: np.ndarray, maximize: bool = False):
     """
     returns True if a dominates b, else returns False
 
     :param np.ndarray a: dominating query point
-    :param np.ndarray b: dominated query point
+    :param np.ndarray b: dominated query points (n_points, point_dims)
     :param bool maximize: True for finding domination relation in a
     maximisation problem, False for minimisaiton problem.
     :return bool: True if a dominate b, else returns False"
     """
-    if maximize:
-        return np.all(a > b)
+    if len(a) < 2:
+        if maximize:
+            return np.all(a > b)
+        else:
+            return np.all(a < b)
     else:
-        return np.all(a < b)
+        # allows
+        if maximize:
+            return np.any(np.all(a > b))
+        else:
+            return np.any(np.all(a < b))
 
 
 def Pareto_split(data, maximize: bool = False, return_indices=False):

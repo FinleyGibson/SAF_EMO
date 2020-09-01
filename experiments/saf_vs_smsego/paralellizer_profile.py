@@ -44,24 +44,26 @@ def test_function(x):
 ans = fun(np.ones_like(x_limits[0]), k, n_obj)
 surrogate = MultiSurrogate(GP, scaled=True)
 
-optimisers = []
-for n in range(10):
-    optimisers += [Saf(test_function, x_limits, surrogate, n_initial=10, budget=100, seed=n, ei=True, log_dir="./log_data", cmaes_restarts=2),
-                  Saf(test_function, x_limits, surrogate,  n_initial=10, budget=100, seed=n, ei=False, log_dir="./log_data", cmaes_restarts=2),
-                  SmsEgo(test_function, x_limits, surrogate, n_initial=10, budget=100, seed=n, ei=False, log_dir="./log_data", cmaes_restarts=2),
-                  SmsEgo(test_function, x_limits, surrogate, n_initial=10, budget=100, seed=n, ei=True, log_dir="./log_data", cmaes_restarts=2)]
+n=0
+safei_opt = Saf(test_function, x_limits, surrogate, n_initial=10, budget=13, seed=n, ei=True, log_dir="./log_data", cmaes_restarts=0)
+safmu_opt = Saf(test_function, x_limits, surrogate,  n_initial=10, budget=13, seed=n, ei=False, log_dir="./log_data", cmaes_restarts=0)
 
-def objective_function(optimiser):
-    optimiser.optimise()
+smsmu_opt = SmsEgo(test_function, x_limits, surrogate, n_initial=10, budget=13, seed=n, ei=False, log_dir="./log_data", cmaes_restarts=0)
+smsei_opt = SmsEgo(test_function, x_limits, surrogate, n_initial=10, budget=13, seed=n, ei=True, log_dir="./log_data", cmaes_restarts=0)
 
-## establish parallel processing pool
-n_proc = mp.cpu_count()
-print("{} processors found".format(n_proc))
-n_proc_cap = 12
-pool = mp.Pool(min(n_proc, n_proc_cap))
-
-pool.map(objective_function, optimisers)
-
-pool.close()
-print("finished")
+import cProfile
+print("***"*30)
+print("safei: ")
+cProfile.run("safei_opt.optimise()")
+print("***"*30)
+# print("***"*30)
+# print("safmu: ")
+# cProfile.run(safmu_opt.optimise())
+# print("***"*30)
+# print("smsmu: ")
+# cProfile.run(smsmu_opt.optimise())
+# print("***"*30)
+# print("smsei: ")
+# cProfile.run(smsei_opt.optimise())
+# print("***"*30)
 

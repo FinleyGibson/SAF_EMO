@@ -156,7 +156,7 @@ class GP(MonoSurrogate):
         if self.kernel is None:
             # default Matern52 kernel
             self.kernel = GPy.kern.Matern52(input_dim=self.x_dims, variance=1,
-                                            lengthscale=0.2, ARD=True)
+                                            lengthscale=0.2, ARD=False)
         else:
             pass
 

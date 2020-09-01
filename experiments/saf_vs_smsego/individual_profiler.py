@@ -1,3 +1,4 @@
+import time
 import os 
 import numpy as np
 import multiprocessing as mp
@@ -44,24 +45,12 @@ def test_function(x):
 ans = fun(np.ones_like(x_limits[0]), k, n_obj)
 surrogate = MultiSurrogate(GP, scaled=True)
 
-optimisers = []
-for n in range(10):
-    optimisers += [Saf(test_function, x_limits, surrogate, n_initial=10, budget=100, seed=n, ei=True, log_dir="./log_data", cmaes_restarts=2),
-                  Saf(test_function, x_limits, surrogate,  n_initial=10, budget=100, seed=n, ei=False, log_dir="./log_data", cmaes_restarts=2),
-                  SmsEgo(test_function, x_limits, surrogate, n_initial=10, budget=100, seed=n, ei=False, log_dir="./log_data", cmaes_restarts=2),
-                  SmsEgo(test_function, x_limits, surrogate, n_initial=10, budget=100, seed=n, ei=True, log_dir="./log_data", cmaes_restarts=2)]
-
-def objective_function(optimiser):
-    optimiser.optimise()
-
-## establish parallel processing pool
-n_proc = mp.cpu_count()
-print("{} processors found".format(n_proc))
-n_proc_cap = 12
-pool = mp.Pool(min(n_proc, n_proc_cap))
-
-pool.map(objective_function, optimisers)
-
-pool.close()
-print("finished")
-
+tic = time.time()
+n=0
+opt = Saf(test_function, x_limits, surrogate, n_initial=10, budget=13, seed=n, ei=True, log_dir="./log_data", cmaes_restarts=0)
+    # opt = SmsEgo(test_function, x_limits, surrogate, n_initial=10, budget=13, seed=n, ei=True, log_dir="./log_data", cmaes_restarts=0)
+    opt.optimise()
+    
+    assert(opt.log_data["errors"] ==[])
+    
+    print("Done: {}".format(time.time()-tic))

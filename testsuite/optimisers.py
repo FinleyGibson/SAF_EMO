@@ -1,7 +1,7 @@
 import lhsmdu
 import numpy as np
 import cma
-import inspect
+import time
 import os
 import pickle
 import _csupport as cs
@@ -10,7 +10,7 @@ from scipy.stats import norm
 from scipy.special import erf
 from evoalgos.performance import FonsecaHyperVolume
 
-from testsuite.utilities import Pareto_split, optional_inversion
+from testsuite.utilities import Pareto_split, optional_inversion, dominates
 from testsuite.surrogates import GP, MultiSurrogate, MonoSurrogate
 
 
@@ -45,11 +45,18 @@ class Optimiser:
         self.n_evaluations = 0
         self.x_dims = np.shape(limits)[1]
         self.log_interval = log_interval if log_interval else budget
+        self.train_time = 0
 
         # generate initial samples
         self.x, self.y = self.initial_evaluations(n_initial,
                                                   self.x_dims,
                                                   self.limits)
+
+        # computed once and stored for efficiency.
+        self.Pareto_indices = Pareto_split(self.y, return_indices=True)
+        self.p = self.y[self.Pareto_indices[0]]
+        self.d = self.y[self.Pareto_indices[1]]
+
         self.n_objectives = self.y.shape[1]
         # TODO obj_sense currently only allows minimisation of objectives.
         self.obj_sense = [-1]*self.n_objectives
@@ -97,17 +104,19 @@ class Optimiser:
         raise NotImplementedError
 
     def optimise(self, n_steps=None):
+        tic = time.time()
         # unless specified exhaust budget
         if n_steps is None:
             n_steps = self.budget - self.n_initial
 
         for i in range(n_steps):
             self.step()
+        self.train_time += time.time()-tic
 
     @increment_evaluation_count
     def step(self):
         """takes one step in the optimisation, getting the next decision
-        vector by calling the get_next_x method from the child class"""
+        vector by calling the get_next_x method"""
 
         # ensures unique evaluation
         x_new = self.get_next_x()
@@ -159,9 +168,20 @@ class Optimiser:
         # get objective function evaluation for the new point
         y_new = self.objective_function(x_new, *self.of_args)
 
-        # update observations with new observed point
+        # update observations with new observed poin
         self.x = np.vstack((self.x, x_new))
-        self.y = np.vstack((self.y, y_new))
+        # update pareto indices without having to costly Pareto_split
+        # again if the new point is dominated.
+        if dominates(self.y, y_new):
+            self.Pareto_indices[1] = np.append(self.Pareto_indices[1],
+                                               self.n_evaluations)
+            self.y = np.vstack((self.y, y_new))
+        else:
+            self.y = np.vstack((self.y, y_new))
+            self.Pareto_indices = Pareto_split(self.y, return_indices=True)
+
+        self.p = self.y[self.Pareto_indices[0]]
+        self.d = self.y[self.Pareto_indices[1]]
         self.current_hv = self._compute_hypervolume()
 
     def log_optimisation(self, save=False):
@@ -176,6 +196,7 @@ class Optimiser:
             self.log_data["y"] = self.y
             self.log_data["hypervolume"].append(self.current_hv)
             self.log_data["n_evaluations"] = self.n_evaluations
+            self.log_data["train_time"] = self.train_time
         except TypeError:
             # initial information logging called by Optimiser __init__
             log_data = {"objective_function": self.objective_function.__name__,
@@ -189,7 +210,8 @@ class Optimiser:
                         "log_filename": self.log_filename,
                         "n_evaluations": self.n_evaluations,
                         "budget": self.budget,
-                        "errors": []
+                        "errors": [],
+                        "train_time": self.train_time
                         }
             self.log_data = log_data
 
@@ -204,11 +226,17 @@ class Optimiser:
         Calcualte the current hypervolume, or that of the provided y.
         """
         if y is None:
-            y = self.y
+            y = self.p
 
         if self.n_objectives > 1:
-            front = Pareto_split(y, return_indices=False)[0]
-            volume = self.hpv.assess_non_dom_front(front)
+            try:
+                # handles instances where there is a single front point
+                # without having to check front.ndim==2 or reshape each
+                # time
+                volume = self.hpv.assess_non_dom_front(y)
+            except AttributeError:
+                volume = self.hpv.assess_non_dom_front(y.reshape(1, -1))
+
             return volume
         else:
             return np.min(y)
@@ -394,8 +422,6 @@ class Saf(BayesianOptimiser):
         :return np.array: numpy array of saf distances between points in
         X and saf defined by P, shape[X.shape]
         """
-        # check dimensionality of P is the same as that for X
-        assert p.shape[1] == y.shape[1]
 
         D = np.zeros((y.shape[0], p.shape[0]))
 
@@ -415,17 +441,15 @@ class Saf(BayesianOptimiser):
 
         # TODO implement multiple point saf_ei computation simultaneously.
 
-        # split dominated and non-dominated solutions so far
-        p, d = Pareto_split(self.y)
-
         # best saf value observed so far.
-        f_star = np.max(self.saf(self.y, p))  # should be 0 in current cases
-        assert(f_star == 0)
+        # f_star = np.max(self.saf(self.y, p))  # should be 0 in current cases
+        f_star = 0.
 
         # sample from surrogate
-        samples = np.random.normal(0, 1, size=(n_samples, y_put.shape[1])) * \
-                  std_put + y_put
-        saf_samples = self.saf(samples, p)
+        samples = np.random.normal(0, 1, size=(n_samples, y_put.shape[1])) \
+                  * std_put + y_put
+
+        saf_samples = self.saf(samples, self.p)
         saf_samples[saf_samples < f_star] = f_star
 
         if return_samples:
@@ -438,10 +462,12 @@ class Saf(BayesianOptimiser):
             y_put, var_put = self.surrogate.predict(x_put)
             efficacy_put = self.saf_ei(y_put, var_put**0.5, invert=True)
         else:
-            p, d = Pareto_split(self.y)
             y_put, var_put = self.surrogate.predict(x_put)
-            efficacy_put = self.saf(y_put, p, invert=True)
-        return efficacy_put[0]
+            efficacy_put = self.saf(y_put, self.p, invert=True)
+        try:
+            return efficacy_put[0]
+        except IndexError:
+            return efficacy_put
 
 
 class SmsEgo(BayesianOptimiser):
@@ -485,8 +511,7 @@ class SmsEgo(BayesianOptimiser):
         Returns a penalty value.
         '''
         # TODO check this maths against paper.
-        p_inds, d_inds = Pareto_split(self.y)
-        n_pfr = len(p_inds)
+        n_pfr = len(self.p)
         c = 1 - (1/2**self.n_objectives)
         b_count = self.budget - len(self.x) - 1
 
@@ -501,15 +526,14 @@ class SmsEgo(BayesianOptimiser):
 
     @optional_inversion
     def _scalarise_y(self, y_put, y_std):
-        # split y into dominated and non-dominated points
-        p_inds, d_inds = Pareto_split(self.y, return_indices=True)
-
         # lower confidence bounds
         lcb = y_put - (self.gain * np.multiply(self.obj_sense, y_std))
 
         # calculate penalty
-        n_pfr = len(p_inds)
+        n_pfr = len(self.p)
         c = 1 - (1 / 2 ** self.n_objectives)
+
+        current_hv = self._compute_hypervolume()
 
         # TODO is b_count supposed to be the remaining budget?
         b_count = self.budget - self.n_evaluations -1
@@ -528,7 +552,7 @@ class SmsEgo(BayesianOptimiser):
         # new front
         new_hv = self._compute_hypervolume(np.vstack((self.y, lcb)))
 
-        return new_hv - self.current_hv
+        return new_hv - current_hv
 
     def alpha(self, x_put):
         y_put, var_put = self.surrogate.predict(x_put)
@@ -568,10 +592,9 @@ class Mpoi(BayesianOptimiser):
         assert(y_put.ndim > 1)
         assert(std_put.ndim > 1)
 
-        p = Pareto_split(self.y)[0]
         res = np.zeros((y_put.shape[0], 1))
         for i in range(y_put.shape[0]):
-            m = (y_put[i] - p) / (np.sqrt(2) * std_put[i])
+            m = (y_put[i] - self.p) / (np.sqrt(2) * std_put[i])
             pdom = 1 - np.prod(0.5 * (1 + erf(m)), axis=1)
             res[i] = np.min(pdom)
         return res
@@ -646,13 +669,13 @@ if __name__ == "__main__":
 
     limits = [np.zeros((n_dims)), np.array(range(1, n_dims + 1)) * 2]
     gp_surr_multi = MultiSurrogate(GP, scaled=True)
-    opt = Mpoi(objective_function=test_function, limits=limits, surrogate=gp_surr_multi, n_initial=10, seed=None)
+    # opt = Mpoi(objective_function=test_function, limits=limits, surrogate=gp_surr_multi, n_initial=10, seed=None)
     print("hello")
-    # opt = Saf(objective_function=test_function, ei=True,  limits=limits, surrogate=gp_surr_multi, n_initial=10, seed=None)
+    opt = Saf(objective_function=test_function, ei=True,  limits=limits, surrogate=gp_surr_multi, n_initial=10, seed=None)
     # # opt = Saf(objective_function=test_function, ei=False,  limits=limits, surrogate=gp_surr_multi, n_initial=10, seed=None)
     # # opt = SmsEgo(objective_function=test_function, ei=True,  limits=limits, surrogate=gp_surr_multi, n_initial=10, seed=None)
     # opt = SmsEgo(objective_function=test_function, ei=False,  limits=limits, surrogate=gp_surr_multi, n_initial=10, seed=None)
     # # ans = test_function(opt.x)
-    opt.optimise(n_steps=1)
+    opt.optimise(n_steps=5)
     # opt.optimise(n_steps=50)
     # print("done")
