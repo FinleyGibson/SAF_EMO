@@ -7,11 +7,9 @@ def optional_inversion(f):
     invert=True to the decorated function"""
     def wrapper(*args, **kwargs):
         try:
-            if kwargs["invert"] is True:
-                del(kwargs["invert"])
+            if kwargs.pop("invert") is True:
                 return -f(*args, **kwargs)
             else:
-                del(kwargs["invert"])
                 return f(*args, **kwargs)
         except KeyError:
             return f(*args, **kwargs)

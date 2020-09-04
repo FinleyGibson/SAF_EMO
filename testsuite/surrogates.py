@@ -246,18 +246,16 @@ class MultiSurrogate:
         self.n_objectives = self.y.shape[1]
 
     def predict(self, xi):
-        if xi.ndim == 1:
-            xi = xi.reshape(1,-1)
-        try:
-            # TODO change to evaluate both mean and var in a single call
-            #  to surrogate.predict() for improved efficiency
-            predictions = (np.array([surrogate.predict(xi)[0] for surrogate in
-                                     self.surrogates]).squeeze(-1).T,
-                           np.array([surrogate.predict(xi)[1] for surrogate in
-                                     self.surrogates]).squeeze(-1).T)
-        except:
-            raise
-        return predictions
+        # try:
+        # TODO change to evaluate both mean and var in a single call
+        #  to surrogate.predict() for improved efficiency
+        predictions = np.array([surrogate.predict(xi) for surrogate in
+                                self.surrogates]).squeeze(-1).swapaxes(1, 2).T
+
+        return predictions[0], predictions[1]
+        # except:
+        #     xi = xi.reshape(1, -1)
+        #     self.predict(xi)
 
 
 if __name__ == "__main__":

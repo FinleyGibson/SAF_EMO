@@ -6,6 +6,7 @@ import os
 import pickle
 import _csupport as cs
 import uuid
+import itertools
 from typing import Union
 from scipy.stats import norm
 from scipy.special import erf
@@ -46,7 +47,7 @@ class Optimiser:
         self.n_evaluations = 0
         self.x_dims = np.shape(limits)[1]
         self.log_interval = log_interval if log_interval else budget
-        self.train_time = 0
+        self.train_time = 0.
 
         # generate initial samples
         self.x, self.y = self.initial_evaluations(n_initial,
@@ -54,6 +55,8 @@ class Optimiser:
                                                   self.limits)
 
         # computed once and stored for efficiency.
+        # TODO possibly more efficient to compute dominance matrix and
+        #  build on that with each new point
         self.Pareto_indices = Pareto_split(self.y, return_indices=True)
         self.p = self.y[self.Pareto_indices[0]]
         self.d = self.y[self.Pareto_indices[1]]
@@ -62,7 +65,6 @@ class Optimiser:
         # TODO obj_sense currently only allows minimisation of objectives.
         self.obj_sense = [-1]*self.n_objectives
 
-        # TODO only allows for minimisation problems
         # if no ref_vector provided, use max of initial evaluations
         self.ref_vector = ref_vector if ref_vector else self.y.max(axis=0)
         self.hpv = FonsecaHyperVolume(self.ref_vector) # used to find hypervolume
@@ -105,20 +107,19 @@ class Optimiser:
         raise NotImplementedError
 
     def optimise(self, n_steps=None):
-        tic = time.time()
         # unless specified exhaust budget
         if n_steps is None:
             n_steps = self.budget - self.n_initial
 
         for i in range(n_steps):
             self.step()
-        self.train_time += time.time()-tic
 
     @increment_evaluation_count
     def step(self):
         """takes one step in the optimisation, getting the next decision
         vector by calling the get_next_x method"""
 
+        tic = time.time()   # calculate optimisation time.
         # ensures unique evaluation
         x_new = self.get_next_x()
         try_count = 0
@@ -134,13 +135,13 @@ class Optimiser:
             # Error#01 -> failed to find a unique solution after 3 optimsations
             # of the acquisition function
             self.log_data["errors"].append(
-                "Error#01: Failed to find unique new solution at eval {}"
-                .format(self.n_evaluations+1))
+                "Error#01: Failed to find unique new solution at eval {} "
+                "seed:{}".format(self.n_evaluations+1, self.seed))
         elif try_count > 1 and not self._already_evaluated(x_new):
             # Error#02 -> required repeats to find a unique solution
             self.log_data["errors"].append(
-                "Error#02: Took {} attempts to find unique solution at eval {}"
-                .format(try_count, self.n_evaluations+1))
+                "Error#02: Took {} attempts to find unique solution at eval "
+                "{} seed:{}".format(try_count, self.n_evaluations+1, self.seed))
 
         try_count = 0
         while self._already_evaluated(x_new):
@@ -184,6 +185,7 @@ class Optimiser:
         self.p = self.y[self.Pareto_indices[0]]
         self.d = self.y[self.Pareto_indices[1]]
         self.current_hv = self._compute_hypervolume()
+        self.train_time += time.time()-tic
 
     def log_optimisation(self, save=False):
         """
@@ -427,7 +429,7 @@ class Saf(BayesianOptimiser):
         return Dq
 
     @optional_inversion
-    def saf_ei(self, y_put: np.ndarray, std_put, n_samples: int = 10000,
+    def saf_ei(self, y_put: np.ndarray, std_put, n_samples: int = 1000,
                return_samples=False) -> Union[np.ndarray, tuple]:
 
         if y_put.ndim < 2:
@@ -613,7 +615,45 @@ class ParEgo(BayesianOptimiser):
         self.rho = rho
         super().__init__(*args, **kwargs)
 
-    def scalarise_y(self, y_put):
+    def normalise(self, y):
+        """
+        Normalise cost functions. Here we use estimated limits from data in
+        normalisation as suggested by Knowles (2006).
+
+        Parameters.
+        -----------
+        y (np.array): matrix of function values.
+
+        Returns normalised function values.
+        """
+        min_y = np.min(y, axis=0)
+        max_y = np.max(y, axis=0)
+        return (y - min_y) / (max_y - min_y)
+
+    def get_lambda(self, s, n_obj):
+        """
+        Select a lambda vector. See Knowles(2006) for full details.
+
+        Parameters.
+        -----------
+        s (int): determine total number of vectors: from (s+k-1) choose (k-1)
+                    vectors.
+        n_obj (int): number of objectvies.
+
+        Returns a selected lambda vector.
+        """
+        try:
+            self.l_set
+        except:
+            l = [np.arange(s + 1, dtype=int) for i in range(n_obj)]
+            self.l_set = np.array([np.array(i) \
+                                   for i in itertools.product(*l) if
+                                   np.sum(i) == s]) / s
+            print("Number of scalarising vectors: ", self.l_set.shape[0])
+        ind = np.random.choice(np.arange(self.l_set.shape[0], dtype=int))
+        return self.l_set[ind]
+
+    def scalarise_y(self, x, kwargs={}):
         """
         Transform cost functions with augmented chebyshev -- ParEGO infill
         criterion.
@@ -667,11 +707,14 @@ if __name__ == "__main__":
     gp_surr_multi = MultiSurrogate(GP, scaled=True)
     # opt = Mpoi(objective_function=test_function, limits=limits, surrogate=gp_surr_multi, n_initial=10, seed=None)
     print("hello")
-    opt = Saf(objective_function=test_function, ei=True,  limits=limits, surrogate=gp_surr_multi, n_initial=10, seed=None)
-    # # opt = Saf(objective_function=test_function, ei=False,  limits=limits, surrogate=gp_surr_multi, n_initial=10, seed=None)
+    # opt = Saf(objective_function=test_function, ei=True,  limits=limits, surrogate=gp_surr_multi, n_initial=10, budget=12, seed=None)
+    opt = Saf(objective_function=test_function, ei=False,  limits=limits, surrogate=gp_surr_multi, n_initial=10, seed=None)
     # # opt = SmsEgo(objective_function=test_function, ei=True,  limits=limits, surrogate=gp_surr_multi, n_initial=10, seed=None)
     # opt = SmsEgo(objective_function=test_function, ei=False,  limits=limits, surrogate=gp_surr_multi, n_initial=10, seed=None)
+    # opt = ParEgo(objective_function=test_function, limits=limits, surrogate=GP(), n_initial=10, s=5, rho=0.5)
+
     # # ans = test_function(opt.x)
-    opt.optimise(n_steps=5)
+    opt.optimise()
     # opt.optimise(n_steps=50)
     # print("done")
+    pass
