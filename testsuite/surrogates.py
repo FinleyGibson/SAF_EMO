@@ -233,6 +233,8 @@ class MultiSurrogate:
         # check dimensions of data
         assert(x.ndim == 2)
         assert(y.ndim == 2)
+        print(x.shape)
+        print(y.shape)
         assert(x.shape[0] == y.shape[0])
 
         if not self.surrogates:

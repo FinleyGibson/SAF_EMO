@@ -415,13 +415,23 @@ class BayesianOptimiser(Optimiser):
         assert NotImplementedError
 
     def log_optimisation(self, save=False):
-        try:
-            save_models = self.surrogate.save_models
-            multi_surrogate = False
-        except AttributeError:
+
+        # establishh whether models shold be saved
+        if isinstance(self.surrogate, MultiSurrogate):
             # multi-surrogate case
             multi_surrogate = True
-            save_models = self.surrogate.surrogate_kwargs["save_models"]
+            try:
+                save_models = self.surrogate.surrogates[0].save_models
+            except AttributeError:
+                save_models = False
+        else:
+            # mono-surrogate case
+            multi_surrogate = False
+            try:
+                save_models = self.surrogate.save_models
+            except AttributeError:
+                save_models = False
+
 
         if save_models:
             # add model data to log_data if requested by save_models
@@ -489,7 +499,7 @@ class Saf(BayesianOptimiser):
         Dq = np.min(D, axis=1)
         return Dq
 
-    @optional_inversion
+    # @optional_inversion
     def saf_ei(self, y_put: np.ndarray, std_put, n_samples: int = 1000,
                return_samples=False) -> Union[np.ndarray, tuple]:
 
@@ -508,8 +518,8 @@ class Saf(BayesianOptimiser):
         samples = np.random.normal(0, 1, size=(n_samples, y_put.shape[1])) \
                   * std_put + y_put
 
-        saf_samples = self.saf(samples, self.p)
-        saf_samples[saf_samples < f_star] = f_star
+        saf_samples = self.saf(samples, self.p, invert=True)
+        saf_samples[saf_samples > f_star] = f_star
 
         if return_samples:
             return samples, saf_samples
@@ -519,7 +529,7 @@ class Saf(BayesianOptimiser):
     def alpha(self, x_put):
         if self.ei:
             y_put, var_put = self.surrogate.predict(x_put)
-            efficacy_put = self.saf_ei(y_put, var_put**0.5, invert=True)
+            efficacy_put = self.saf_ei(y_put, var_put**0.5)
         else:
             y_put, var_put = self.surrogate.predict(x_put)
             efficacy_put = self.saf(y_put, self.p, invert=True)
