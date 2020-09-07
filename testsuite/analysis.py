@@ -101,11 +101,17 @@ def plot_measure(results, measure, axis=None, label=None, plot_individuals=False
         n_inital = results["n_initial"][0]
         bo_steps = range(n_inital, array_hvs.shape[1]+n_inital)
         # plot mean and standard deviations
-        axis.plot(bo_steps, np.mean(array_hvs, axis=0), linestyle="-", c=color,
+        axis.plot(bo_steps, np.median(array_hvs, axis=0), linestyle="-", c=color,
                   alpha=1., label=label)
+        # axis.fill_between(bo_steps,
+        #                   np.mean(array_hvs, axis=0) - np.std(array_hvs, axis=0),
+        #                   np.mean(array_hvs, axis=0) + np.std(array_hvs, axis=0),
+        #                   color=color, alpha=0.2)
+        lower_qa = np.array([np.quantile(i, 0.25) for i in np.array(array_hvs).T])
+        upper_qa = np.array([np.quantile(i, 0.75) for i in np.array(array_hvs).T])
         axis.fill_between(bo_steps,
-                          np.mean(array_hvs, axis=0) - np.std(array_hvs, axis=0),
-                          np.mean(array_hvs, axis=0) + np.std(array_hvs, axis=0),
+                          lower_qa,
+                          upper_qa,
                           color=color, alpha=0.2)
 
     if axis is None:

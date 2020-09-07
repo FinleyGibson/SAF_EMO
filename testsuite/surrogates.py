@@ -131,7 +131,7 @@ class MonoSurrogate:
 
 
 class GP(MonoSurrogate):
-    def __init__(self, kernel=None, scaled=True):
+    def __init__(self, kernel=None, scaled=True, save_models=False):
         """
         Class for Gaussian Process surrogates.
 
@@ -140,7 +140,10 @@ class GP(MonoSurrogate):
         before fitting GP. This generally improves performance.
         """
         self.kernel = kernel
+        self.save_models = save_models
         super().__init__(scaled=scaled)
+        if save_models:
+            self.ms = []
 
     def update(self, x, y):
         """
@@ -165,6 +168,8 @@ class GP(MonoSurrogate):
         self.model['.*variance'].constrain_bounded(1e-5, 1e5)
         self.model['.*noise'].constrain_fixed(1e-20)
         self._fit_kernel()
+        if self.save_models:
+            self.ms.append(self.model)
 
     def _fit_kernel(self):
         """

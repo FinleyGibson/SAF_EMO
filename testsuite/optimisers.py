@@ -53,6 +53,8 @@ class Optimiser:
         self.x, self.y = self.initial_evaluations(n_initial,
                                                   self.x_dims,
                                                   self.limits)
+        # update surrogate
+        self.surrogate.update(self.x, self.y)
 
         # computed once and stored for efficiency.
         # TODO possibly more efficient to compute dominance matrix and
@@ -122,17 +124,41 @@ class Optimiser:
         tic = time.time()   # calculate optimisation time.
         # ensures unique evaluation
         x_new = self.get_next_x()
+
         try_count = 0
         aa = self._already_evaluated(x_new)
         while self._already_evaluated(x_new) and try_count < 3:
             # repeats optimisation of the acquisition function up to
             # three times to try and find a unique solution.
+
+            # logs models which produced errors.
+            # TODO: Remove this once problem solved.
+            try:
+                if self.surrogate.save_models:
+                    try:
+                        self.log_data["error models"].append(
+                            self.surrogate.model)
+                    except KeyError:
+                        self.log_data["error models"] = [self.surrogate.model]
+            except AttributeError:
+                # multi-surrogate case
+                try:
+                    self.log_data["error models"].append(
+                        [surrogate.model for surrogate in
+                         self.surrogate.surrogates])
+                except KeyError:
+                    self.log_data["error models"] = [
+                        [surrogate.model for surrogate in
+                         self.surrogate.surrogates]]
+                except AttributeError:
+                    pass
+
             x_new = self.get_next_x()
             try_count += 1
 
         if try_count > 1 and self._already_evaluated(x_new):
             # TODO error handling like this to be removed. Dev use only
-            # Error#01 -> failed to find a unique solution after 3 optimsations
+            # Error#01 -> failed to find a unique solution after 3 optimisations
             # of the acquisition function
             self.log_data["errors"].append(
                 "Error#01: Failed to find unique new solution at eval {} "
@@ -187,10 +213,16 @@ class Optimiser:
         self.current_hv = self._compute_hypervolume()
         self.train_time += time.time()-tic
 
-    def log_optimisation(self, save=False):
+    def log_optimisation(self, save=False, **kwargs):
         """
         updates dictionary of saved optimisation information and saves
-        to disk.
+        to disk, including keyword arguments pased by the child class
+        in the log_data dict.
+
+        :param bool save: Save to disk if True
+        :param kwargs: dictionary of keyword arguments to include in
+        log_data
+        :return: N/A
         """
         try:
             # log modifications each self.log_interval steps. Called in
@@ -200,6 +232,9 @@ class Optimiser:
             self.log_data["hypervolume"].append(self.current_hv)
             self.log_data["n_evaluations"] = self.n_evaluations
             self.log_data["train_time"] = self.train_time
+            for key, value in kwargs.items():
+                self.log_data[key] = value
+
         except TypeError:
             # initial information logging called by Optimiser __init__
             log_data = {"objective_function": self.objective_function.__name__,
@@ -216,6 +251,7 @@ class Optimiser:
                         "errors": [],
                         "train_time": self.train_time
                         }
+            log_data.update(kwargs)
             self.log_data = log_data
 
         # save log_data to file.
@@ -377,6 +413,31 @@ class BayesianOptimiser(Optimiser):
 
     def alpha(self, x_put):
         assert NotImplementedError
+
+    def log_optimisation(self, save=False):
+        try:
+            save_models = self.surrogate.save_models
+            multi_surrogate = False
+        except AttributeError:
+            # multi-surrogate case
+            multi_surrogate = True
+            save_models = self.surrogate.surrogate_kwargs["save_models"]
+
+        if save_models:
+            # add model data to log_data if requested by save_models
+            if multi_surrogate:
+                super().log_optimisation(
+                    save=save,
+                    surrogate_models=[surrogate.ms for surrogate in self
+                                                 .surrogate.surrogates])
+            else:
+                super().log_optimisation(
+                    save=save,
+                    surrogate_models = self.surrogate.ms)
+
+        else:
+            super().log_optimisation(
+                save=save)
 
 
 class Saf(BayesianOptimiser):
@@ -704,13 +765,13 @@ if __name__ == "__main__":
         return np.array([func(xi, k, n_objectives) for xi in x])
 
     limits = [np.zeros((n_dims)), np.array(range(1, n_dims + 1)) * 2]
-    gp_surr_multi = MultiSurrogate(GP, scaled=True)
+    gp_surr_multi = MultiSurrogate(GP, scaled=True, save_models=True)
+    gp_surr_mono = GP(scaled=True, save_models=True)
     # opt = Mpoi(objective_function=test_function, limits=limits, surrogate=gp_surr_multi, n_initial=10, seed=None)
-    print("hello")
     # opt = Saf(objective_function=test_function, ei=True,  limits=limits, surrogate=gp_surr_multi, n_initial=10, budget=12, seed=None)
-    opt = Saf(objective_function=test_function, ei=False,  limits=limits, surrogate=gp_surr_multi, n_initial=10, seed=None)
+    opt = Saf(objective_function=test_function, ei=False,  limits=limits, surrogate=gp_surr_mono, n_initial=10, budget=20, seed=None)
     # # opt = SmsEgo(objective_function=test_function, ei=True,  limits=limits, surrogate=gp_surr_multi, n_initial=10, seed=None)
-    # opt = SmsEgo(objective_function=test_function, ei=False,  limits=limits, surrogate=gp_surr_multi, n_initial=10, seed=None)
+    # opt = SmsEgo(objective_function=test_function, ei=False,  limits=limits, surrogate=gp_surr_multi, n_initial=10, seed=17, budget=100)
     # opt = ParEgo(objective_function=test_function, limits=limits, surrogate=GP(), n_initial=10, s=5, rho=0.5)
 
     # # ans = test_function(opt.x)

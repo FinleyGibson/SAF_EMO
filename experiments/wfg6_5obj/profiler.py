@@ -45,10 +45,10 @@ ans = fun(np.ones_like(x_limits[0]), k, n_obj)
 surrogate = MultiSurrogate(GP, scaled=True)
 
 n = 0
-opt =  Saf(test_function, x_limits, surrogate, n_initial=10, budget=12, seed=n, ei=True, log_dir="./log_data", cmaes_restarts=2)
+# opt =  Saf(test_function, x_limits, surrogate, n_initial=80, budget=82, seed=n, ei=True, log_dir="./log_data", cmaes_restarts=2)
 # opt =  Saf(test_function, x_limits, surrogate,  n_initial=80, budget=82, seed=n, ei=False, log_dir="./log_data", cmaes_restarts=2)
 # opt =  SmsEgo(test_function, x_limits, surrogate, n_initial=80, budget=82, seed=n, ei=False, log_dir="./log_data", cmaes_restarts=2)
-# opt =  SmsEgo(test_function, x_limits, surrogate, n_initial=10, budget=12, seed=n, ei=True, log_dir="./log_data", cmaes_restarts=2)
+opt =  SmsEgo(test_function, x_limits, surrogate, n_initial=80, budget=82, seed=n, ei=True, log_dir="./log_data", cmaes_restarts=2)
 
 opt.optimise()
-
+print("DONE: {}".format(opt.log_data["train_time"]))

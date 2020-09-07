@@ -12,6 +12,7 @@ def optional_inversion(f):
             else:
                 return f(*args, **kwargs)
         except KeyError:
+            # if no invert argument is passed.
             return f(*args, **kwargs)
     return wrapper
 
