@@ -134,22 +134,22 @@ class Optimiser:
             # logs models which produced errors.
             # TODO: Remove this once problem solved.
             try:
-                if self.surrogate.save_models:
-                    try:
-                        self.log_data["error models"].append(
-                            self.surrogate.model)
-                    except KeyError:
-                        self.log_data["error models"] = [self.surrogate.model]
+                try:
+                    self.log_data["error models"].append(
+                        self.surrogate.model.copy())
+                except KeyError:
+                    self.log_data["error models"] =\
+                        [self.surrogate.model.copy()]
             except AttributeError:
                 # multi-surrogate case
                 try:
                     self.log_data["error models"].append(
-                        [surrogate.model for surrogate in
-                         self.surrogate.surrogates])
+                        [surrogate.model.copy() for surrogate in
+                         self.surrogate.mono_surrogates])
                 except KeyError:
                     self.log_data["error models"] = [
-                        [surrogate.model for surrogate in
-                         self.surrogate.surrogates]]
+                        [surrogate.model.copy() for surrogate in
+                         self.surrogate.mono_surrogates]]
                 except AttributeError:
                     pass
 
@@ -330,18 +330,20 @@ class Optimiser:
 
 
 class BayesianOptimiser(Optimiser):
-    def __init__(self, objective_function, limits, surrogate,
-                 of_args=[], n_initial=10, budget=30, seed=None, ref_vector=None,
-                 log_dir="./log_data", log_interval=None,
-                 cmaes_restarts=0):
+    def __init__(self, *args, surrogate, cmaes_restarts=0, log_models=False,
+                 **kwargs):
 
         self.surrogate = surrogate
+        self.log_models = log_models
+        if isinstance(surrogate, MultiSurrogate):
+            self.multi_surrogate = True
+        else:
+            self.multi_surrogate = False
 
-        super().__init__(objective_function=objective_function, limits=limits,
-                         of_args=of_args, n_initial=n_initial, budget=budget,
-                         seed=seed, ref_vector=ref_vector, log_dir=log_dir,
-                         log_interval=log_interval)
+        if self.log_models:
+            self.model_log = []
 
+        super().__init__(*args, **kwargs)
         self.cmaes_restarts = cmaes_restarts
 
     def _generate_filename(self, *args):
@@ -355,6 +357,15 @@ class BayesianOptimiser(Optimiser):
             # mono-surrogate
             return super()._generate_filename(
                 self.surrogate.__class__.__name__, *args)
+
+    def step(self, *args, **kwargs):
+        super().step(*args, **kwargs)
+        if self.log_models:
+            if self.multi_surrogate:
+                self.model_log.append([surrogate.model.copy() for surrogate in
+                                         self.surrogate.mono_surrogates])
+            else:
+                self.model_log.append(self.surrogate.model.copy())
 
     def get_next_x(self, excluded_indices=None):
         """
@@ -409,6 +420,7 @@ class BayesianOptimiser(Optimiser):
 
             x_new = np.array(search_points[res_index:res_index + 1])
 
+        return self.x[0]
         return x_new.reshape(1, -1)
 
     def alpha(self, x_put):
@@ -416,59 +428,19 @@ class BayesianOptimiser(Optimiser):
 
     def log_optimisation(self, save=False):
 
-        # establishh whether models shold be saved
-        if isinstance(self.surrogate, MultiSurrogate):
-            # multi-surrogate case
-            multi_surrogate = True
-            try:
-                save_models = self.surrogate.surrogates[0].save_models
-            except AttributeError:
-                save_models = False
-        else:
-            # mono-surrogate case
-            multi_surrogate = False
-            try:
-                save_models = self.surrogate.save_models
-            except AttributeError:
-                save_models = False
-
-
-        if save_models:
+        if self.log_models:
             # add model data to log_data if requested by save_models
-            if multi_surrogate:
-                super().log_optimisation(
-                    save=save,
-                    surrogate_models=[surrogate.ms for surrogate in self
-                                                 .surrogate.surrogates])
-            else:
-                super().log_optimisation(
-                    save=save,
-                    surrogate_models = self.surrogate.ms)
-
+            super().log_optimisation(save=save,
+                                     surrogate_models=self.model_log)
         else:
-            super().log_optimisation(
-                save=save)
+            super().log_optimisation(save=save)
 
 
 class Saf(BayesianOptimiser):
-    def __init__(self, objective_function, limits, surrogate,
-                 of_args=[], n_initial=10, budget=30, seed=None, ref_vector=None,
-                 ei=True, log_dir="./log_data", log_interval=None,
-                 cmaes_restarts=0):
+    def __init__(self, *args, ei, **kwargs):
 
         self.ei = ei
-
-        super().__init__(objective_function=objective_function,
-                         limits=limits,
-                         surrogate=surrogate,
-                         of_args=of_args,
-                         n_initial=n_initial,
-                         budget=budget,
-                         seed=seed,
-                         ref_vector=ref_vector,
-                         log_dir=log_dir,
-                         log_interval=log_interval,
-                         cmaes_restarts=cmaes_restarts)
+        super().__init__(*args, **kwargs)
 
     def _generate_filename(self):
         if self.ei:
@@ -602,8 +574,6 @@ class SmsEgo(BayesianOptimiser):
         n_pfr = len(self.p)
         c = 1 - (1 / 2 ** self.n_objectives)
 
-        current_hv = self._compute_hypervolume()
-
         # TODO is b_count supposed to be the remaining budget?
         b_count = self.budget - self.n_evaluations -1
         epsilon = (np.max(self.y, axis=0) - np.min(self.y, axis=0)) / (
@@ -618,10 +588,11 @@ class SmsEgo(BayesianOptimiser):
         if penalty > 0:
             return -penalty
 
-        # new front
-        new_hv = self._compute_hypervolume(np.vstack((self.y, lcb)))
+        # compute and update hypervolumes
+        current_hv = self.current_hv
+        put_hv = self._compute_hypervolume(np.vstack((self.p, lcb)))
 
-        return new_hv - current_hv
+        return put_hv - current_hv
 
     def alpha(self, x_put):
         y_put, var_put = self.surrogate.predict(x_put)
@@ -775,17 +746,18 @@ if __name__ == "__main__":
         return np.array([func(xi, k, n_objectives) for xi in x])
 
     limits = [np.zeros((n_dims)), np.array(range(1, n_dims + 1)) * 2]
-    gp_surr_multi = MultiSurrogate(GP, scaled=True, save_models=True)
-    gp_surr_mono = GP(scaled=True, save_models=True)
+    gp_surr_multi = MultiSurrogate(GP, scaled=True)
+    gp_surr_mono = GP(scaled=True)
     # opt = Mpoi(objective_function=test_function, limits=limits, surrogate=gp_surr_multi, n_initial=10, seed=None)
     # opt = Saf(objective_function=test_function, ei=True,  limits=limits, surrogate=gp_surr_multi, n_initial=10, budget=12, seed=None)
-    opt = Saf(objective_function=test_function, ei=False,  limits=limits, surrogate=gp_surr_mono, n_initial=10, budget=20, seed=None)
+    opt = Saf(objective_function=test_function, ei=False,  limits=limits, surrogate=gp_surr_multi, n_initial=10, budget=20, seed=None, log_models=True, log_interval=1)
     # # opt = SmsEgo(objective_function=test_function, ei=True,  limits=limits, surrogate=gp_surr_multi, n_initial=10, seed=None)
     # opt = SmsEgo(objective_function=test_function, ei=False,  limits=limits, surrogate=gp_surr_multi, n_initial=10, seed=17, budget=100)
     # opt = ParEgo(objective_function=test_function, limits=limits, surrogate=GP(), n_initial=10, s=5, rho=0.5)
 
     # # ans = test_function(opt.x)
-    opt.optimise()
-    # opt.optimise(n_steps=50)
+    opt.optimise(n_steps=1)
+    opt.optimise(n_steps=1)
+    opt.optimise(n_steps=10)
     # print("done")
-    pass
+    print(opt.saved_models[0])

@@ -131,7 +131,7 @@ class MonoSurrogate:
 
 
 class GP(MonoSurrogate):
-    def __init__(self, kernel=None, scaled=True, save_models=False):
+    def __init__(self, kernel=None, scaled=True):
         """
         Class for Gaussian Process surrogates.
 
@@ -140,10 +140,7 @@ class GP(MonoSurrogate):
         before fitting GP. This generally improves performance.
         """
         self.kernel = kernel
-        self.save_models = save_models
         super().__init__(scaled=scaled)
-        if save_models:
-            self.ms = []
 
     def update(self, x, y):
         """
@@ -168,8 +165,6 @@ class GP(MonoSurrogate):
         self.model['.*variance'].constrain_bounded(1e-5, 1e5)
         self.model['.*noise'].constrain_fixed(1e-20)
         self._fit_kernel()
-        if self.save_models:
-            self.ms.append(self.model)
 
     def _fit_kernel(self):
         """
@@ -219,8 +214,8 @@ class RF(MonoSurrogate):
 
 class MultiSurrogate:
     def __init__(self, surrogate, *args, **kwargs):
-        self.surrogate = surrogate
-        self.surrogates = None
+        self.surrogate_model = surrogate
+        self.mono_surrogates = None
         self.x = None
         self.y = None
         self.x_dims = None
@@ -233,21 +228,20 @@ class MultiSurrogate:
         # check dimensions of data
         assert(x.ndim == 2)
         assert(y.ndim == 2)
-        print(x.shape)
-        print(y.shape)
         assert(x.shape[0] == y.shape[0])
 
-        if not self.surrogates:
+        if not self.mono_surrogates:
             # instantiate surrogates if they do not already exist
-            self.surrogates = [self.surrogate(*self.surrogate_args,
-                                              **self.surrogate_kwargs)
-                               for i in range(y.shape[1])]
+            self.mono_surrogates = [
+                self.surrogate_model(*self.surrogate_args,
+                                     **self.surrogate_kwargs)
+                for i in range(y.shape[1])]
 
-        for i, surrogate in enumerate(self.surrogates):
+        for i, surrogate in enumerate(self.mono_surrogates):
             surrogate.update(x, y[:, i:i+1])
 
-        self.x = self.surrogates[0].x.copy()
-        self.y = np.array([surrogate.y.copy() for surrogate in self.surrogates]
+        self.x = self.mono_surrogates[0].x.copy()
+        self.y = np.array([surrogate.y.copy() for surrogate in self.mono_surrogates]
                           ).squeeze(-1).T
         self.x_dims = self.x.shape[1]
         self.n_objectives = self.y.shape[1]
@@ -257,7 +251,7 @@ class MultiSurrogate:
         # TODO change to evaluate both mean and var in a single call
         #  to surrogate.predict() for improved efficiency
         predictions = np.array([surrogate.predict(xi) for surrogate in
-                                self.surrogates]).squeeze(-1).swapaxes(1, 2).T
+                                self.mono_surrogates]).squeeze(-1).swapaxes(1, 2).T
 
         return predictions[0], predictions[1]
         # except:

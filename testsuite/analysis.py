@@ -4,6 +4,8 @@ import matplotlib.pyplot as plt
 from testsuite.utilities import Pareto_split
 import numpy as np
 from collections import OrderedDict
+import os
+import pickle
 
 CMAPS = OrderedDict()
 CMAPS['Sequential'] = [
@@ -17,6 +19,18 @@ PLOT_STYLE = {"scatter_cmap": mpl.cm.Purples,
               "plot_style": 'seaborn',
               "plot_cmap": mpl.cm.rainbow}
 
+def load_all(directory):
+    paths = [file for file in os.listdir(directory) if file[-4:] == ".pkl"]
+    combined_resuts = {}
+    for log_path in paths:
+        result = pickle.load(open(os.path.join(directory, log_path), "rb"))
+        for key, value in result.items():
+            try:
+                combined_resuts[key] += [value]
+            except KeyError:
+                combined_resuts[key] = [value]
+
+    return combined_resuts
 
 def plot_pareto_2d(result, axis=None):
 
