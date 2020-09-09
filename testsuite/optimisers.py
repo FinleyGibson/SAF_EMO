@@ -35,8 +35,8 @@ def increment_evaluation_count(f):
 
 class Optimiser:
     def __init__(self, objective_function, limits,
-                 n_initial=10, budget=30, of_args=[], seed=None, ref_vector=None,
-                 log_dir="./log_data", log_interval=None):
+                 n_initial=10, budget=30, of_args=[], seed=None,
+                 ref_vector=None, log_dir="./log_data", log_interval=None):
 
         self.objective_function = objective_function
         self.of_args = of_args
@@ -90,10 +90,10 @@ class Optimiser:
         np.random.seed(self.seed)
         x = np.array(lhsmdu.sample(x_dims, n_samples, randomSeed=self.seed)).T\
             * (limits[1]-limits[0])+limits[0]
-        try:
-            y = self.objective_function(x)
-        except:
-            y = np.array([self.objective_function(xi, *self.of_args).flatten() for xi in x])
+        # try:
+        y = np.array([self.objective_function(xi, *self.of_args).flatten() for xi in x])
+        # except :
+        #     y = self.objective_function(x)
 
         # update evaluation number
         self.n_evaluations += n_samples
@@ -126,7 +126,6 @@ class Optimiser:
         x_new = self.get_next_x()
 
         try_count = 0
-        aa = self._already_evaluated(x_new)
         while self._already_evaluated(x_new) and try_count < 3:
             # repeats optimisation of the acquisition function up to
             # three times to try and find a unique solution.
@@ -330,8 +329,8 @@ class Optimiser:
 
 
 class BayesianOptimiser(Optimiser):
-    def __init__(self, *args, surrogate, cmaes_restarts=0, log_models=False,
-                 **kwargs):
+    def __init__(self, objective_function, limits, surrogate, cmaes_restarts=0,
+                 log_models=False, **kwargs):
 
         self.surrogate = surrogate
         self.log_models = log_models
@@ -343,7 +342,7 @@ class BayesianOptimiser(Optimiser):
         if self.log_models:
             self.model_log = []
 
-        super().__init__(*args, **kwargs)
+        super().__init__(objective_function, limits, **kwargs)
         self.cmaes_restarts = cmaes_restarts
 
     def _generate_filename(self, *args):
@@ -420,7 +419,6 @@ class BayesianOptimiser(Optimiser):
 
             x_new = np.array(search_points[res_index:res_index + 1])
 
-        return self.x[0]
         return x_new.reshape(1, -1)
 
     def alpha(self, x_put):
@@ -437,7 +435,7 @@ class BayesianOptimiser(Optimiser):
 
 
 class Saf(BayesianOptimiser):
-    def __init__(self, *args, ei, **kwargs):
+    def __init__(self, *args, ei=True,  **kwargs):
 
         self.ei = ei
         super().__init__(*args, **kwargs)
@@ -513,23 +511,10 @@ class Saf(BayesianOptimiser):
 
 class SmsEgo(BayesianOptimiser):
 
-    def __init__(self, objective_function, limits, surrogate, of_args=[],
-                 n_initial=10, budget=30, seed=None, ref_vector=None,
-                 ei=True, log_dir="./log_data", log_interval=None,
-                 cmaes_restarts=0):
+    def __init__(self, *args, ei=True, **kwargs):
 
         self.ei = ei
-        super().__init__(objective_function=objective_function,
-                         limits=limits,
-                         surrogate=surrogate,
-                         of_args=of_args,
-                         n_initial=n_initial,
-                         budget=budget,
-                         seed=seed,
-                         ref_vector=ref_vector,
-                         log_dir=log_dir,
-                         log_interval=log_interval,
-                         cmaes_restarts=cmaes_restarts)
+        super().__init__(*args, **kwargs)
 
         self.gain = -norm.ppf(0.5 * (0.5 ** (1 / self.n_objectives)))
 

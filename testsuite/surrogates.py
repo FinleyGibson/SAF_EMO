@@ -240,9 +240,9 @@ class MultiSurrogate:
         for i, surrogate in enumerate(self.mono_surrogates):
             surrogate.update(x, y[:, i:i+1])
 
-        self.x = self.mono_surrogates[0].x.copy()
-        self.y = np.array([surrogate.y.copy() for surrogate in self.mono_surrogates]
-                          ).squeeze(-1).T
+        self.x = x
+        self.y = y
+
         self.x_dims = self.x.shape[1]
         self.n_objectives = self.y.shape[1]
 
