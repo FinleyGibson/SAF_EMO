@@ -53,13 +53,13 @@ class Optimiser:
         self.x, self.y = self.initial_evaluations(n_initial,
                                                   self.x_dims,
                                                   self.limits)
-        # update surrogate
-        self.surrogate.update(self.x, self.y)
+        # # update surrogate
+        # self.surrogate.update(self.x, self.y)
 
         # computed once and stored for efficiency.
         # TODO possibly more efficient to compute dominance matrix and
         #  build on that with each new point
-        self.Pareto_indices = Pareto_split(self.y, return_indices=True)
+        self.Pareto_indices = [*Pareto_split(self.y, return_indices=True)]
         self.p = self.y[self.Pareto_indices[0]]
         self.d = self.y[self.Pareto_indices[1]]
 
@@ -134,8 +134,10 @@ class Optimiser:
             # TODO: Remove this once problem solved.
             try:
                 try:
+                    # self.log_data["error models"].append(
+                    #     self.surrogate.model.copy())
                     self.log_data["error models"].append(
-                        self.surrogate.model.copy())
+                        self.surrogate.odel.copy())
                 except KeyError:
                     self.log_data["error models"] =\
                         [self.surrogate.model.copy()]
@@ -197,8 +199,8 @@ class Optimiser:
 
         # update observations with new observed poin
         self.x = np.vstack((self.x, x_new))
-        # update pareto indices without having to costly Pareto_split
-        # again if the new point is dominated.
+        # update pareto indices without having to perform costly
+        # Pareto_split again if the new point is dominated.
         if dominates(self.y, y_new):
             self.Pareto_indices[1] = np.append(self.Pareto_indices[1],
                                                self.n_evaluations)
@@ -359,12 +361,12 @@ class BayesianOptimiser(Optimiser):
 
     def step(self, *args, **kwargs):
         super().step(*args, **kwargs)
-        if self.log_models:
-            if self.multi_surrogate:
-                self.model_log.append([surrogate.model.copy() for surrogate in
-                                         self.surrogate.mono_surrogates])
-            else:
-                self.model_log.append(self.surrogate.model.copy())
+        # if self.log_models:
+        #     if self.multi_surrogate:
+        #         self.model_log.append([surrogate.model.copy() for surrogate in
+        #                                  self.surrogate.mono_surrogates])
+        #     else:
+        #         self.model_log.append(self.surrogate.model.copy())
 
     def get_next_x(self, excluded_indices=None):
         """
@@ -706,31 +708,46 @@ class ParEgo(BayesianOptimiser):
 if __name__ == "__main__":
     import matplotlib.pyplot as plt
     import wfg
-    # set up objective function
-    kfactor = 2
-    lfactor = 2
-    n_objectives = 2
-    n_dims = lfactor * 2 + kfactor
+    # # set up objective function
+    # kfactor = 2
+    # lfactor = 2
+    # n_objectives = 2
+    # n_dims = lfactor * 2 + kfactor
+    #
+    # k = kfactor * (n_objectives - 1)
+    # l = lfactor * 2
+    # wfg_n = 6
+    # exec("func = wfg.WFG{}".format(int(wfg_n)))
+    #
+    # def test_function(x):
+    #     if x.ndim == 2:
+    #         assert (x.shape[1] == n_dims)
+    #     else:
+    #         squeezable = np.where([a == 1 for a in x.shape])[0]
+    #         for i in squeezable[::-1]:
+    #             x = x.squeeze(i)
+    #
+    #     if x.ndim == 1:
+    #         assert (x.shape[0] == n_dims)
+    #         x = x.reshape(1, -1)
+    #     return np.array([func(xi, k, n_objectives) for xi in x])
+    # limits = [np.zeros((n_dims)), np.array(range(1, n_dims + 1)) * 2]
 
-    k = kfactor * (n_objectives - 1)
-    l = lfactor * 2
-    wfg_n = 6
-    exec("func = wfg.WFG{}".format(int(wfg_n)))
+    from experiments.push8.push_world import push_8D
+    from numpy import pi
+
+    # define push8 test problem
+    limits = [[-5, -5, 10, 0] * 2, [5, 5, 300, 2 * pi] * 2]
+    o1 = [4, 4]
+    o2 = [0, -4]
+    t1 = [-3, 0]
+    t2 = [3, 0]
+
 
     def test_function(x):
-        if x.ndim == 2:
-            assert (x.shape[1] == n_dims)
-        else:
-            squeezable = np.where([a == 1 for a in x.shape])[0]
-            for i in squeezable[::-1]:
-                x = x.squeeze(i)
+        return push_8D(x=x, t1=t1, t2=t2, o1=o1, o2=o2, draw=False)
 
-        if x.ndim == 1:
-            assert (x.shape[0] == n_dims)
-            x = x.reshape(1, -1)
-        return np.array([func(xi, k, n_objectives) for xi in x])
 
-    limits = [np.zeros((n_dims)), np.array(range(1, n_dims + 1)) * 2]
     gp_surr_multi = MultiSurrogate(GP, scaled=True)
     gp_surr_mono = GP(scaled=True)
     # opt = Mpoi(objective_function=test_function, limits=limits, surrogate=gp_surr_multi, n_initial=10, seed=None)
@@ -746,3 +763,5 @@ if __name__ == "__main__":
     opt.optimise(n_steps=10)
     # print("done")
     print(opt.saved_models[0])
+
+

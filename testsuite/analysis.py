@@ -56,7 +56,7 @@ def plot_pareto_2d(result, axis=None):
         ax.set_ylabel("$f^2(x)$")
         plt.colorbar(mapable)
 
-    if axis is not None:
+    if axis is None:
         return fig
     else:
         pass
@@ -87,7 +87,7 @@ def plot_all_pareto_2d(results, axis=None, plot_indices=None):
         ax.set_ylabel("$f^2(x)$")
         plt.colorbar(mapable)
 
-    if axis is not None:
+    if axis is None:
         return fig
     else:
         pass

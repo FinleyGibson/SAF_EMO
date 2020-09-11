@@ -28,16 +28,7 @@ args = [k, n_obj] # number of objectives as argument
 
 
 def test_function(x):
-    if x.ndim == 2:
-        assert (x.shape[1] == n_dim)
-    else:
-        squeezable = np.where([a == 1 for a in x.shape])[0]
-        for i in squeezable[::-1]:
-            x = x.squeeze(i)
-
-    if x.ndim == 1:
-        assert (x.shape[0] == n_dims)
-        x = x.reshape(1, -1)
+    x = x.reshape(1, -1)
     return np.array([fun(xi, k, n_obj) for xi in x])
 
 
@@ -45,23 +36,26 @@ ans = fun(np.ones_like(x_limits[0]), k, n_obj)
 surrogate = MultiSurrogate(GP, scaled=True)
 
 optimisers = []
-for n in range(10, 30):
-    optimisers += [Saf(test_function, x_limits, surrogate, n_initial=10, budget=100, seed=n, ei=True, log_dir="./log_data", cmaes_restarts=2),
-                  Saf(test_function, x_limits, surrogate,  n_initial=10, budget=100, seed=n, ei=False, log_dir="./log_data", cmaes_restarts=2),
-                  SmsEgo(test_function, x_limits, surrogate, n_initial=10, budget=100, seed=n, ei=False, log_dir="./log_data", cmaes_restarts=2),
-                  SmsEgo(test_function, x_limits, surrogate, n_initial=10, budget=100, seed=n, ei=True, log_dir="./log_data", cmaes_restarts=2)]
+log_dir = "./log_test_data"
+# for n in range(10, 30):
 
 def objective_function(optimiser):
-    optimiser.optimise()
+    optimiser.optimise(n_steps=2)
 
-## establish parallel processing pool
-n_proc = mp.cpu_count()
-print("{} processors found".format(n_proc))
-n_proc_cap = 12
-pool = mp.Pool(min(n_proc, n_proc_cap))
+if __name__ == '__main__':
 
-pool.map(objective_function, optimisers)
+    for n in range(1):
+        optimisers += [Saf(test_function, x_limits, surrogate, n_initial=10, budget=100, seed=n, ei=True, log_dir=log_dir, cmaes_restarts=2),
+                      Saf(test_function, x_limits, surrogate,  n_initial=10, budget=100, seed=n, ei=False, log_dir=log_dir, cmaes_restarts=2),
+                      SmsEgo(test_function, x_limits, surrogate, n_initial=10, budget=100, seed=n, ei=False, log_dir=log_dir, cmaes_restarts=2),
+                      SmsEgo(test_function, x_limits, surrogate, n_initial=10, budget=100, seed=n, ei=True, log_dir=log_dir, cmaes_restarts=2)]
 
-pool.close()
-print("finished")
-
+    ## establish parallel processing pool
+    n_proc = mp.cpu_count()
+    print("{} processors found".format(n_proc))
+    n_proc_cap = 4
+    
+    with mp.Pool(4) as p:
+        p.map(objective_function, optimisers)
+    # for opt in optimisers:
+    #     opt.optimise()
