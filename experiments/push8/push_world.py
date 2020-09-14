@@ -325,44 +325,20 @@ def push_4D(x, t1_x, t1_y, o1_x, o1_y, draw=False):
     return d1
 
 
-def push_8D(x, t1, t2, o1, o2, draw=False):
-    """
-    evaluates the success of a decision vector, x, in pushing two
-    objects towards two targets.
+def push_8D(x, t1_x, t1_y, t2_x, t2_y, o1_x, o1_y, o2_x, o2_y, draw=False):
+    # INPUTS::
+    # x = rx, ry, steps, hand_angle, rx, ry, steps, hand_angle
+    # min = [-5; -5; 10; 0];
+    # max = [5; 5; 300; 2*pi];
+    # Target locations: (t1_x, t1_y), (t2_x, t2_y)  in [-5, 5]
+    # Object locations: (o1_x, o1_y), (o2_x, o2_y) in [-5, 5]
+    (r1_x, r1_y, r1_steps, r1_hand_angle,
+     r2_x, r2_y, r2_steps, r2_hand_angle) = x
 
-    :param np.array x: decision vector [rx, ry, steps, hand_angle, rx,
-    ry, steps, hand_angle]
-        x min = [-5; -5; 10; 0];
-        x max = [5; 5; 300; 2*pi]
-    :param list (float, float) t1: target_1 co-ordinates. [x, y]
-    :param list (float, float) t2: target_2 co-ordinates. [x, y]
-    :param list (float, float) o1: object_1 co-ordinates. [x, y]
-    :param list (float, float) o2: object_2 co-ordinates. [x, y]
-    :param bool draw: draw the experiment in a pygame window? Default
-    False for fast evaluation.
-    :return tuple (float, float): final distance between
-    target1->object1, target2->object2.
-    """
-
-    # unpack decision vector.
-    try:
-        (r1_x, r1_y, r1_steps, r1_hand_angle,
-         r2_x, r2_y, r2_steps, r2_hand_angle) = x
-    except ValueError:
-        (r1_x, r1_y, r1_steps, r1_hand_angle,
-         r2_x, r2_y, r2_steps, r2_hand_angle) = x.flatten()
-
-    # unpack target and object co-ordinates
-    o1_x, o1_y = o1
-    o2_x, o2_y = o2
-    t1_x, t1_y = t1
-    t2_x, t2_y = t2
-
-    # check format of steps
     r1_steps = np.round(r1_steps).astype(int)
     r2_steps = np.round(r2_steps).astype(int)
 
-    # creates the world
+    # creats the world
     world = b2WorldInterface(draw)
 
     # object properties and robot properties
@@ -414,23 +390,22 @@ def push_8D(x, t1, t2, o1, o2, draw=False):
         pygame.display.quit()
         pygame.quit()
 
-    return np.array([d1, d2])
+    return d1 , d2
 
 
 if __name__ == "__main__":
-    # # push4 example
-    # x = np.array([-4, -4, 100, (1/4)*np.pi])
-    # d = push_4D(x, 4, 4, 0, 0, draw=True)
-    # print(d)
+    # push4 example
+    x = np.array([-4, -4, 100, (1/4)*np.pi])
+    d = push_4D(x, 4, 4, 0, 0, draw=True)
+    print(d)
 
     # push8 example
     x = np.array([-3, -3, 100, (1/4)*np.pi,
                    4,  2.5, 100, (1/4)*np.pi])
-
-    o1 = [4, 4]
-    o2 = [0, -4]
-    t1 = [-3, 0]
-    t2 = [3, 0]
-    d = push_8D(x=x, t1=t1, t2=t2, o1=o1, o2=o2, draw=True)
-
+    d = push_8D(x,
+                4, 4,
+                0, -4,
+                -3, 0,
+                3, 0,
+                draw=True)
     print(d)
