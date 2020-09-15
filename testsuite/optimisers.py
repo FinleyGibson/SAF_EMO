@@ -197,20 +197,16 @@ class Optimiser:
         # get objective function evaluation for the new point
         y_new = self.objective_function(x_new, *self.of_args)
 
-        # update observations with new observed poin
+        # TODO if self.y dominates y_new then can be appended to Pareto
+        #  indices without calling Pareto split. This would be more efficnet.
+        # update observations with new observed point
         self.x = np.vstack((self.x, x_new))
-        # update pareto indices without having to perform costly
-        # Pareto_split again if the new point is dominated.
-        if dominates(self.y, y_new):
-            self.Pareto_indices[1] = np.append(self.Pareto_indices[1],
-                                               self.n_evaluations)
-            self.y = np.vstack((self.y, y_new))
-        else:
-            self.y = np.vstack((self.y, y_new))
-            self.Pareto_indices = Pareto_split(self.y, return_indices=True)
+        self.y = np.vstack((self.y, y_new))
 
+        self.Pareto_indices = [*Pareto_split(self.y, return_indices=True)]
         self.p = self.y[self.Pareto_indices[0]]
         self.d = self.y[self.Pareto_indices[1]]
+
         self.current_hv = self._compute_hypervolume()
         self.train_time += time.time()-tic
 
