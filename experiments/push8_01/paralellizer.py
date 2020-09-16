@@ -6,27 +6,34 @@ import sys
 sys.path.append(rootpath.detect())
 from testsuite.optimisers import SmsEgo, Saf
 from testsuite.surrogates import GP, MultiSurrogate
-from push_problems import push8
+from push_world import push_8D
 from numpy import pi
 
 # define push8 test problem
-p = push8()
-x_limits = [p.lb, p.ub]
+x_limits = [[-5, -5, 10, 0]*2, [5, 5, 300, 2*pi]*2]
+o1 = [4, 4]
+o2 = [0, -4]
+t1 = [-3, 0]
+t2 = [3, 0]
+
+
 def test_function(x):
-    return p(x)
+    return push_8D(x=x, t1=t1, t2=t2, o1=o1, o2=o2, draw=False)
 
 
 # establish optimisers and surrogates.
 surrogate = MultiSurrogate(GP, scaled=True)
 optimisers = []
-for n in range(30):
+for n in range(0, 30):
     optimisers += [Saf(test_function, x_limits, surrogate, n_initial=10, budget=100, seed=n, ei=True, log_dir="./log_data", cmaes_restarts=0, log_interval=10),
                   Saf(test_function, x_limits, surrogate,  n_initial=10, budget=100, seed=n, ei=False, log_dir="./log_data", cmaes_restarts=0, log_interval=10),
                   SmsEgo(test_function, x_limits, surrogate, n_initial=10, budget=100, seed=n, ei=False, log_dir="./log_data", cmaes_restarts=0, log_interval=10),
                   SmsEgo(test_function, x_limits, surrogate, n_initial=10, budget=100, seed=n, ei=True, log_dir="./log_data", cmaes_restarts=0, log_interval=10)]
 
-def objective_function(opt):
-    opt.optimise()
+# optimisers = [Saf(test_function, x_limits, surrogate, ei=False, n_initial=10, budget=100, seed=0, log_dir="./log_data", cmaes_restarts=0, log_models=Falsei, log_interval=10)]
+
+def objective_function(optimiser):
+    optimiser.optimise()
 
 
 ## establish parallel processing pool
