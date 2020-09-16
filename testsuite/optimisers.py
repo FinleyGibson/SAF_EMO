@@ -467,7 +467,7 @@ class Saf(BayesianOptimiser):
         Dq = np.min(D, axis=1)
         return Dq
 
-    # @optional_inversion
+    @optional_inversion
     def saf_ei(self, y_put: np.ndarray, std_put, n_samples: int = 1000,
                return_samples=False) -> Union[np.ndarray, tuple]:
 
@@ -486,24 +486,31 @@ class Saf(BayesianOptimiser):
         samples = np.random.normal(0, 1, size=(n_samples, y_put.shape[1])) \
                   * std_put + y_put
 
-        saf_samples = self.saf(samples, self.p, invert=True)
-        saf_samples[saf_samples > f_star] = f_star
+        saf_samples = self.saf(samples, self.p, invert=False)
+        saf_samples[saf_samples < f_star] = f_star
 
         if return_samples:
             return samples, saf_samples
         else:
             return np.mean(saf_samples)
 
-    def alpha(self, x_put):
+    @optional_inversion
+    def _scalarise_y(self, y_put, std_put):
+        if y_put.ndim<2:
+            y_put = y_put.reshape(1,-1)
+            std_put = std_put.reshape(1,-1)
+
+        assert y_put.shape[0]==1
+        assert std_put.shape[0]==1
+
         if self.ei:
-            y_put, var_put = self.surrogate.predict(x_put)
-            efficacy_put = self.saf_ei(y_put, var_put**0.5)
+            return float(self.saf_ei(y_put, std_put, invert=False))
         else:
+            return float(self.saf(y_put, self.p, invert=False))
+
+    def alpha(self, x_put):
             y_put, var_put = self.surrogate.predict(x_put)
-            efficacy_put = self.saf(y_put, self.p, invert=True)
-        try:
-            return efficacy_put[0]
-        except IndexError:
+            efficacy_put = self._scalarise_y(y_put, var_put**0.5, invert=True)
             return efficacy_put
 
 
@@ -549,9 +556,19 @@ class SmsEgo(BayesianOptimiser):
         return (max([0, max(l)]))
 
     @optional_inversion
-    def _scalarise_y(self, y_put, y_std):
+    def _scalarise_y(self, y_put, std_put):
+        if not self.ei:
+            std_put = np.zeros_like(std_put)
+
+        if y_put.ndim<2:
+            y_put = y_put.reshape(1,-1)
+            std_put = std_put.reshape(1,-1)
+
+        assert y_put.shape[0] == 1
+        assert std_put.shape[0] == 1
+
         # lower confidence bounds
-        lcb = y_put - (self.gain * np.multiply(self.obj_sense, y_std))
+        lcb = y_put - (self.gain * np.multiply(self.obj_sense, std_put))
 
         # calculate penalty
         n_pfr = len(self.p)
@@ -579,11 +596,7 @@ class SmsEgo(BayesianOptimiser):
 
     def alpha(self, x_put):
         y_put, var_put = self.surrogate.predict(x_put)
-        if self.ei:
-            return self._scalarise_y(y_put, var_put**0.5, invert=True)
-        else:
-            return self._scalarise_y(y_put, np.zeros_like(var_put**0.5),
-                                     invert=True)
+        return float(self._scalarise_y(y_put, var_put**0.5, invert=True))
 
 
 class Mpoi(BayesianOptimiser):
@@ -610,10 +623,12 @@ class Mpoi(BayesianOptimiser):
         Returns scalarised cost.
         '''
 
-        assert(isinstance(y_put, np.ndarray))
-        assert(isinstance(std_put, np.ndarray))
-        assert(y_put.ndim > 1)
-        assert(std_put.ndim > 1)
+        if y_put.ndim<2:
+            y_put = y_put.reshape(1,-1)
+            std_put = std_put.reshape(1,-1)
+
+        assert y_put.shape[0]==1
+        assert std_put.shape[0]==1
 
         res = np.zeros((y_put.shape[0], 1))
         for i in range(y_put.shape[0]):
@@ -625,13 +640,7 @@ class Mpoi(BayesianOptimiser):
     def alpha(self, x_put):
         y_put, var_put = self.surrogate.predict(x_put)
         efficacy_put = self._scalarise_y(y_put, var_put ** 0.5, invert=True)
-        try:
-            return float(efficacy_put)
-        except TypeError as e:
-            print("acqusition function returned type not convertable to float")
-            print("type: ", type(efficacy_put))
-            print(efficacy_put)
-            raise e
+        return float(efficacy_put)
 
 
 class ParEgo(BayesianOptimiser):
@@ -701,9 +710,149 @@ class ParEgo(BayesianOptimiser):
         return np.reshape(-new_y, (-1, 1))
 
 
+class Saf_Sms(SmsEgo):
+    """
+    saf in the non-dominated region, sms-ego in the dominated region.
+    """
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    @optional_inversion
+    def _scalarise_y(self, y_put, std_put):
+        if not self.ei:
+            std_put = np.zeros_like(std_put)
+
+        if y_put.ndim < 2:
+            y_put = y_put.reshape(1, -1)
+            std_put = std_put.reshape(1, -1)
+
+        assert y_put.shape[0] == 1
+        assert std_put.shape[0] == 1
+
+        # lower confidence bounds
+        lcb = y_put - (self.gain * np.multiply(self.obj_sense, std_put))
+
+        # calculate penalty
+        n_pfr = len(self.p)
+        c = 1 - (1 / 2 ** self.n_objectives)
+
+        # TODO is b_count supposed to be the remaining budget?
+        b_count = self.budget - self.n_evaluations -1
+        epsilon = (np.max(self.y, axis=0) - np.min(self.y, axis=0)) / (
+                n_pfr + (c * b_count))
+
+        yt = y_put - (epsilon * self.obj_sense)
+        l = [-1 + np.prod(1 + y_put - self.y[i]) if
+             cs.compare_solutions(self.y[i], yt, self.obj_sense) == 0
+             else 0 for i in range(self.y.shape[0])]
+        penalty = (max([0, max(l)]))
+
+        saf_v = float(Saf.saf(y_put.reshape(1,-1), self.p))
+        if saf_v>0:
+            # compute and update hypervolumes
+            current_hv = self.current_hv
+            put_hv = self._compute_hypervolume(np.vstack((self.p, lcb)))
+
+            return put_hv - current_hv
+        else:
+            return saf_v
+
+
+class Sms_Saf(SmsEgo):
+    """
+    saf in the non-dominated region, sms-ego in the dominated region.
+    """
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    @optional_inversion
+    def _scalarise_y(self, y_put, std_put):
+        if not self.ei:
+            std_put = np.zeros_like(std_put)
+
+        if y_put.ndim<2:
+            y_put = y_put.reshape(1,-1)
+            std_put = std_put.reshape(1,-1)
+
+        assert y_put.shape[0] == 1
+        assert std_put.shape[0] == 1
+
+        # lower confidence bounds
+        lcb = y_put - (self.gain * np.multiply(self.obj_sense, std_put))
+
+        # calculate penalty
+        n_pfr = len(self.p)
+        c = 1 - (1 / 2 ** self.n_objectives)
+
+        # TODO is b_count supposed to be the remaining budget?
+        b_count = self.budget - self.n_evaluations -1
+        epsilon = (np.max(self.y, axis=0) - np.min(self.y, axis=0)) / (
+                n_pfr + (c * b_count))
+
+        yt = y_put - (epsilon * self.obj_sense)
+        l = [-1 + np.prod(1 + y_put - self.y[i]) if
+             cs.compare_solutions(self.y[i], yt, self.obj_sense) == 0
+             else 0 for i in range(self.y.shape[0])]
+        penalty = (max([0, max(l)]))
+
+        if penalty > 0:
+            return -penalty
+        else:
+            return float(Saf.saf(y_put.reshape(1, -1), self.p))
+
+
+class Saf_Saf(Saf):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    @optional_inversion
+    def _scalarise_y(self, y_put, std_put):
+        if y_put.ndim<2:
+            y_put = y_put.reshape(1,-1)
+            std_put = std_put.reshape(1,-1)
+
+        assert y_put.shape[0]==1
+        assert std_put.shape[0]==1
+        saf_v = float(self.saf(y_put, self.p, invert=False))
+        if saf_v<0:
+            return saf_v
+        else:
+            return float(self.saf_ei(y_put, std_put, invert=False))
+
 if __name__ == "__main__":
     import matplotlib.pyplot as plt
     import wfg
+
+
+
+    safsms_opt = Saf_Sms(objective_function=lambda x: x[0:2], ei=False,
+                         surrogate=MultiSurrogate(GP),
+                         limits=[[0, 0, 0, 0, 0], [1, 1, 1, 1, 1]])
+
+    uncertainty = 0.00
+    F = lambda x_q: np.array([safsms_opt._scalarise_y(
+        x_qi.reshape(1, -1), np.ones_like(x_qi.reshape(1, -1)) * uncertainty,
+        invert=True) for x_qi in x_q])
+
+    # compute infill
+    M, N = 100, 100
+    x = np.linspace(0, 1.5, M)
+    y = np.linspace(0, 1.5, N)
+    xx, yy = np.meshgrid(x, y)
+    xy = np.vstack((xx.flat, yy.flat)).T
+
+    zz = F(xy)
+    zz = zz.reshape(N, M)
+    pass
+
+    fig = plt.figure()
+    ax = fig.gca()
+    ax.pcolor(xx, yy, zz)
+    ax.contour(xx, yy, zz, colors="C3", levels=[0.])
+    ax.contour(xx, yy, zz, colors="white", levels=np.linspace(zz.min(), zz.max(), 20))
+    ax.scatter(safsms_opt.p[:,0], safsms_opt.p[:,1], c="C3")
+    plt.show()
+    pass
     # # set up objective function
     # kfactor = 2
     # lfactor = 2
@@ -729,35 +878,35 @@ if __name__ == "__main__":
     #     return np.array([func(xi, k, n_objectives) for xi in x])
     # limits = [np.zeros((n_dims)), np.array(range(1, n_dims + 1)) * 2]
 
-    from experiments.push8.push_world import push_8D
-    from numpy import pi
-
-    # define push8 test problem
-    limits = [[-5, -5, 10, 0] * 2, [5, 5, 300, 2 * pi] * 2]
-    o1 = [4, 4]
-    o2 = [0, -4]
-    t1 = [-3, 0]
-    t2 = [3, 0]
-
-
-    def test_function(x):
-        return push_8D(x=x, t1=t1, t2=t2, o1=o1, o2=o2, draw=False)
-
-
-    gp_surr_multi = MultiSurrogate(GP, scaled=True)
-    gp_surr_mono = GP(scaled=True)
-    # opt = Mpoi(objective_function=test_function, limits=limits, surrogate=gp_surr_multi, n_initial=10, seed=None)
-    # opt = Saf(objective_function=test_function, ei=True,  limits=limits, surrogate=gp_surr_multi, n_initial=10, budget=12, seed=None)
-    opt = Saf(objective_function=test_function, ei=False,  limits=limits, surrogate=gp_surr_multi, n_initial=10, budget=20, seed=None, log_models=True, log_interval=1)
-    # # opt = SmsEgo(objective_function=test_function, ei=True,  limits=limits, surrogate=gp_surr_multi, n_initial=10, seed=None)
-    # opt = SmsEgo(objective_function=test_function, ei=False,  limits=limits, surrogate=gp_surr_multi, n_initial=10, seed=17, budget=100)
-    # opt = ParEgo(objective_function=test_function, limits=limits, surrogate=GP(), n_initial=10, s=5, rho=0.5)
-
-    # # ans = test_function(opt.x)
-    opt.optimise(n_steps=1)
-    opt.optimise(n_steps=1)
-    opt.optimise(n_steps=10)
-    # print("done")
-    print(opt.saved_models[0])
-
+    # from experiments.push8.push_world import push_8D
+    # from numpy import pi
+    #
+    # # define push8 test problem
+    # limits = [[-5, -5, 10, 0] * 2, [5, 5, 300, 2 * pi] * 2]
+    # o1 = [4, 4]
+    # o2 = [0, -4]
+    # t1 = [-3, 0]
+    # t2 = [3, 0]
+    #
+    #
+    # def test_function(x):
+    #     return push_8D(x=x, t1=t1, t2=t2, o1=o1, o2=o2, draw=False)
+    #
+    #
+    # gp_surr_multi = MultiSurrogate(GP, scaled=True)
+    # gp_surr_mono = GP(scaled=True)
+    # # opt = Mpoi(objective_function=test_function, limits=limits, surrogate=gp_surr_multi, n_initial=10, seed=None)
+    # # opt = Saf(objective_function=test_function, ei=True,  limits=limits, surrogate=gp_surr_multi, n_initial=10, budget=12, seed=None)
+    # opt = Saf(objective_function=test_function, ei=False,  limits=limits, surrogate=gp_surr_multi, n_initial=10, budget=20, seed=None, log_models=True, log_interval=1)
+    # # # opt = SmsEgo(objective_function=test_function, ei=True,  limits=limits, surrogate=gp_surr_multi, n_initial=10, seed=None)
+    # # opt = SmsEgo(objective_function=test_function, ei=False,  limits=limits, surrogate=gp_surr_multi, n_initial=10, seed=17, budget=100)
+    # # opt = ParEgo(objective_function=test_function, limits=limits, surrogate=GP(), n_initial=10, s=5, rho=0.5)
+    #
+    # # # ans = test_function(opt.x)
+    # opt.optimise(n_steps=1)
+    # opt.optimise(n_steps=1)
+    # opt.optimise(n_steps=10)
+    # # print("done")
+    # print(opt.saved_models[0])
+    #
 
