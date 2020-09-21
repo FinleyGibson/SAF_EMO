@@ -72,7 +72,6 @@ class Optimiser:
         self.ref_vector = ref_vector if ref_vector else self.y.max(axis=0)
         self.hpv = FonsecaHyperVolume(self.ref_vector) # used to find hypervolume
         # hv is stored to prevent repeated computation.
-        self.current_hv = self._compute_hypervolume()
 
         # set up logging
         self.log_dir = log_dir
@@ -208,7 +207,6 @@ class Optimiser:
         self.p = self.y[self.Pareto_indices[0]]
         self.d = self.y[self.Pareto_indices[1]]
 
-        self.current_hv = self._compute_hypervolume()
         self.train_time += time.time()-tic
 
     def log_optimisation(self, save=False, **kwargs):
@@ -227,7 +225,6 @@ class Optimiser:
             # increment_evaluation_count decorator.
             self.log_data["x"] = self.x
             self.log_data["y"] = self.y
-            self.log_data["hypervolume"].append(self.current_hv)
             self.log_data["n_evaluations"] = self.n_evaluations
             self.log_data["train_time"] = self.train_time
             for key, value in kwargs.items():
@@ -239,7 +236,6 @@ class Optimiser:
                         "limits": self.limits,
                         "n_initial": self.n_initial,
                         "seed": self.seed,
-                        "hypervolume": [self.current_hv],
                         "x": self.x,
                         "y": self.y,
                         "log_dir": self.log_dir,
@@ -623,6 +619,7 @@ class SmsEgo(BayesianOptimiser):
         self.ei = ei
         super().__init__(*args, **kwargs)
 
+        self.current_hv = self._compute_hypervolume()
         self.gain = -norm.ppf(0.5 * (0.5 ** (1 / self.n_objectives)))
 
     def _generate_filename(self):
@@ -656,6 +653,10 @@ class SmsEgo(BayesianOptimiser):
              cs.compare_solutions(y[i], yt, self.obj_sense) == 0
              else 0 for i in range(y.shape[0])]
         return (max([0, max(l)]))
+
+    def step(self):
+        super().step()
+        self.current_hv = self._compute_hypervolume()
 
     @optional_inversion
     def _scalarise_y(self, y_put, std_put):
