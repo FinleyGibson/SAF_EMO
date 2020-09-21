@@ -10,17 +10,24 @@ import matplotlib.pyplot as plt
 
 import wfg
 
-n_obj = 5                                   # Number of objectives
+N = 500 
+M = 4                                   # Number of objectives
+n_obj = M
 kfactor = 2
-lfactor = 2
+lfactor = 3
 
-k = kfactor*(n_obj-1)   # position related params
-l = lfactor*2           # distance related params
+k = kfactor*(M-1)
+l = lfactor*2
 n_dim = k+l
 
-func = wfg.WFG1
+func = wfg.WFG4
 
-N = 500 
+y = np.zeros((N, M))
+for n in range(N):
+        z = wfg.random_soln(k, l, func.__name__)
+        y[n,:] = func(z, k, M)
+
+
 y = np.zeros((N, n_obj))
 for n in range(N):
     z = wfg.random_soln(k, l, func.__name__)

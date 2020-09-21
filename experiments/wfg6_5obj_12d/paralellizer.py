@@ -33,7 +33,7 @@ def test_function(x):
 
 
 optimisers = []
-for n in range(10, 21):
+for n in range(0, 10):
     optimisers += [Sms_Saf(test_function, x_limits, surrogate, n_initial=10, budget=100, seed=n, ei=False, log_dir="./log_data", ref_vector=ref, cmaes_restarts=2), 
                   Saf_Sms(test_function, x_limits, surrogate, n_initial=10, budget=100, seed=n, ei=False, log_dir="./log_data",  ref_vector=ref, cmaes_restarts=2), 
                   Saf_Saf(test_function, x_limits, surrogate, n_initial=10, budget=100, seed=n, ei=True, log_dir="./log_data", ref_vector=ref, cmaes_restarts=2), 

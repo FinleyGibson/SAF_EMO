@@ -32,7 +32,7 @@ def test_function(x):
 surrogate = MultiSurrogate(GP, scaled=True)
 
 optimisers = []
-for n in range(5, 31):
+for n in range(11):
     optimisers += [Sms_Saf(test_function, x_limits, surrogate, n_initial=10, budget=100, seed=n, ei=False, log_dir="./log_data", cmaes_restarts=2), 
                   Saf_Sms(test_function, x_limits, surrogate, n_initial=10, budget=100, seed=n, ei=False, log_dir="./log_data", cmaes_restarts=2), 
                   Saf_Saf(test_function, x_limits, surrogate, n_initial=10, budget=100, seed=n, ei=True, log_dir="./log_data", cmaes_restarts=2), 

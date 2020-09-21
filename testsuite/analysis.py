@@ -93,6 +93,74 @@ def plot_all_pareto_2d(results, axis=None, plot_indices=None):
         pass
 
 
+def plot_pareto_3d(result, axis=None):
+    y = result["y"]
+
+    p_inds, d_inds = Pareto_split(y, return_indices=True)
+
+    cmap = PLOT_STYLE['scatter_cmap']
+    colors = cmap(np.linspace(0, 1, len(y)))
+    face_colors = [colors[i] if i in p_inds else "None" for i in range(len(y))]
+    norm = mpl.colors.Normalize(vmin=0, vmax=len(y))
+    mapable = mpl.cm.ScalarMappable(norm=norm, cmap=cmap)
+
+    with plt.style.context(PLOT_STYLE["scatter_style"]):
+        # create figure if axis is not provided.
+        if axis is None:
+            fig = plt.figure(figsize=[8.5, 7])
+            axis = fig.gca(projection="3d")
+
+        axis.scatter(y[:, 0], y[:, 1], y[:, 2], marker="o", edgecolors=colors,
+                     linewidth=2., facecolors=face_colors)
+        axis.set_xlabel("$f^1(x)$")
+        axis.set_ylabel("$f^2(x)$")
+        axis.set_zlabel("$f^3(x)$")
+        plt.colorbar(mapable)
+
+    try:
+        plt.colorbar(mapable)
+        return fig
+    except:
+        return None
+
+
+def plot_all_pareto_3d(results, axis=None, plot_indices=None, color=None):
+    ys = np.array(results["y"])
+    plot_indices = range(len(ys)) if plot_indices is None else plot_indices
+
+    with plt.style.context(PLOT_STYLE["scatter_style"]):
+        # create figure if axis is not provided.
+        if axis is None:
+            fig = plt.figure(figsize=[8.5, 7])
+            axis = fig.gca(projection="3d")
+
+        for i, y in enumerate(ys[plot_indices]):
+            p_inds, d_inds = Pareto_split(y, return_indices=True)
+            cmap = getattr(mpl.cm, PLOT_STYLE['scatter_cmaps'][i])
+            if color is None:
+                colors = cmap(np.linspace(0, 1, len(y)))
+                face_colors = [colors[i] if i in p_inds else "None" for i in
+                               range(len(y))]
+            else:
+                colors = color
+                face_colors = color
+            norm = mpl.colors.Normalize(vmin=0, vmax=len(y))
+            mapable = mpl.cm.ScalarMappable(norm=norm, cmap=cmap)
+
+            axis.scatter(y[:, 0], y[:, 1], y[:, 2], marker="o", edgecolors=colors,
+                       linewidth=2., facecolors=face_colors)
+        axis.set_xlabel("$f^1(x)$")
+        axis.set_ylabel("$f^2(x)$")
+        axis.set_zlabel("$f^3(x)$")
+
+    try:
+        plt.colorbar(mapable)
+        return fig
+    except:
+        pass
+
+
+
 def plot_measure(results, measure, axis=None, label=None, plot_individuals=False,
                      color="C0"):
     if axis is None:
