@@ -68,7 +68,7 @@ class Optimiser:
         self.obj_sense = [-1]*self.n_objectives
 
         # if no ref_vector provided, use max of initial evaluations
-        self.ref_vector = ref_vector if ref_vector else self.y.max(axis=0)
+        self.ref_vector = self.y.max(axis=0) if ref_vector is None else np.array(ref_vector)
         self.hpv = FonsecaHyperVolume(self.ref_vector) # used to find hypervolume
         # hv is stored to prevent repeated computation.
         self.current_hv = self._compute_hypervolume()

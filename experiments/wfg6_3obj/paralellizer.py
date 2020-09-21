@@ -5,7 +5,7 @@ import rootpath
 import sys
 sys.path.append(rootpath.detect())
 import wfg
-from testsuite.optimisers import SmsEgo, Saf
+from testsuite.optimisers import SmsEgo, Saf, Saf_Saf, Saf_Sms, Sms_Saf
 from testsuite.surrogates import GP, MultiSurrogate
 
 ## establish objective function
@@ -28,15 +28,7 @@ args = [k, n_obj] # number of objectives as argument
 
 
 def test_function(x):
-    if x.ndim == 2:
-        assert (x.shape[1] == n_dim)
-    else:
-        squeezable = np.where([a == 1 for a in x.shape])[0]
-        for i in squeezable[::-1]:
-            x = x.squeeze(i)
-
     if x.ndim == 1:
-        assert (x.shape[0] == n_dims)
         x = x.reshape(1, -1)
     return np.array([fun(xi, k, n_obj) for xi in x])
 
@@ -46,7 +38,10 @@ surrogate = MultiSurrogate(GP, scaled=True)
 
 optimisers = []
 for n in range(10, 30):
-    optimisers += [Saf(test_function, x_limits, surrogate, n_initial=10, budget=100, seed=n, ei=True, log_dir="./log_data", cmaes_restarts=2),
+    optimisers += [Sms_Saf(test_function, x_limits, surrogate, n_initial=10, budget=100, seed=n, ei=False, log_dir="./log_data", cmaes_restarts=2),
+                  Saf_Sms(test_function, x_limits, surrogate, n_initial=10, budget=100, seed=n, ei=False, log_dir="./log_data", cmaes_restarts=2),
+                  Saf_Saf(test_function, x_limits, surrogate, n_initial=10, budget=100, seed=n, ei=True, log_dir="./log_data", cmaes_restarts=2),
+                  Saf(test_function, x_limits, surrogate, n_initial=10, budget=100, seed=n, ei=True, log_dir="./log_data", cmaes_restarts=2),
                   Saf(test_function, x_limits, surrogate,  n_initial=10, budget=100, seed=n, ei=False, log_dir="./log_data", cmaes_restarts=2),
                   SmsEgo(test_function, x_limits, surrogate, n_initial=10, budget=100, seed=n, ei=False, log_dir="./log_data", cmaes_restarts=2),
                   SmsEgo(test_function, x_limits, surrogate, n_initial=10, budget=100, seed=n, ei=True, log_dir="./log_data", cmaes_restarts=2)]
@@ -57,7 +52,7 @@ def objective_function(optimiser):
 ## establish parallel processing pool
 n_proc = mp.cpu_count()
 print("{} processors found".format(n_proc))
-n_proc_cap = 12
+n_proc_cap = 15
 pool = mp.Pool(min(n_proc, n_proc_cap))
 
 pool.map(objective_function, optimisers)
