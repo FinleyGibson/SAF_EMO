@@ -33,6 +33,10 @@ class MonoSurrogate:
         :param np.array y: objective function evaluations OF(x)
         (n_datum, n_objectives)
         """
+        if x.ndim<2:
+            x = y.reshape(-1, 1)
+        if y.ndim<2:
+            y = y.reshape(-1, 1)
         # check dimensions of data
         assert(x.ndim == 2)
         assert(y.ndim == 2)

@@ -6,29 +6,32 @@ from testsuite.scalarisers import saf
 from scipy.stats import norm
 
 
-def _expected_improvement(x_put, x_observed, surrogate, xi=0.01):
+def scalar_expected_improvement(mu, var, y, xi=0.01, invert=False):
     """
-    computes the expected improvement of the putative solution x_put
-    over the previous observastions in x_observed according to the
-    provided surrogate model.
+    computes the expected improvement of the putative solution of a
+    prediction based on the mean (mu) and variance (var) of the
+    prediciton over the previous observastions in x_observed according
+    to the provided surrogate model.
 
-    :param np.ndarray x_put: putative solution (1, x_dims)
-    :param np.ndarray x_observed: Prior observations
-    (n_observations, x_dims)
-    :param surrogate: surrogate model
+    :param float mu: prediction mean
+    :param float var:
+    :param np.array y:
     :param float xi:
-    :return float: scalar value for expected improvement
+    :return float: expected improvement
     """
-    # get surrogate model predictions for prior observations and putative
-    # solution
-    mu, var = surrogate.predict(x_observed)
-    mu_put, var_put = surrogate.predict(x_put)
 
-    mu_opt = np.max(mu)
-    sigma = var_put**0.5
+    if invert:
+        mu_opt = np.min(y)
+    else:
+        mu_opt = np.max(y)
+
+    sigma = var**0.5
 
     with np.errstate(divide='warn'):
-        imp = mu_put - mu_opt - xi
+        if invert:
+            imp = -mu + mu_opt + xi
+        else:
+            imp = mu - mu_opt - xi
         Z = imp / sigma
         ei = imp * norm.cdf(Z) + sigma * norm.pdf(Z)
         ei[sigma == 0.0] = 0.0
@@ -118,8 +121,8 @@ if __name__ == "__main__":
 
     model = GP(scaled=True)
     model.update(xtr, ytr)
-
     model_y, model_var = model.predict(x)
+
 
     fig0, [ax00, ax01] = plt.subplots(2, 1)
     ax00.plot(x, y, c="grey", label="objective function")
@@ -131,8 +134,12 @@ if __name__ == "__main__":
     ax00.scatter(xtr, ytr, marker="x", c="C0", label="observations")
     ax00.legend()
 
-    ei = _expected_improvement(x, xtr, model)
-    ax01.plot(x, ei, c="C4", alpha=0.7, label="expected improvement")
+    # use get_y() as y is scaled
+    ei = scalar_expected_improvement(model_y, model_var, model.get_y())
+    ax01.plot(x, ei, c="C4", alpha=0.7, label="ei")
+    ei_inv = scalar_expected_improvement(model_y, model_var, model.get_y(),
+                                         invert=True)
+    ax01.plot(x, ei_inv, c="C2", alpha=0.7, label="ei inverted")
     ax01.legend()
 
     plt.show()

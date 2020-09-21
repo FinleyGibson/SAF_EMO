@@ -14,6 +14,7 @@ from evoalgos.performance import FonsecaHyperVolume
 
 from testsuite.utilities import Pareto_split, optional_inversion, dominates
 from testsuite.surrogates import GP, MultiSurrogate, MonoSurrogate
+from testsuite.acquisition_functions import scalar_expected_improvement
 
 
 def increment_evaluation_count(f):
@@ -326,6 +327,103 @@ class Optimiser:
         return evaluated
 
 
+class ParEgo(Optimiser):
+    """
+    https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=1583627 
+    """
+    def __init__(self, *args, s=5, rho=0.05, ei=True, surrogate=None, 
+                 cmaes_restarts=0, **kwargs):
+        self.s = s
+        self.rho = rho
+        self.ei = ei
+        self.l_set = None
+        self.surrogate = surrogate if surrogate else GP(scaled=True)
+        self.cmaes_restarts = cmaes_restarts
+        super().__init__(*args, **kwargs)
+
+        # check user has not tried to use a MultiSurrogate
+        assert(not isinstance(self.surrogate, MultiSurrogate)), \
+            "Cannot use multi-surrogate with {} optimiser.".format(__class__)
+
+    def get_next_x(self, excluded_indices=None):
+        """
+        Implementation required in child: method to find next parameter
+        to evaluate in optimisation sequence.
+        :return: x_new [np.array] shape (1, x_dims)
+        """
+        lambda_i = self._get_lambda(self.s, self.n_objectives)
+        self._dace(self.x, self.y, lambda_i)
+        # update model with new f_lambda
+
+        seed = np.random.uniform(self.limits[0], self.limits[1],
+                                 self.surrogate.x_dims)
+        res = cma.fmin(self.alpha, seed,
+                       sigma0=0.25,
+                       options={'bounds': [self.limits[0], self.limits[1]]},
+                       restarts=self.cmaes_restarts)
+        x_new = res[0]
+        return x_new
+
+    def _dace(self, x, y, lambda_i):
+        y_norm = self._normalise(y)
+        # TODO verify use of y_norm instead of self.y in dot product here.
+        #  Alma differs from paper paper instructions used.
+        f_lambda = np.max(y_norm*lambda_i, axis=1)+(self.rho*np.dot(y_norm, lambda_i))
+        self.surrogate.update(x, f_lambda)
+        pass
+
+    def _normalise(self, y):
+        """
+        Normalise cost functions. Here we use estimated limits from data in
+        normalisation as suggested by Knowles (2006).
+
+        Parameters.
+        -----------
+        y (np.array): matrix of function values.
+
+        Returns normalised function values.
+        """
+        min_y = np.min(y, axis=0)
+        max_y = np.max(y, axis=0)
+        return (y - min_y) / (max_y - min_y)
+
+    def _get_lambda(self, s, n_obj):
+        """
+        Select a lambda vector. See Knowles(2006) for full details.
+
+        Parameters.
+        -----------
+        s (int): determine total number of vectors: from (s+k-1) choose (k-1)
+                    vectors.
+        n_obj (int): number of objectvies.
+
+        Returns a selected lambda vector.
+        """
+        if self.l_set is None:
+            l = [np.arange(s + 1, dtype=int) for i in range(n_obj)]
+            self.l_set = np.array([np.array(i) \
+                                   for i in itertools.product(*l) if
+                                   np.sum(i) == s]) / s
+            print("Number of scalarising vectors: ", self.l_set.shape[0])
+        ind = np.random.choice(np.arange(self.l_set.shape[0], dtype=int))
+        return self.l_set[ind]
+
+    def alpha(self, x):
+        mu, var = self.surrogate.predict(x)
+        if self.ei:
+            # use ei in accordance with knowles 2006
+            # get_y() to use unscaled f_lambda values in ei
+            # -ei becasue cmaes minimises only. We want max ei.
+            # invert becasue it is a minimisation problem
+            efficacy = -scalar_expected_improvement(mu, var,
+                                               y=self.surrogate.get_y(),
+                                               invert=True)
+        else:
+            # use mean prediction instead
+            efficacy =  self.surrogate.predict(x)[0]
+        return float(efficacy)
+
+
 class BayesianOptimiser(Optimiser):
     def __init__(self, objective_function, limits, surrogate, cmaes_restarts=0,
                  log_models=False, **kwargs):
@@ -420,7 +518,8 @@ class BayesianOptimiser(Optimiser):
         return x_new.reshape(1, -1)
 
     def alpha(self, x_put):
-        assert NotImplementedError
+        put_y, put_std = self.surrogate.predict(x_put)
+        return self._scale_y(put_y, put_std, invert=True)
 
     def log_optimisation(self, save=False):
 
@@ -430,6 +529,9 @@ class BayesianOptimiser(Optimiser):
                                      surrogate_models=self.model_log)
         else:
             super().log_optimisation(save=save)
+
+    def _scale_y(self, put_y, put_std):
+        assert NotImplementedError
 
 
 class Saf(BayesianOptimiser):
@@ -643,73 +745,6 @@ class Mpoi(BayesianOptimiser):
         return float(efficacy_put)
 
 
-class ParEgo(BayesianOptimiser):
-    def __init__(self, *args, s, rho, **kwargs):
-        self.s = s
-        self.rho = rho
-        super().__init__(*args, **kwargs)
-
-    def normalise(self, y):
-        """
-        Normalise cost functions. Here we use estimated limits from data in
-        normalisation as suggested by Knowles (2006).
-
-        Parameters.
-        -----------
-        y (np.array): matrix of function values.
-
-        Returns normalised function values.
-        """
-        min_y = np.min(y, axis=0)
-        max_y = np.max(y, axis=0)
-        return (y - min_y) / (max_y - min_y)
-
-    def get_lambda(self, s, n_obj):
-        """
-        Select a lambda vector. See Knowles(2006) for full details.
-
-        Parameters.
-        -----------
-        s (int): determine total number of vectors: from (s+k-1) choose (k-1)
-                    vectors.
-        n_obj (int): number of objectvies.
-
-        Returns a selected lambda vector.
-        """
-        try:
-            self.l_set
-        except:
-            l = [np.arange(s + 1, dtype=int) for i in range(n_obj)]
-            self.l_set = np.array([np.array(i) \
-                                   for i in itertools.product(*l) if
-                                   np.sum(i) == s]) / s
-            print("Number of scalarising vectors: ", self.l_set.shape[0])
-        ind = np.random.choice(np.arange(self.l_set.shape[0], dtype=int))
-        return self.l_set[ind]
-
-    def scalarise_y(self, x, kwargs={}):
-        """
-        Transform cost functions with augmented chebyshev -- ParEGO infill
-        criterion.
-        See Knowles(2006) for full details.
-
-        Parameters.
-        -----------
-        x (np.array): decision vectors.
-        kwargs (dict): dictionary of options. They are.
-                    's' (int): number of lambda vectors.
-                    'rho' (float): rho from ParEGO
-
-        Returns an array of transformed cost.
-        """
-        y = self.m_obj_eval(x)
-        self.X = x
-        y_norm = self.normalise(y)
-        lambda_i = self.get_lambda(self.s, y.shape[1])
-        new_y = np.max(y_norm * lambda_i, axis=1) + (self.rho * np.dot(y, lambda_i))
-        return np.reshape(-new_y, (-1, 1))
-
-
 class Saf_Sms(SmsEgo):
     """
     saf in the non-dominated region, sms-ego in the dominated region.
@@ -822,79 +857,38 @@ class Saf_Saf(Saf):
 if __name__ == "__main__":
     import matplotlib.pyplot as plt
     import wfg
+    # set up objective function
+    kfactor = 2
+    lfactor = 2
+    n_objectives = 2
+    n_dims = lfactor * 2 + kfactor
 
+    k = kfactor * (n_objectives - 1)
+    l = lfactor * 2
+    wfg_n = 6
+    exec("func = wfg.WFG{}".format(int(wfg_n)))
 
+    def test_function(x):
+        if x.ndim == 2:
+            assert (x.shape[1] == n_dims)
+        else:
+            squeezable = np.where([a == 1 for a in x.shape])[0]
+            for i in squeezable[::-1]:
+                x = x.squeeze(i)
 
-    safsms_opt = Saf_Sms(objective_function=lambda x: x[0:2], ei=False,
-                         surrogate=MultiSurrogate(GP),
-                         limits=[[0, 0, 0, 0, 0], [1, 1, 1, 1, 1]])
+        if x.ndim == 1:
+            assert (x.shape[0] == n_dims)
+            x = x.reshape(1, -1)
+        return np.array([func(xi, k, n_objectives) for xi in x])
+    limits = [np.zeros((n_dims)), np.array(range(1, n_dims + 1)) * 2]
 
-    uncertainty = 0.00
-    F = lambda x_q: np.array([safsms_opt._scalarise_y(
-        x_qi.reshape(1, -1), np.ones_like(x_qi.reshape(1, -1)) * uncertainty,
-        invert=True) for x_qi in x_q])
+    from experiments.push8.push_world import push_8D
+    from numpy import pi
 
-    # compute infill
-    M, N = 100, 100
-    x = np.linspace(0, 1.5, M)
-    y = np.linspace(0, 1.5, N)
-    xx, yy = np.meshgrid(x, y)
-    xy = np.vstack((xx.flat, yy.flat)).T
-
-    zz = F(xy)
-    zz = zz.reshape(N, M)
-    pass
-
-    fig = plt.figure()
-    ax = fig.gca()
-    ax.pcolor(xx, yy, zz)
-    ax.contour(xx, yy, zz, colors="C3", levels=[0.])
-    ax.contour(xx, yy, zz, colors="white", levels=np.linspace(zz.min(), zz.max(), 20))
-    ax.scatter(safsms_opt.p[:,0], safsms_opt.p[:,1], c="C3")
-    plt.show()
-    pass
-    # # set up objective function
-    # kfactor = 2
-    # lfactor = 2
-    # n_objectives = 2
-    # n_dims = lfactor * 2 + kfactor
-    #
-    # k = kfactor * (n_objectives - 1)
-    # l = lfactor * 2
-    # wfg_n = 6
-    # exec("func = wfg.WFG{}".format(int(wfg_n)))
-    #
-    # def test_function(x):
-    #     if x.ndim == 2:
-    #         assert (x.shape[1] == n_dims)
-    #     else:
-    #         squeezable = np.where([a == 1 for a in x.shape])[0]
-    #         for i in squeezable[::-1]:
-    #             x = x.squeeze(i)
-    #
-    #     if x.ndim == 1:
-    #         assert (x.shape[0] == n_dims)
-    #         x = x.reshape(1, -1)
-    #     return np.array([func(xi, k, n_objectives) for xi in x])
-    # limits = [np.zeros((n_dims)), np.array(range(1, n_dims + 1)) * 2]
-
-    # from experiments.push8.push_world import push_8D
-    # from numpy import pi
-    #
-    # # define push8 test problem
-    # limits = [[-5, -5, 10, 0] * 2, [5, 5, 300, 2 * pi] * 2]
-    # o1 = [4, 4]
-    # o2 = [0, -4]
-    # t1 = [-3, 0]
-    # t2 = [3, 0]
-    #
-    #
-    # def test_function(x):
-    #     return push_8D(x=x, t1=t1, t2=t2, o1=o1, o2=o2, draw=False)
-    #
-    #
-    # gp_surr_multi = MultiSurrogate(GP, scaled=True)
-    # gp_surr_mono = GP(scaled=True)
+    gp_surr_multi = MultiSurrogate(GP, scaled=True)
+    gp_surr_mono = GP(scaled=True)
+    opt = ParEgo(objective_function=test_function, ei=False, limits=limits, n_initial=10,
+                 budget=100, seed=None, log_interval=10)
     # # opt = Mpoi(objective_function=test_function, limits=limits, surrogate=gp_surr_multi, n_initial=10, seed=None)
     # # opt = Saf(objective_function=test_function, ei=True,  limits=limits, surrogate=gp_surr_multi, n_initial=10, budget=12, seed=None)
     # opt = Saf(objective_function=test_function, ei=False,  limits=limits, surrogate=gp_surr_multi, n_initial=10, budget=20, seed=None, log_models=True, log_interval=1)
@@ -903,9 +897,9 @@ if __name__ == "__main__":
     # # opt = ParEgo(objective_function=test_function, limits=limits, surrogate=GP(), n_initial=10, s=5, rho=0.5)
     #
     # # # ans = test_function(opt.x)
-    # opt.optimise(n_steps=1)
-    # opt.optimise(n_steps=1)
-    # opt.optimise(n_steps=10)
+    opt.optimise(n_steps=1)
+    opt.optimise(n_steps=4)
+    opt.optimise(n_steps=10)
     # # print("done")
     # print(opt.saved_models[0])
     #
