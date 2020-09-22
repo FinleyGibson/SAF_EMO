@@ -652,7 +652,7 @@ class SmsEgo(BayesianOptimiser):
         l = [-1 + np.prod(1 + y_test - y[i]) if
              cs.compare_solutions(y[i], yt, self.obj_sense) == 0
              else 0 for i in range(y.shape[0])]
-        return (max([0, max(l)]))
+        return max([0, max(l)])
 
     def step(self):
         super().step()
@@ -688,12 +688,11 @@ class SmsEgo(BayesianOptimiser):
 
         if penalty > 0:
             return -penalty
-
-        # compute and update hypervolumes
-        current_hv = self.current_hv
-        put_hv = self._compute_hypervolume(np.vstack((self.p, lcb)))
-
-        return put_hv - current_hv
+        else:
+            # compute and update hypervolumes
+            current_hv = self.current_hv
+            put_hv = self._compute_hypervolume(np.vstack((self.p, lcb)))
+            return put_hv - current_hv
 
     def alpha(self, x_put):
         y_put, var_put = self.surrogate.predict(x_put)
@@ -805,8 +804,11 @@ class Sms_Saf(SmsEgo):
         l = [-1 + np.prod(1 + lcb - p) if cs.compare_solutions(p, yt, self.obj_sense) == 0 else 0 for p in self.p]
         penalty = (max([0, max(l)]))
 
-        if penalty > 0:
-            return float(Saf.saf(y_put.reshape(1, -1), self.p))
+        # if penalty > 0:
+
+        saf_v = float(Saf.saf(y_put.reshape(1, -1), self.p))
+        if saf_v < 0:
+            return saf_v
         else:
             # compute and update hypervolumes
             current_hv = self.current_hv
