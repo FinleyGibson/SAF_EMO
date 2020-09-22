@@ -682,10 +682,8 @@ class SmsEgo(BayesianOptimiser):
         epsilon = (np.max(self.y, axis=0) - np.min(self.y, axis=0)) / (
                 n_pfr + (c * b_count))
 
-        yt = y_put - (epsilon * self.obj_sense)
-        l = [-1 + np.prod(1 + y_put - self.y[i]) if
-             cs.compare_solutions(self.y[i], yt, self.obj_sense) == 0
-             else 0 for i in range(self.y.shape[0])]
+        yt = lcb - (epsilon * self.obj_sense)
+        l = [-1 + np.prod(1 + lcb - p) if cs.compare_solutions(p, yt, self.obj_sense) == 0 else 0 for p in self.p]
         penalty = (max([0, max(l)]))
 
         if penalty > 0:
@@ -765,33 +763,11 @@ class Saf_Sms(SmsEgo):
         assert y_put.shape[0] == 1
         assert std_put.shape[0] == 1
 
-        # lower confidence bounds
-        lcb = y_put - (self.gain * np.multiply(self.obj_sense, std_put))
-
-        # calculate penalty
-        n_pfr = len(self.p)
-        c = 1 - (1 / 2 ** self.n_objectives)
-
-        # TODO is b_count supposed to be the remaining budget?
-        b_count = self.budget - self.n_evaluations -1
-        epsilon = (np.max(self.y, axis=0) - np.min(self.y, axis=0)) / (
-                n_pfr + (c * b_count))
-
-        yt = y_put - (epsilon * self.obj_sense)
-        l = [-1 + np.prod(1 + y_put - self.y[i]) if
-             cs.compare_solutions(self.y[i], yt, self.obj_sense) == 0
-             else 0 for i in range(self.y.shape[0])]
-        penalty = (max([0, max(l)]))
-
         saf_v = float(Saf.saf(y_put.reshape(1,-1), self.p))
         if saf_v>0:
-            # compute and update hypervolumes
-            current_hv = self.current_hv
-            put_hv = self._compute_hypervolume(np.vstack((self.p, lcb)))
-
-            return put_hv - current_hv
-        else:
             return saf_v
+        else:
+            return super()._scalarise_y(y_put, std_put)
 
 
 class Sms_Saf(SmsEgo):
@@ -825,16 +801,17 @@ class Sms_Saf(SmsEgo):
         epsilon = (np.max(self.y, axis=0) - np.min(self.y, axis=0)) / (
                 n_pfr + (c * b_count))
 
-        yt = y_put - (epsilon * self.obj_sense)
-        l = [-1 + np.prod(1 + y_put - self.y[i]) if
-             cs.compare_solutions(self.y[i], yt, self.obj_sense) == 0
-             else 0 for i in range(self.y.shape[0])]
+        yt = lcb - (epsilon * self.obj_sense)
+        l = [-1 + np.prod(1 + lcb - p) if cs.compare_solutions(p, yt, self.obj_sense) == 0 else 0 for p in self.p]
         penalty = (max([0, max(l)]))
 
         if penalty > 0:
-            return -penalty
-        else:
             return float(Saf.saf(y_put.reshape(1, -1), self.p))
+        else:
+            # compute and update hypervolumes
+            current_hv = self.current_hv
+            put_hv = self._compute_hypervolume(np.vstack((self.p, lcb)))
+            return put_hv - current_hv
 
 
 class Saf_Saf(Saf):
@@ -888,8 +865,16 @@ if __name__ == "__main__":
 
     gp_surr_multi = MultiSurrogate(GP, scaled=True)
     gp_surr_mono = GP(scaled=True)
-    opt = ParEgo(objective_function=test_function, ei=False, limits=limits, n_initial=10,
-                 budget=100, seed=None, log_interval=10)
+    
+    # opt = ParEgo(objective_function=test_function, ei=False, limits=limits, n_initial=10,
+    
+    #              budget=100, seed=None, log_interval=10)
+    opt = SmsEgo(objective_function=lambda x: x[0:2], ei=True,
+                 limits=[[0, 0, 0, 0, 0], [1, 1, 1, 1, 1]],
+                 surrogate=gp_surr_multi, n_initial=10)
+
+    yput = np.array([.8, .6])
+    opt._scalarise_y(y_put=yput, std_put=np.ones_like(yput)*0.1)
     # # opt = Mpoi(objective_function=test_function, limits=limits, surrogate=gp_surr_multi, n_initial=10, seed=None)
     # # opt = Saf(objective_function=test_function, ei=True,  limits=limits, surrogate=gp_surr_multi, n_initial=10, budget=12, seed=None)
     # opt = Saf(objective_function=test_function, ei=False,  limits=limits, surrogate=gp_surr_multi, n_initial=10, budget=20, seed=None, log_models=True, log_interval=1)
@@ -898,9 +883,9 @@ if __name__ == "__main__":
     # # opt = ParEgo(objective_function=test_function, limits=limits, surrogate=GP(), n_initial=10, s=5, rho=0.5)
     #
     # # # ans = test_function(opt.x)
-    opt.optimise(n_steps=1)
-    opt.optimise(n_steps=4)
-    opt.optimise(n_steps=10)
+    # opt.optimise(n_steps=1)
+    # opt.optimise(n_steps=4)
+    # opt.optimise(n_steps=10)
     # # print("done")
     # print(opt.saved_models[0])
     #
