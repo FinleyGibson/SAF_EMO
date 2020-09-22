@@ -1,7 +1,5 @@
 import numpy as np
-from typing import Union
 from testsuite.utilities import Pareto_split
-from testsuite.surrogates import MultiSurrogate, MonoSurrogate
 from testsuite.scalarisers import saf
 from scipy.stats import norm
 
@@ -46,8 +44,7 @@ def _mean_signed_improvement(x_put, x_observed, surrogate):
     return mu_put-mu_opt
 
 
-def saf_mu(x_put: np.ndarray, surrogate: Union[MonoSurrogate, MultiSurrogate],
-           z_pop: np.array) -> np.ndarray:
+def saf_mu(x_put, surrogate, z_pop: np.array):
     """
     :param x_put: putitive solution to be tested
     :param surrogate: surrogate
@@ -65,46 +62,6 @@ def saf_mu(x_put: np.ndarray, surrogate: Union[MonoSurrogate, MultiSurrogate],
     # get saf of mean predictions
     alpha = saf(mu, p)  # invert to minimize problem
     return alpha
-
-
-def saf_ei(x_put: np.ndarray, surrogate: Union[MonoSurrogate, MultiSurrogate],
-           z_pop: np.array, n_samples: int=10000, return_samples=False) \
-        -> Union[np.ndarray, tuple]:
-    # TODO implement saf_calc for multiple points simaltaneously
-    return _single_saf_ei(x_put, surrogate, z_pop)
-
-
-def _single_saf_ei(x_put: np.ndarray, surrogate: Union[MonoSurrogate, MultiSurrogate],
-           z_pop: np.array, n_samples: int=10000, return_samples=False) \
-        -> Union[np.ndarray, tuple]:
-
-    if x_put.ndim==1:
-        x_put = x_put.reshape(1,-1)
-
-    assert(x_put.ndim==2)
-    assert x_put.shape[0]==1
-    # TODO implement multiple point saf_ei computation simultaneously.
-
-    # split dominated and non-dominated solutions so far
-    p, d = Pareto_split(z_pop)
-
-    mu_put, var_put = surrogate.predict(x_put)
-    mu_put = mu_put.reshape(-1)
-    var_put = var_put.reshape(-1)
-
-    # best saf value observed so far.
-    f_star = np.max(saf(z_pop, p))  # should be 0 in current cases
-
-    # sample from surrogate
-    samples = np.array([np.random.normal(mu, var**0.5, n_samples)
-                        for mu, var in zip(mu_put, var_put)]).T
-    saf_samples = saf(samples, p)
-    saf_samples[saf_samples > f_star] = f_star
-
-    if return_samples:
-        return samples, saf_samples
-    else:
-        return np.mean(saf_samples)
 
 
 if __name__ == "__main__":
