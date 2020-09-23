@@ -355,7 +355,8 @@ class ParEgo(Optimiser):
                                  self.surrogate.x_dims)
         res = cma.fmin(self.alpha, seed,
                        sigma0=0.25,
-                       options={'bounds': [self.limits[0], self.limits[1]]},
+                       options={'bounds': [self.limits[0], self.limits[1]],
+                                'maxfevals': 1e5},
                        restarts=self.cmaes_restarts)
         x_new = res[0]
         return x_new
@@ -462,6 +463,7 @@ class BayesianOptimiser(Optimiser):
         """
         Gets the next point to be evaluated by the objective function.
         Decided by optimisation of the acquisition function in
+                                'maxfevals': 1e5},
         self.alpha.
 
         :param excluded_indices: list of indices for self.x and self.y
@@ -496,8 +498,8 @@ class BayesianOptimiser(Optimiser):
                                      self.surrogate.x_dims)
             res = cma.fmin(self.alpha, seed,
                            sigma0=0.25,
-                           options={'bounds':
-                                    [self.limits[0], self.limits[1]]},
+                           options={'bounds':[self.limits[0], self.limits[1]],
+                                    'maxfevals': 5e3},
                            restarts=self.cmaes_restarts)
             x_new = res[0]
         else:
@@ -691,7 +693,9 @@ class SmsEgo(BayesianOptimiser):
         else:
             # compute and update hypervolumes
             current_hv = self.current_hv
-            put_hv = self._compute_hypervolume(np.vstack((self.p, lcb)))
+            put_hv = self._compute_hypervolume(
+                Pareto_split(np.vstack((self.p, lcb)))[0]
+            )
             return put_hv - current_hv
 
     def alpha(self, x_put):
@@ -812,7 +816,9 @@ class Sms_Saf(SmsEgo):
         else:
             # compute and update hypervolumes
             current_hv = self.current_hv
-            put_hv = self._compute_hypervolume(np.vstack((self.p, lcb)))
+            put_hv = self._compute_hypervolume(
+                Pareto_split(np.vstack((self.p, lcb)))[0]
+            )
             return put_hv - current_hv
 
 
