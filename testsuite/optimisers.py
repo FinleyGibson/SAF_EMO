@@ -693,9 +693,9 @@ class SmsEgo(BayesianOptimiser):
         else:
             # compute and update hypervolumes
             current_hv = self.current_hv
-            put_hv = self._compute_hypervolume(
-                Pareto_split(np.vstack((self.p, lcb)))[0]
-            )
+            # we use vstack(self.p, lcb) here without Pareto_split becasue
+            # it is more efficient and gives the same answer. Verified
+            put_hv = self._compute_hypervolume(np.vstack((self.p, lcb)))
             return put_hv - current_hv
 
     def alpha(self, x_put):
