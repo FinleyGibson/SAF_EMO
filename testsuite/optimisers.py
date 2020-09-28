@@ -182,7 +182,7 @@ class Optimiser:
             if try_count > 5:
                 # This should not occur multiple times. Something is
                 # wrong here.
-                self.log_optimisation(save=True)
+                self.log_optimisation(save=True, failed=True)
 
                 raise RuntimeError("Optimsation of acquisition function"
                                    "failed to find a unique new "
@@ -847,30 +847,32 @@ class Saf_Saf(Saf):
 if __name__ == "__main__":
     import matplotlib.pyplot as plt
     import wfg
-    # set up objective function
-    kfactor = 2
-    lfactor = 2
-    n_objectives = 2
-    n_dims = lfactor * 2 + kfactor
 
-    k = kfactor * (n_objectives - 1)
-    l = lfactor * 2
-    wfg_n = 6
-    exec("func = wfg.WFG{}".format(int(wfg_n)))
+    n_obj = 2  # Number of objectives
+    kfactor = 4
+    lfactor = 4
+
+    k = kfactor * (n_obj - 1)  # position related params
+    l = lfactor * 2  # distance related params
+    n_dim = k + l
+
+    func = wfg.WFG6
+
+    x_limits = np.zeros((2, n_dim))
+    x_limits[1] = np.array(range(1, n_dim + 1)) * 2
+
+    ref = np.ones(n_obj) * 1.2
+    surrogate = MultiSurrogate(GP, scaled=True)
+
+    args = [k, n_obj]  # number of objectives as argument
+
 
     def test_function(x):
-        if x.ndim == 2:
-            assert (x.shape[1] == n_dims)
-        else:
-            squeezable = np.where([a == 1 for a in x.shape])[0]
-            for i in squeezable[::-1]:
-                x = x.squeeze(i)
-
-        if x.ndim == 1:
-            assert (x.shape[0] == n_dims)
+        if x.ndim < 2:
             x = x.reshape(1, -1)
-        return np.array([func(xi, k, n_objectives) for xi in x])
-    limits = [np.zeros((n_dims)), np.array(range(1, n_dims + 1)) * 2]
+        return np.array([func(xi, k, n_obj) for xi in x]) / (
+                    np.array(range(1, n_obj + 1)) * 2)
+
 
     from experiments.push8.push_world import push_8D
     from numpy import pi
@@ -881,12 +883,11 @@ if __name__ == "__main__":
     # opt = ParEgo(objective_function=test_function, ei=False, limits=limits, n_initial=10,
     
     #              budget=100, seed=None, log_interval=10)
-    opt = SmsEgo(objective_function=lambda x: x[0:2], ei=True,
-                 limits=[[0, 0, 0, 0, 0], [1, 1, 1, 1, 1]],
-                 surrogate=gp_surr_multi, n_initial=10)
+    opt = SmsEgo(objective_function=test_function, ei=True,
+                 limits=x_limits, seed=7,
+                 surrogate=gp_surr_multi, n_initial=10, budget=100)
 
-    yput = np.array([.8, .6])
-    opt._scalarise_y(y_put=yput, std_put=np.ones_like(yput)*0.1)
+    opt.optimise()
     # # opt = Mpoi(objective_function=test_function, limits=limits, surrogate=gp_surr_multi, n_initial=10, seed=None)
     # # opt = Saf(objective_function=test_function, ei=True,  limits=limits, surrogate=gp_surr_multi, n_initial=10, budget=12, seed=None)
     # opt = Saf(objective_function=test_function, ei=False,  limits=limits, surrogate=gp_surr_multi, n_initial=10, budget=20, seed=None, log_models=True, log_interval=1)
