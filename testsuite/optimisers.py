@@ -182,6 +182,8 @@ class Optimiser:
             if try_count > 5:
                 # This should not occur multiple times. Something is
                 # wrong here.
+                self.log_optimisation(save=True)
+
                 raise RuntimeError("Optimsation of acquisition function"
                                    "failed to find a unique new "
                                    "evaluation parameter even with the "
@@ -355,9 +357,10 @@ class ParEgo(Optimiser):
                                  self.surrogate.x_dims)
         res = cma.fmin(self.alpha, seed,
                        sigma0=0.25,
-                       options={'bounds': [self.limits[0], self.limits[1]],
-                                'maxfevals': 1e5},
+                       options={'bounds': [self.limits[0], self.limits[1]]},
                        restarts=self.cmaes_restarts)
+
+        # 'maxfevals': 1e5},
         x_new = res[0]
         return x_new
 
@@ -498,9 +501,10 @@ class BayesianOptimiser(Optimiser):
                                      self.surrogate.x_dims)
             res = cma.fmin(self.alpha, seed,
                            sigma0=0.25,
-                           options={'bounds':[self.limits[0], self.limits[1]],
-                                    'maxfevals': 5e3},
+                           options={'bounds':[self.limits[0], self.limits[1]]},
                            restarts=self.cmaes_restarts)
+
+            # 'maxfevals': 5e3},
             x_new = res[0]
         else:
             # TODO fix use of argmin to accommodate maximisation cases.
