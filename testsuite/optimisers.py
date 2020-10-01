@@ -520,8 +520,8 @@ class BayesianOptimiser(Optimiser):
         return x_new.reshape(1, -1)
 
     def alpha(self, x_put):
-        put_y, put_std = self.surrogate.predict(x_put)
-        return self._scale_y(put_y, put_std, invert=True)
+        put_y, put_var = self.surrogate.predict(x_put)
+        return self._scale_y(put_y, put_var**0.5, invert=True)
 
     def log_optimisation(self, save=False):
 
@@ -578,7 +578,7 @@ class Saf(BayesianOptimiser):
         if y_put.ndim < 2:
             y_put = y_put.reshape(1, -1)
         if std_put.ndim < 2:
-            y_var = std_put.reshape(1, -1)
+            std_put = std_put.reshape(1, -1)
 
         # TODO implement multiple point saf_ei computation simultaneously.
 
@@ -843,6 +843,19 @@ class Saf_Saf(Saf):
             return saf_v
         else:
             return float(self.saf_ei(y_put, std_put, invert=False))
+
+
+class SafUcb(Saf):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    def _scalarise_y(self, y_put, std_put):
+        samples, saf_samples = self.saf_ei(y_put, std_put, n_samples=1000,
+                                           return_samples=True)
+
+        return np.percentile(saf_samples, )
+
 
 if __name__ == "__main__":
     import matplotlib.pyplot as plt
