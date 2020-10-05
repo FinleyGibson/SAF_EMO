@@ -37,7 +37,7 @@ def increment_evaluation_count(f):
 class Optimiser:
     def __init__(self, objective_function, limits,
                  n_initial=10, budget=30, of_args=[], seed=None,
-                 ref_vector=None, log_dir="./log_data", log_interval=None):
+                 log_dir="./log_data", log_interval=None):
 
         self.objective_function = objective_function
         self.of_args = of_args
@@ -54,9 +54,6 @@ class Optimiser:
         self.x, self.y = self.initial_evaluations(n_initial,
                                                   self.x_dims,
                                                   self.limits)
-        # # update surrogate
-        # self.surrogate.update(self.x, self.y)
-
         # computed once and stored for efficiency.
         # TODO possibly more efficient to compute dominance matrix and
         #  build on that with each new point
@@ -68,12 +65,6 @@ class Optimiser:
         # TODO obj_sense currently only allows minimisation of objectives.
         self.obj_sense = [-1]*self.n_objectives
 
-        # if no ref_vector provided, use max of initial evaluations
-        self.ref_vector = self.y.max(axis=0) if ref_vector is None else np.array(ref_vector)
-        self.hpv = FonsecaHyperVolume(self.ref_vector) # used to find hypervolume
-        # hv is stored to prevent repeated computation.
-
-        # set up logging
         self.log_dir = log_dir
         if not os.path.exists(log_dir):
             os.makedirs(self.log_dir)
@@ -111,7 +102,7 @@ class Optimiser:
     def optimise(self, n_steps=None):
         # unless specified exhaust budget
         if n_steps is None:
-            n_steps = self.budget - self.n_initial
+            n_steps = self.budget - self.n_evaluations
 
         for i in range(n_steps):
             self.step()
@@ -256,26 +247,6 @@ class Optimiser:
             with open(log_filepath+".pkl", 'wb') as handle:
                 pickle.dump(self.log_data, handle, protocol=2)
 
-    def _compute_hypervolume(self, y=None):
-        """
-        Calcualte the current hypervolume, or that of the provided y.
-        """
-        if y is None:
-            y = self.p
-
-        if self.n_objectives > 1:
-            try:
-                # handles instances where there is a single front point
-                # without having to check front.ndim==2 or reshape each
-                # time
-                volume = self.hpv.assess_non_dom_front(y)
-            except AttributeError:
-                volume = self.hpv.assess_non_dom_front(y.reshape(1, -1))
-
-            return volume
-        else:
-            return np.min(y)
-
     def _generate_filename(self, *args):
         """
         generates a filename from optimiser parameters, and ensures
@@ -357,7 +328,8 @@ class ParEgo(Optimiser):
                                  self.surrogate.x_dims)
         res = cma.fmin(self.alpha, seed,
                        sigma0=0.25,
-                       options={'bounds': [self.limits[0], self.limits[1]]},
+                       options={'bounds': [self.limits[0], self.limits[1]],
+                                'maxfevals': 20000*n_dim},
                        restarts=self.cmaes_restarts)
 
         # 'maxfevals': 1e5},
@@ -501,10 +473,10 @@ class BayesianOptimiser(Optimiser):
                                      self.surrogate.x_dims)
             res = cma.fmin(self.alpha, seed,
                            sigma0=0.25,
-                           options={'bounds':[self.limits[0], self.limits[1]]},
+                           options={'bounds':[self.limits[0], self.limits[1]],
+                                    'maxfevals': 20000*n_dim},
                            restarts=self.cmaes_restarts)
 
-            # 'maxfevals': 5e3},
             x_new = res[0]
         else:
             # TODO fix use of argmin to accommodate maximisation cases.
@@ -620,19 +592,52 @@ class Saf(BayesianOptimiser):
 
 class SmsEgo(BayesianOptimiser):
 
-    def __init__(self, *args, ei=True, **kwargs):
+    def __init__(self, *args, ei=True, ref_vector=None, **kwargs):
 
         self.ei = ei
         super().__init__(*args, **kwargs)
 
-        self.current_hv = self._compute_hypervolume()
         self.gain = -norm.ppf(0.5 * (0.5 ** (1 / self.n_objectives)))
+
+        # set dynamic reference vector if not specified
+        if ref_vector is None:
+            self.dynamic_ref = True
+            self.ref_vector = self.p.max(axis=0)*1.2
+        else:
+            self.dynamic_ref = False
+            try:
+                self.ref_vector = np.array(ref_vector).reshape(-1)
+                assert(self.ref_vector.shape==(self.n_objectives,))
+            except AssertionError:
+                raise AssertionError("Supplied reference vector is not"
+                                     "formatted correctly. should be 1d array "
+                                     "of size {}.".format(self.n_objectives))
+
+        self.hpv=FonsecaHyperVolume(reference_point=self.ref_vector)
+        self.current_hv = self._compute_hypervolume()
 
     def _generate_filename(self):
         if self.ei:
             return super()._generate_filename("ei")
         else:
             return super()._generate_filename("mean")
+
+    def _compute_hypervolume(self, p=None):
+        """
+        Calcualte the current hypervolume, or that of the provided y.
+        """
+        if p is None:
+            p = self.p
+
+        if self.n_objectives > 1:
+            assert (p.ndim <= 2), "error in attainment front shape."
+            if p.ndim == 1:
+                p = p.reshape(1, self.n_objectives)
+            assert(p.shape[1] == self.n_objectives)
+            volume = self.hpv.assess_non_dom_front(p)
+            return volume
+        else:
+            return np.min(p)
 
     def _penalty(self, y, y_test):
         '''
@@ -662,6 +667,16 @@ class SmsEgo(BayesianOptimiser):
 
     def step(self):
         super().step()
+        if self.dynamic_ref:
+            # update ref vector to max observed if it was initially unspecified
+            ref_vector = self.p.max(axis=0)
+            if np.any(ref_vector != self.ref_vector):
+                # update hypervolume calc to include new ref
+                self.hpv=FonsecaHyperVolume(reference_point=ref_vector)
+                # update ref vector
+                self.ref_vector = ref_vector
+
+        # update hypervolume
         self.current_hv = self._compute_hypervolume()
 
     @optional_inversion
@@ -699,6 +714,8 @@ class SmsEgo(BayesianOptimiser):
             current_hv = self.current_hv
             # we use vstack(self.p, lcb) here without Pareto_split becasue
             # it is more efficient and gives the same answer. Verified
+            # TODO create temporary class variable to store best hv so that
+            #  it does not have to be recomputed in self.step
             put_hv = self._compute_hypervolume(np.vstack((self.p, lcb)))
             return put_hv - current_hv
 
@@ -747,7 +764,7 @@ class Mpoi(BayesianOptimiser):
 
     def alpha(self, x_put):
         y_put, var_put = self.surrogate.predict(x_put)
-        efficacy_put = self._scalarise_y(y_put, var_put ** 0.5, invert=True)
+        efficacy_put = self._scalarise_y(y_put, var_put**0.5, invert=True)
         return float(efficacy_put)
 
 
@@ -844,75 +861,152 @@ class Saf_Saf(Saf):
         else:
             return float(self.saf_ei(y_put, std_put, invert=False))
 
+class Lhs():
+    def __init__(self, objective_function, limits, n_initial=10, budget=30, 
+                 of_args=[], seed=None, log_dir="./log_data"):
 
-class SafUcb(Saf):
+        self.objective_function = objective_function
+        self.of_args = of_args
+        self.log_data = {}
+        self.train_time = 0
+        self.n_initial = n_initial
+        self.budget = budget
+        self.n_inital = n_initial
+        self.x_dims = np.shape(limits)[1]
+        self.seed = seed if seed is not None else np.random.randint(0, 10000)
+        self.limits = limits
+        self.x = [self.lhs_sample(n_initial)]
+        self.y = [self.objective_function(self.x[0], *of_args)]
+        self.n_objectives = self.y[0].shape[1]
+        self.n_evaluations = n_initial
+        
+        self.log_dir = log_dir
+        if not os.path.exists(log_dir):
+            os.makedirs(self.log_dir)
+        self.log_filename = self._generate_filename()
+        self.log_data = None
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def lhs_sample(self, n_samples):
+        x = lhsmdu.sample(self.x_dims, n_samples, randomSeed=self.seed)
+        return np.array(x).T*(self.limits[1]-self.limits[0])+self.limits[0]
 
-    def _scalarise_y(self, y_put, std_put):
-        samples, saf_samples = self.saf_ei(y_put, std_put, n_samples=1000,
-                                           return_samples=True)
+    def step(self):
+        n_samples = self.n_evaluations+1
+        x = self.lhs_sample(n_samples)
+        y = self.objective_function(x, *self.of_args)
+        self.x.append(x)
+        self.y.append(y)
+        self.n_evaluations = n_samples
 
-        return np.percentile(saf_samples, )
+    def optimise(self, n_steps=None):
+        # unless specified exhaust budget
+        if n_steps is None:
+            n_steps = self.budget - self.n_evaluations
+
+        tic = time.time()
+        for i in range(n_steps):
+            self.step()
+        self.train_time+=time.time()-tic
+
+        self.log_optimisation(save=True)
+
+
+    def _generate_filename(self):
+        file_dir = "{}_{}_init{}"
+        # get information to include in filename
+        objective_function = str(self.objective_function.__name__)
+        optimiser = "lhs"
+        initial_samples = self.n_initial
+
+        file_dir = file_dir.format(objective_function, optimiser,
+                                   initial_samples)
+
+        # update location to log data to incorporate sub dir
+        self.log_dir = os.path.join(self.log_dir, file_dir)
+        if not os.path.exists(self.log_dir):
+            os.makedirs(self.log_dir)
+            
+        # generate unique filename, accommodating repeat optimisations
+        unique_code = str(uuid.uuid1())
+        filename = file_dir + 'seed_{}__'.format(self.seed) + unique_code
+        return filename
+
+
+    def log_optimisation(self, save=False, **kwargs):
+        """
+        updates dictionary of saved optimisation information and saves
+        to disk, including keyword arguments pased by the child class
+        in the log_data dict.
+
+        :param bool save: Save to disk if True
+        :param kwargs: dictionary of keyword arguments to include in
+        log_data
+        :return: N/A
+        """
+        try:
+            # log modifications each self.log_interval steps. Called in
+            # increment_evaluation_count decorator.
+            self.log_data["x"] = self.x
+            self.log_data["y"] = self.y
+            self.log_data["n_evaluations"] = self.n_evaluations
+            self.log_data["train_time"] = self.train_time
+            for key, value in kwargs.items():
+                self.log_data[key] = value
+
+        except TypeError:
+            # initial information logging called by Optimiser __init__
+            log_data = {"objective_function": self.objective_function.__name__,
+                        "limits": self.limits,
+                        "n_initial": self.n_initial,
+                        "seed": self.seed,
+                        "x": self.x,
+                        "y": self.y,
+                        "log_dir": self.log_dir,
+                        "log_filename": self.log_filename,
+                        "n_evaluations": self.n_evaluations,
+                        "budget": self.budget,
+                        "errors": [],
+                        "train_time": self.train_time
+                        }
+            log_data.update(kwargs)
+            self.log_data = log_data
+
+        # save log_data to file.
+        
+        if save:
+            log_filepath = os.path.join(self.log_dir, self.log_filename)
+            with open(log_filepath+".pkl", 'wb') as handle:
+                pickle.dump(self.log_data, handle, protocol=2)
 
 
 if __name__ == "__main__":
     import matplotlib.pyplot as plt
     import wfg
 
+    # setup function
     n_obj = 2  # Number of objectives
     kfactor = 4
     lfactor = 4
-
     k = kfactor * (n_obj - 1)  # position related params
     l = lfactor * 2  # distance related params
     n_dim = k + l
+    limits = np.zeros((2, n_dim))
+    limits[1] = np.array(range(1, n_dim + 1)) * 2
 
     func = wfg.WFG6
-
-    x_limits = np.zeros((2, n_dim))
-    x_limits[1] = np.array(range(1, n_dim + 1)) * 2
-
-    ref = np.ones(n_obj) * 1.2
-    surrogate = MultiSurrogate(GP, scaled=True)
-
-    args = [k, n_obj]  # number of objectives as argument
-
+    gp_surr_multi = MultiSurrogate(GP, scaled=True)
+    # gp_surr_mono = GP(scaled=True)
 
     def test_function(x):
         if x.ndim < 2:
             x = x.reshape(1, -1)
-        return np.array([func(xi, k, n_obj) for xi in x]) / (
-                    np.array(range(1, n_obj + 1)) * 2)
+        return np.array([func(xi, k, n_obj) for xi in x])
 
-
-    from experiments.push8.push_world import push_8D
-    from numpy import pi
-
-    gp_surr_multi = MultiSurrogate(GP, scaled=True)
-    gp_surr_mono = GP(scaled=True)
-    
-    # opt = ParEgo(objective_function=test_function, ei=False, limits=limits, n_initial=10,
-    
-    #              budget=100, seed=None, log_interval=10)
-    opt = SmsEgo(objective_function=test_function, ei=True,
-                 limits=x_limits, seed=7,
-                 surrogate=gp_surr_multi, n_initial=10, budget=100)
-
-    opt.optimise()
-    # # opt = Mpoi(objective_function=test_function, limits=limits, surrogate=gp_surr_multi, n_initial=10, seed=None)
-    # # opt = Saf(objective_function=test_function, ei=True,  limits=limits, surrogate=gp_surr_multi, n_initial=10, budget=12, seed=None)
+    # opt = Mpoi(objective_function=test_function, limits=limits, surrogate=gp_surr_multi, n_initial=10, seed=None)
+    # opt = Saf(objective_function=test_function, ei=True,  limits=limits, surrogate=gp_surr_multi, n_initial=10, budget=12, seed=None)
     # opt = Saf(objective_function=test_function, ei=False,  limits=limits, surrogate=gp_surr_multi, n_initial=10, budget=20, seed=None, log_models=True, log_interval=1)
-    # # # opt = SmsEgo(objective_function=test_function, ei=True,  limits=limits, surrogate=gp_surr_multi, n_initial=10, seed=None)
-    # # opt = SmsEgo(objective_function=test_function, ei=False,  limits=limits, surrogate=gp_surr_multi, n_initial=10, seed=17, budget=100)
-    # # opt = ParEgo(objective_function=test_function, limits=limits, surrogate=GP(), n_initial=10, s=5, rho=0.5)
-    #
-    # # # ans = test_function(opt.x)
-    # opt.optimise(n_steps=1)
-    # opt.optimise(n_steps=4)
-    # opt.optimise(n_steps=10)
-    # # print("done")
-    # print(opt.saved_models[0])
-    #
+    #opt = SmsEgo(objective_function=test_function, ei=True,  limits=limits, surrogate=gp_surr_multi, n_initial=10, budget =50, seed=None)
+    # opt = SmsEgo(objective_function=test_function, ei=False,  limits=limits, surrogate=gp_surr_multi, n_initial=10, seed=17, budget=100)
+    # opt = ParEgo(objective_function=test_function, limits=limits, surrogate=GP(), n_initial=10, s=5, rho=0.5)
+    opt = Lhs(objective_function = test_function, limits=limits, n_initial=10, budget=20, seed=None)
 
