@@ -329,7 +329,7 @@ class ParEgo(Optimiser):
         res = cma.fmin(self.alpha, seed,
                        sigma0=0.25,
                        options={'bounds': [self.limits[0], self.limits[1]],
-                                'maxfevals': 20000*n_dim},
+                                'maxfevals': 1e5},
                        restarts=self.cmaes_restarts)
 
         # 'maxfevals': 1e5},
@@ -474,7 +474,7 @@ class BayesianOptimiser(Optimiser):
             res = cma.fmin(self.alpha, seed,
                            sigma0=0.25,
                            options={'bounds':[self.limits[0], self.limits[1]],
-                                    'maxfevals': 20000*n_dim},
+                                    'maxfevals': 1e5},
                            restarts=self.cmaes_restarts)
 
             x_new = res[0]
