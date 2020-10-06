@@ -54,17 +54,17 @@ class Optimiser:
         self.x, self.y = self.initial_evaluations(n_initial,
                                                   self.x_dims,
                                                   self.limits)
+        self.n_objectives = self.y.shape[1]
+        # TODO obj_sense currently only allows minimisation of objectives.
+        self.obj_sense = [-1]*self.n_objectives
+
         # computed once and stored for efficiency.
         # TODO possibly more efficient to compute dominance matrix and
         #  build on that with each new point
         self.Pareto_indices = [*Pareto_split(self.y, return_indices=True)]
         self.p = self.y[self.Pareto_indices[0]]
         self.d = self.y[self.Pareto_indices[1]]
-        self.obj_weights = self.get_obj_weights()
-
-        self.n_objectives = self.y.shape[1]
-        # TODO obj_sense currently only allows minimisation of objectives.
-        self.obj_sense = [-1]*self.n_objectives
+        self.obj_weights, self.obj_offset = self.get_obj_weighting()
 
         self.log_dir = log_dir
         if not os.path.exists(log_dir):
@@ -116,7 +116,7 @@ class Optimiser:
         """takes one step in the optimisation, getting the next decision
         vector by calling the get_next_x method"""
 
-        self.obj_weights = self.get_obj_weights()
+        self.obj_weights, self.obj_offset = self.get_obj_weighting()
         # ensures unique evaluation
         x_new = self.get_next_x()
 
@@ -204,12 +204,30 @@ class Optimiser:
         self.p = self.y[self.Pareto_indices[0]]
         self.d = self.y[self.Pareto_indices[1]]
 
-    def get_obj_weights(self):
+    def get_obj_weighting(self):
         """set the weighting equal to the range observed in the non-dominated
         set.
         """
-        weighting = self.p.max(axis=0) - self.p.min(axis=0)
-        return 1/weighting
+        p = self.p
+        if p.shape[0] < 1:
+            # handles edge case where only one non-dominated point
+            p2 = Pareto_split(self.d)[0]
+            p = np.vstack(p, p2)
+        offset = p.min(axis=0)
+        weighting = p.max(axis=0) - offset
+
+        assert weighting.shape == (self.n_objectives,)
+        assert offset.shape == (self.n_objectives,)
+
+        return 1/weighting, p.min(axis=0)
+
+    def apply_weighting(self, y):
+        """ apply objective weighting to y"""
+        if y.ndim == 1:
+            assert y.shape[0] == self.n_objectives
+        else:
+            assert y.shape[1] == self.n_objectives
+        return (y-self.obj_offset)*self.obj_weights
 
     def log_optimisation(self, save=False, **kwargs):
         """
@@ -329,7 +347,7 @@ class ParEgo(Optimiser):
         to evaluate in optimisation sequence.
         :return: x_new [np.array] shape (1, x_dims)
         """
-        y = self.y*self.obj_weights
+        y = self.apply_weighting(self.y)
         lambda_i = self._get_lambda(self.s, self.n_objectives)
         self._dace(self.x, y, lambda_i)
         # update model with new f_lambda
@@ -342,7 +360,6 @@ class ParEgo(Optimiser):
                                 'maxfevals': 1e5},
                        restarts=self.cmaes_restarts)
 
-        # 'maxfevals': 1e5},
         x_new = res[0]
         return x_new
 
@@ -402,7 +419,7 @@ class ParEgo(Optimiser):
                                                invert=True)
         else:
             # use mean prediction instead
-            efficacy =  self.surrogate.predict(x)[0]
+            efficacy = self.surrogate.predict(x)[0]
         return float(efficacy)
 
 
@@ -472,7 +489,7 @@ class BayesianOptimiser(Optimiser):
             x = self.x
             y = self.y
 
-        y = y*self.obj_weights
+        y = self.apply_weighting(y)
 
         # update surrogate
         self.surrogate.update(x, y)
@@ -505,7 +522,7 @@ class BayesianOptimiser(Optimiser):
 
     def alpha(self, x_put):
         put_y, put_var = self.surrogate.predict(x_put)
-        return self._scale_y(put_y, put_var**0.5, invert=True)
+        return self._scalarise_y(put_y, put_var**0.5, invert=True)
 
     def log_optimisation(self, save=False):
 
@@ -516,7 +533,8 @@ class BayesianOptimiser(Optimiser):
         else:
             super().log_optimisation(save=save)
 
-    def _scale_y(self, put_y, put_std):
+    @optional_inversion
+    def _scalarise_y(self, put_y, put_std):
         assert NotImplementedError
 
 
@@ -558,7 +576,7 @@ class Saf(BayesianOptimiser):
     @optional_inversion
     def saf_ei(self, y_put: np.ndarray, std_put, n_samples: int = 1000,
                return_samples=False) -> Union[np.ndarray, tuple]:
-
+        p = self.apply_weighting(self.p)
         if y_put.ndim < 2:
             y_put = y_put.reshape(1, -1)
         if std_put.ndim < 2:
@@ -574,7 +592,7 @@ class Saf(BayesianOptimiser):
         samples = np.random.normal(0, 1, size=(n_samples, y_put.shape[1])) \
                   * std_put + y_put
 
-        saf_samples = self.saf(samples, self.p, invert=False)
+        saf_samples = self.saf(samples, p, invert=False)
         saf_samples[saf_samples < f_star] = f_star
 
         if return_samples:
@@ -594,7 +612,8 @@ class Saf(BayesianOptimiser):
         if self.ei:
             return float(self.saf_ei(y_put, std_put, invert=False))
         else:
-            return float(self.saf(y_put, self.p, invert=False))
+            return float(self.saf(y_put, self.apply_weighting(self.p),
+                                  invert=False))
 
     def alpha(self, x_put):
             y_put, var_put = self.surrogate.predict(x_put)
@@ -614,19 +633,19 @@ class SmsEgo(BayesianOptimiser):
         # set dynamic reference vector if not specified
         if ref_vector is None:
             self.dynamic_ref = True
-            self.ref_vector = (self.p*self.obj_weights).max(axis=0)*1.2
+            self.ref_vector = self.apply_weighting(self.p).max(axis=0)*1.2
         else:
             self.dynamic_ref = False
             try:
-                self.ref_vector = np.array(ref_vector).reshape(-1)
-                assert(self.ref_vector.shape==(self.n_objectives,))
+                self.ref_vector = np.array(self.apply_weighting(ref_vector)).reshape(-1)
+                assert(self.ref_vector.shape == (self.n_objectives,))
             except AssertionError:
                 raise AssertionError("Supplied reference vector is not"
                                      "formatted correctly. should be 1d array "
                                      "of size {}.".format(self.n_objectives))
 
         self.hpv=FonsecaHyperVolume(reference_point=self.ref_vector)
-        self.current_hv = self._compute_hypervolume()
+        # self.current_hv = self._compute_hypervolume()
 
     def _generate_filename(self):
         if self.ei:
@@ -639,7 +658,7 @@ class SmsEgo(BayesianOptimiser):
         Calcualte the current hypervolume, or that of the provided y.
         """
         if p is None:
-            p = self.p*self.obj_weights
+            p = self.apply_weighting(self.p)
 
         if self.n_objectives > 1:
             assert (p.ndim <= 2), "error in attainment front shape."
@@ -664,17 +683,18 @@ class SmsEgo(BayesianOptimiser):
         Returns a penalty value.
         '''
         # TODO check this maths against paper.
-        n_pfr = len(self.p)
+        p = self.apply_weighting(self.p)
+        y = self.apply_weighting(y)
+
+        n_pfr = len(p)
         c = 1 - (1/2**self.n_objectives)
         b_count = self.budget - len(self.x) - 1
 
-        epsilon = (np.max(self.y*self.obj_weights, axis=0) -
-                   np.min(self.y*self.obj_weights, axis=0))/\
-                  (n_pfr + (c * b_count))
+        epsilon = (y.max(axis=0) - y.min(axis=0))/(n_pfr + (c * b_count))
 
         yt = y_test - (epsilon * self.obj_sense)
-        l = [-1 + np.prod(1 + y_test - y[i]) if
-             cs.compare_solutions(y[i], yt, self.obj_sense) == 0
+        l = [-1 + np.prod(1 + y_test - y[i])
+             if cs.compare_solutions(y[i], yt, self.obj_sense) == 0
              else 0 for i in range(y.shape[0])]
         return max([0, max(l)])
 
@@ -682,27 +702,25 @@ class SmsEgo(BayesianOptimiser):
         super().step()
         if self.dynamic_ref:
             # update ref vector to max observed if it was initially unspecified
-            self.obj_weights = self.get_obj_weights()
-            ref_vector = (self.p*self.obj_weights).max(axis=0)
+            ref_vector = self.apply_weighting(self.p).max(axis=0)*1.2
             if np.any(ref_vector != self.ref_vector):
-                # update hypervolume calc to include new ref
+                # update hypervolume calc to include new ref and update ref
                 self.hpv=FonsecaHyperVolume(reference_point=ref_vector)
-                # update ref vector
                 self.ref_vector = ref_vector
 
         # update hypervolume
-        self.current_hv = self._compute_hypervolume()
+        # self.current_hv = self._compute_hypervolume()
 
     @optional_inversion
     def _scalarise_y(self, y_put, std_put):
-        p = self.p*self.obj_weights
-        y = self.y*self.obj_weights
+        p = self.apply_weighting(self.p)
+        y = self.apply_weighting(self.y)
+
         if not self.ei:
             std_put = np.zeros_like(std_put)
-
         if y_put.ndim<2:
-            y_put = y_put.reshape(1,-1)
-            std_put = std_put.reshape(1,-1)
+            y_put = y_put.reshape(1, -1)
+            std_put = std_put.reshape(1, -1)
 
         assert y_put.shape[0] == 1
         assert std_put.shape[0] == 1
@@ -715,24 +733,26 @@ class SmsEgo(BayesianOptimiser):
         c = 1 - (1 / 2 ** self.n_objectives)
 
         # TODO is b_count supposed to be the remaining budget?
-        b_count = self.budget - self.n_evaluations -1
-        epsilon = (np.max(y, axis=0) - np.min(y, axis=0)) / (
-                n_pfr + (c * b_count))
+        b_count = self.budget - self.n_evaluations - 1
+        epsilon = (y.max(axis=0) - y.min(axis=0)) / (n_pfr + (c * b_count))
 
-        yt = lcb - (epsilon * self.obj_sense)
-        l = [-1 + np.prod(1 + lcb - p_i) if cs.compare_solutions(p, yt, self.obj_sense) == 0 else 0 for p_i in p]
+        yt = lcb - (epsilon*self.obj_sense)
+        l = [-1 + np.prod(1 + lcb - p_i)
+             if cs.compare_solutions(p_i, yt, self.obj_sense) == 0
+             else 0 for p_i in p]
+
         penalty = (max([0, max(l)]))
 
         if penalty > 0:
             return -penalty
         else:
             # compute and update hypervolumes
-            current_hv = self.current_hv
+            current_hv = self._compute_hypervolume()
             # we use vstack(self.p, lcb) here without Pareto_split becasue
             # it is more efficient and gives the same answer. Verified
             # TODO create temporary class variable to store best hv so that
             #  it does not have to be recomputed in self.step
-            put_hv = self._compute_hypervolume(np.vstack((self.p, lcb)))
+            put_hv = self._compute_hypervolume(np.vstack((p, lcb)))
             return put_hv - current_hv
 
     def alpha(self, x_put):
@@ -763,17 +783,18 @@ class Mpoi(BayesianOptimiser):
 
         Returns scalarised cost.
         '''
+        p = self.apply_weighting(self.p)
 
         if y_put.ndim<2:
-            y_put = y_put.reshape(1,-1)
-            std_put = std_put.reshape(1,-1)
+            y_put = y_put.reshape(1, -1)
+            std_put = std_put.reshape(1, -1)
 
-        assert y_put.shape[0]==1
-        assert std_put.shape[0]==1
+        assert y_put.shape[0] == 1
+        assert std_put.shape[0] == 1
 
         res = np.zeros((y_put.shape[0], 1))
         for i in range(y_put.shape[0]):
-            m = (y_put[i] - self.p) / (np.sqrt(2) * std_put[i])
+            m = (y_put[i] - p) / (np.sqrt(2) * std_put[i])
             pdom = 1 - np.prod(0.5 * (1 + erf(m)), axis=1)
             res[i] = np.min(pdom)
         return res
@@ -1021,11 +1042,13 @@ if __name__ == "__main__":
         return np.array([func(xi, k, n_obj) for xi in x])
 
     # opt = Mpoi(objective_function=test_function, limits=limits, surrogate=gp_surr_multi, n_initial=10, seed=None)
-    opt = Saf(objective_function=test_function, ei=True,  limits=limits, surrogate=gp_surr_multi, n_initial=10, budget=12, seed=None)
+    # opt = Saf(objective_function=test_function, ei=True,  limits=limits, surrogate=gp_surr_multi, n_initial=10, budget=12, seed=None)
     # opt = Saf(objective_function=test_function, ei=False,  limits=limits, surrogate=gp_surr_multi, n_initial=10, budget=20, seed=None, log_models=True, log_interval=1)
-    #opt = SmsEgo(objective_function=test_function, ei=True,  limits=limits, surrogate=gp_surr_multi, n_initial=10, budget =50, seed=None)
+    opt = SmsEgo(objective_function=test_function, ei=True,  limits=limits, surrogate=gp_surr_multi, n_initial=10, budget =50, seed=None)
     # opt = SmsEgo(objective_function=test_function, ei=False,  limits=limits, surrogate=gp_surr_multi, n_initial=10, seed=17, budget=100)
     # opt = ParEgo(objective_function=test_function, limits=limits, surrogate=GP(), n_initial=10, s=5, rho=0.5)
     # opt = Lhs(objective_function = test_function, limits=limits, n_initial=10, budget=20, seed=None)
 
     opt.optimise(10)
+    opt.optimise(10)
+    pass
