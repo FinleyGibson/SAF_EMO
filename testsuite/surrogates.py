@@ -4,7 +4,6 @@ from sklearn.ensemble import ExtraTreesRegressor, RandomForestRegressor
 import sys
 current_module = sys.modules[__name__]
 
-
 class MonoSurrogate:
     def __init__(self, scaled=False):
         """

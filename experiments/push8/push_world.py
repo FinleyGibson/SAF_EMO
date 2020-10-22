@@ -335,6 +335,14 @@ def push_8D(x, t1_x, t1_y, t2_x, t2_y, o1_x, o1_y, o2_x, o2_y, draw=False):
     (r1_x, r1_y, r1_steps, r1_hand_angle,
      r2_x, r2_y, r2_steps, r2_hand_angle) = x
 
+    # modification to make angles cyclical
+    if r1_hand_angle<0:
+        r1_hand_angle = (2*np.pi)+r1_hand_angle
+    if r2_hand_angle<0:
+        r2_hand_angle = (2*np.pi)+r2_hand_angle
+    r1_hand_angle = r1_hand_angle%(2*np.pi)
+    r2_hand_angle = r2_hand_angle%(2*np.pi)
+    
     r1_steps = np.round(r1_steps).astype(int)
     r2_steps = np.round(r2_steps).astype(int)
 

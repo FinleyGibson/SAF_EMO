@@ -1,0 +1,3020 @@
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+INFO:GP:initializing Y
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+INFO:GP:initializing Y
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+INFO:GP:initializing Y
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+INFO:GP:initializing inference method
+INFO:GP:initializing Y
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+INFO:GP:initializing Y
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+WARNING:persistqueue.sqlackqueue:resume 1 unack tasks
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+WARNING:persistqueue.sqlackqueue:resume 1 unack tasks
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+WARNING:persistqueue.sqlackqueue:resume 1 unack tasks
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+WARNING:persistqueue.sqlackqueue:resume 1 unack tasks
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+WARNING:persistqueue.sqlackqueue:resume 1 unack tasks
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+WARNING:persistqueue.sqlackqueue:resume 1 unack tasks
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+WARNING:persistqueue.sqlackqueue:resume 1 unack tasks
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+WARNING:persistqueue.sqlackqueue:resume 1 unack tasks
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+WARNING:persistqueue.sqlackqueue:resume 1 unack tasks
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+WARNING:persistqueue.sqlackqueue:resume 1 unack tasks
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+WARNING:persistqueue.sqlackqueue:resume 1 unack tasks
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+WARNING:persistqueue.sqlackqueue:resume 1 unack tasks
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+WARNING:persistqueue.sqlackqueue:resume 1 unack tasks
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+WARNING:persistqueue.sqlackqueue:resume 1 unack tasks
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+WARNING:persistqueue.sqlackqueue:resume 1 unack tasks
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+WARNING:persistqueue.sqlackqueue:resume 1 unack tasks
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+WARNING:persistqueue.sqlackqueue:resume 1 unack tasks
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+WARNING:persistqueue.sqlackqueue:resume 1 unack tasks
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+WARNING:persistqueue.sqlackqueue:resume 1 unack tasks
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+WARNING:persistqueue.sqlackqueue:resume 1 unack tasks
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+WARNING:persistqueue.sqlackqueue:resume 1 unack tasks
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+WARNING:persistqueue.sqlackqueue:resume 1 unack tasks
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+WARNING:persistqueue.sqlackqueue:resume 1 unack tasks
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+WARNING:persistqueue.sqlackqueue:resume 1 unack tasks
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+WARNING:persistqueue.sqlackqueue:resume 1 unack tasks
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+WARNING:persistqueue.sqlackqueue:resume 1 unack tasks
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+INFO:GP:initializing Y
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:initializing inference method
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+INFO:GP:adding kernel and likelihood as parameters
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+INFO:GP:initializing Y
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing inference method
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+INFO:GP:initializing Y
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing inference method
+INFO:GP:initializing Y
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:adding kernel and likelihood as parameters
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+WARNING:persistqueue.sqlackqueue:resume 1 unack tasks
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+WARNING:persistqueue.sqlackqueue:resume 1 unack tasks
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+WARNING:persistqueue.sqlackqueue:resume 1 unack tasks
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+WARNING:persistqueue.sqlackqueue:resume 1 unack tasks
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+WARNING:persistqueue.sqlackqueue:resume 1 unack tasks
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+INFO:GP:initializing Y
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+WARNING:persistqueue.sqlackqueue:resume 1 unack tasks
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+WARNING:persistqueue.sqlackqueue:resume 1 unack tasks
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+WARNING:persistqueue.sqlackqueue:resume 1 unack tasks
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+WARNING:persistqueue.sqlackqueue:resume 1 unack tasks
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+WARNING:persistqueue.sqlackqueue:resume 1 unack tasks
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+WARNING:persistqueue.sqlackqueue:resume 1 unack tasks
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+WARNING:persistqueue.sqlackqueue:resume 1 unack tasks
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+WARNING:persistqueue.sqlackqueue:resume 1 unack tasks
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+WARNING:persistqueue.sqlackqueue:resume 1 unack tasks
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+WARNING:persistqueue.sqlackqueue:resume 1 unack tasks
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+INFO:GP:initializing Y
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing inference method
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+INFO:GP:initializing Y
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+INFO:GP:initializing inference method
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+WARNING:persistqueue.sqlackqueue:resume 1 unack tasks
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+WARNING:persistqueue.sqlackqueue:resume 1 unack tasks
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+WARNING:persistqueue.sqlackqueue:resume 1 unack tasks
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+WARNING:persistqueue.sqlackqueue:resume 1 unack tasks
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+WARNING:persistqueue.sqlackqueue:resume 1 unack tasks
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+WARNING:persistqueue.sqlackqueue:resume 1 unack tasks
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+WARNING:persistqueue.sqlackqueue:resume 1 unack tasks
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+WARNING:persistqueue.sqlackqueue:resume 1 unack tasks
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+WARNING:persistqueue.sqlackqueue:resume 1 unack tasks
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+WARNING:persistqueue.sqlackqueue:resume 1 unack tasks
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+WARNING:persistqueue.sqlackqueue:resume 1 unack tasks
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+WARNING:persistqueue.sqlackqueue:resume 1 unack tasks
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+WARNING:persistqueue.sqlackqueue:resume 1 unack tasks
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+WARNING:persistqueue.sqlackqueue:resume 1 unack tasks
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+WARNING:persistqueue.sqlackqueue:resume 1 unack tasks
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
+INFO:GP:initializing Y
+INFO:GP:initializing inference method
+INFO:GP:adding kernel and likelihood as parameters
+WARNING:lengthscale:reconstraining parameters GP_regression.Mat52.lengthscale
+WARNING:variance:reconstraining parameters GP_regression.Mat52.variance
+WARNING:variance:reconstraining parameters GP_regression.Gaussian_noise.variance
