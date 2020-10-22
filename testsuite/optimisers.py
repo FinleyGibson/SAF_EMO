@@ -4,6 +4,7 @@ import cma
 import time
 import os
 import pickle
+import copy
 import _csupport as cs
 import uuid
 import itertools
@@ -39,6 +40,7 @@ class Optimiser:
                  n_initial=10, budget=30, of_args=[], seed=None,
                  log_dir="./log_data", log_interval=None):
 
+        self.unique_code = str(uuid.uuid1())
         self.objective_function = objective_function
         self.of_args = of_args
         self.seed = seed if seed is not None else np.random.randint(0, 10000)
@@ -125,29 +127,29 @@ class Optimiser:
             # repeats optimisation of the acquisition function up to
             # three times to try and find a unique solution.
 
-            # logs models which produced errors.
-            # TODO: Remove this once problem solved.
-            try:
-                try:
-                    # self.log_data["error models"].append(
-                    #     self.surrogate.model.copy())
-                    self.log_data["error models"].append(
-                        self.surrogate.odel.copy())
-                except KeyError:
-                    self.log_data["error models"] =\
-                        [self.surrogate.model.copy()]
-            except AttributeError:
-                # multi-surrogate case
-                try:
-                    self.log_data["error models"].append(
-                        [surrogate.model.copy() for surrogate in
-                         self.surrogate.mono_surrogates])
-                except KeyError:
-                    self.log_data["error models"] = [
-                        [surrogate.model.copy() for surrogate in
-                         self.surrogate.mono_surrogates]]
-                except AttributeError:
-                    pass
+            # # logs models which produced errors.
+            # # TODO: Remove this once problem solved.
+            # try:
+            #     try:
+            #         # self.log_data["error models"].append(
+            #         #     self.surrogate.model.copy())
+            #         self.log_data["error models"].append(
+            #             self.surrogate.model.copy())
+            #     except KeyError:
+            #         self.log_data["error models"] =\
+            #             [self.surrogate.model.copy()]
+            # except AttributeError:
+            #     # multi-surrogate case
+            #     try:
+            #         self.log_data["error models"].append(
+            #             [surrogate.model.copy() for surrogate in
+            #              self.surrogate.mono_surrogates])
+            #     except KeyError:
+            #         self.log_data["error models"] = [
+            #             [surrogate.model.copy() for surrogate in
+            #              self.surrogate.mono_surrogates]]
+            #     except AttributeError:
+            #         pass
 
             x_new = self.get_next_x()
             try_count += 1
@@ -209,10 +211,10 @@ class Optimiser:
         set.
         """
         p = self.p
-        if p.shape[0] < 1:
+        if p.shape[0] < 2:
             # handles edge case where only one non-dominated point
             p2 = Pareto_split(self.d)[0]
-            p = np.vstack(p, p2)
+            p = np.vstack((p.reshape(1,-1), p2))
         offset = p.min(axis=0)
         weighting = p.max(axis=0) - offset
 
@@ -268,11 +270,13 @@ class Optimiser:
             log_data.update(kwargs)
             self.log_data = log_data
 
-        # save log_data to file.
+        # save log_data and model to file.
         if save:
             log_filepath = os.path.join(self.log_dir, self.log_filename)
-            with open(log_filepath+".pkl", 'wb') as handle:
+            with open(log_filepath+"_results.pkl", 'wb') as handle:
                 pickle.dump(self.log_data, handle, protocol=2)
+            with open(log_filepath+"_model.pkl", 'wb') as handle:
+                pickle.dump(self, handle, protocol=2)
 
     def _generate_filename(self, *args):
         """
@@ -302,8 +306,7 @@ class Optimiser:
             os.makedirs(self.log_dir)
 
         # generate unique filename, accommodating repeat optimisations
-        unique_code = str(uuid.uuid1())
-        filename = file_dir +'seed_{}__'.format(self.seed) + unique_code
+        filename = 'seed_{}_'.format(self.seed)+file_dir +"_"+ self.unique_code
         return filename
 
     def _already_evaluated(self, x_put, thresh=1e-9):
@@ -427,7 +430,8 @@ class BayesianOptimiser(Optimiser):
     def __init__(self, objective_function, limits, surrogate, cmaes_restarts=0,
                  log_models=False, **kwargs):
 
-        self.surrogate = surrogate
+        self.raw_surrogate = surrogate
+        self.surrogate = copy.deepcopy(self.raw_surrogate)
         self.log_models = log_models
         if isinstance(surrogate, MultiSurrogate):
             self.multi_surrogate = True
@@ -451,15 +455,6 @@ class BayesianOptimiser(Optimiser):
             # mono-surrogate
             return super()._generate_filename(
                 self.surrogate.__class__.__name__, *args)
-
-    def step(self, *args, **kwargs):
-        super().step(*args, **kwargs)
-        # if self.log_models:
-        #     if self.multi_surrogate:
-        #         self.model_log.append([surrogate.model.copy() for surrogate in
-        #                                  self.surrogate.mono_surrogates])
-        #     else:
-        #         self.model_log.append(self.surrogate.model.copy())
 
     def get_next_x(self, excluded_indices=None):
         """
@@ -525,13 +520,9 @@ class BayesianOptimiser(Optimiser):
         return self._scalarise_y(put_y, put_var**0.5, invert=True)
 
     def log_optimisation(self, save=False):
-
-        if self.log_models:
-            # add model data to log_data if requested by save_models
-            super().log_optimisation(save=save,
-                                     surrogate_models=self.model_log)
-        else:
-            super().log_optimisation(save=save)
+        if save:
+            self.surrogate = copy.deepcopy(self.raw_surrogate)
+        super().log_optimisation(save=save)
 
     @optional_inversion
     def _scalarise_y(self, put_y, put_std):
@@ -949,7 +940,6 @@ class Lhs():
 
         self.log_optimisation(save=True)
 
-
     def _generate_filename(self):
         file_dir = "{}_{}_init{}"
         # get information to include in filename
@@ -967,9 +957,8 @@ class Lhs():
             
         # generate unique filename, accommodating repeat optimisations
         unique_code = str(uuid.uuid1())
-        filename = file_dir + 'seed_{}__'.format(self.seed) + unique_code
+        filename = file_dir+'seed_{}_'.format(self.seed)+unique_code+"_results"
         return filename
-
 
     def log_optimisation(self, save=False, **kwargs):
         """

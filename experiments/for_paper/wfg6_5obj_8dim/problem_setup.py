@@ -10,15 +10,15 @@ import matplotlib.pyplot as plt
 
 import wfg
 
-n_obj = 3                                   # Number of objectives
-kfactor = 2
+n_obj = 5                                   # Number of objectives
+kfactor = 1
 lfactor = 2
 
 k = kfactor*(n_obj-1)   # position related params
 l = lfactor*2           # distance related params
 n_dim = k+l
 
-func = wfg.WFG4
+func = wfg.WFG6
 
 
 N = 500 
