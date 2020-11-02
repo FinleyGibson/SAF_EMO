@@ -37,7 +37,7 @@ for i, result in enumerate(results):
         completed.append(False)
 
 print()
-print("{} completed out of {}.".format(sum(completed), len(completed)))
+print("{} completed out of {} started.".format(sum(completed), len(completed)))
 
 for result in results:
     print(result["budget"], result["n_evaluations"])

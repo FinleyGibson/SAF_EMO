@@ -7,7 +7,7 @@ import pickle
 from testsuite.utilities import Pareto_split
 from testsuite.analysis import load_all
 import numpy as np
-from paralellizer import func, n_obj, x_limits, n_dim, n_obj, k, l
+from paralellizer import func, n_obj, x_limits, n_dim, n_obj
 from pymoo.factory import get_performance_indicator
 from tqdm import tqdm
 
@@ -20,15 +20,16 @@ def extract_performance(z, indicator):
 
     return ANS
 
-
-weighting = np.array([1.5, 3, 6])
-
-N = 500
-y = np.zeros((N, n_obj))
-for n in range(N):
-    z = wfg.random_soln(k, l, func.__name__)
-    y[n,:] = func(z, k, n_obj)/weighting
-
+def scatter_nsphere(n_points, n_dims, weighting=None):
+    """scatter n_points onto unit n-spere with n_dims dimensions"""
+    if weighting is None:
+        weighting = np.ones(n_dims)
+    else:
+        weighting = np.array(weighting)
+    points = np.random.randn(n_points,n_dims)*weighting
+    d = (points**2).sum(axis=1)**0.5
+    norm_points = (points.T/d.T).T
+    return np.abs(norm_points)
 
 # set directories and paths
 pkl_dir = "./pkl_data/"
@@ -56,6 +57,9 @@ print("results loaded from ", results_dir)
 print("loaded:")
 for result in results:
     print(result["name"])
+
+weighting = np.arange(1,n_obj+1)*2
+y = scatter_nsphere(500, n_obj, weighting)
 
 print()
 print("weighting:\t", weighting)
