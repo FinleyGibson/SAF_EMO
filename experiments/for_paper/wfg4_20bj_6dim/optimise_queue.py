@@ -1,35 +1,14 @@
-# from multiprocessing.pool import ThreadPool
-from multiprocessing import cpu_count, Pool 
-from generate_queue import n_opt
+from multiprocessing import cpu_count, Pool
+# from generate_queue import n_opt
 import persistqueue
 
-import copy
-import time
+from filelock import FileLock
 import logging
 import rootpath
+import copy
 import sys
 sys.path.append(rootpath.detect())
 import testsuite
-
-
-def worker(i):
-    time.sleep(i*0.1)
-    while True:
-         q = persistqueue.SQLiteAckQueue('./opt_queue', multithreading=True)
-         if q.size>0:
-             task = q.get()
-             q.ack(task)
-             task_c = copy.deepcopy(task)
-             try:
-                 task.optimise()
-                 print("task completed!")
-             except Exception as e:
-                 print("task failed!")
-                 logging.error("an error occured: "+str(e))
-                 q.put(task_c)
-         else:
-             # portalocker.unlock(fl)
-             break
 
 # get processor count
 proc_count = cpu_count()
@@ -39,16 +18,40 @@ try:
 except IndexError:
     m_proc = proc_count
 
-# set number of available processors
+lock = FileLock("./lock")
 n_proc = min(proc_count, m_proc)
 
+def worker(i):
+    with lock:
+        q = persistqueue.SQLiteAckQueue('./opt_queue', multithreading=True)
+        cont = not q.empty()
+    while cont:
+        with lock:
+            q = persistqueue.SQLiteAckQueue('./opt_queue', multithreading=True)
+            optimiser = q.get()
+            q.ack(optimiser)
+        optimiser_cp = copy.deepcopy(optimiser)
+        try:
+            optimiser.optimise()
+        except  Exception as e:
+            logging.error('Exception met in {}, seed {}, at step {}.'.
+                    format(optimiser.__class__, optimiser.log_data["seed"], optimiser.n_evaluations))
+            with lock:
+                q.put(optimiser_cp)
+        with lock:
+            q = persistqueue.SQLiteAckQueue('./opt_queue', multithreading=True)
+            cont = not q.empty()
 
+
+with lock:
+    q = persistqueue.SQLiteAckQueue('./opt_queue', multithreading=True)
 print("{} processors found, limited to access {} processors.".format(proc_count, n_proc))
-cont = input("Press Enter to begin, optimisation, input N to cancel:\t").lower()
+print("{} optimsations found in queue.".format(q.size))
+go = input("Press Enter to begin, optimisation, input N to cancel:\t").lower()
 
-logging.basicConfig(filename='error.log',level=logging.INFO)
-
-with Pool(n_proc) as pool:
-    pool.map(worker, range(n_proc))
+logging.basicConfig(filename='error.log',level=logging.ERROR)
+if go != "n":
+    with Pool(n_proc) as pool:
+        pool.map(worker, range(n_proc))
 
 
