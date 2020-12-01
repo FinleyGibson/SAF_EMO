@@ -8,15 +8,15 @@ import wfg
 from testsuite.optimisers import *
 from testsuite.surrogates import GP, MultiSurrogate 
 
-n_obj = 2                                   # Number of objectives
+n_obj = 4                                   # Number of objectives
 kfactor = 2
-lfactor = 2
+lfactor = 1
 
 k = kfactor*(n_obj-1)   # position related params
 l = lfactor*2           # distance related params
 n_dim = k+l
 
-func = wfg.WFG6
+func = wfg.WFG4
 
 
 x_limits = np.zeros((2, n_dim))
@@ -38,17 +38,13 @@ budget = 250
 if __name__ == "__main__":
     optimisers = []
     for n in range(11):
-        optimisers += [SmsEgo(test_function, x_limits, surrogate, n_initial=10, budget=budget, seed=2, ei=True, log_dir="./log_data", cmaes_restarts=0),
-                       SmsEgo(test_function, x_limits, surrogate, n_initial=10, budget=budget, seed=3, ei=True, log_dir="./log_data", cmaes_restarts=0),
-                       SmsEgo(test_function, x_limits, surrogate, n_initial=10, budget=budget, seed=5, ei=True, log_dir="./log_data", cmaes_restarts=0),
-                       SmsEgo(test_function, x_limits, surrogate, n_initial=10, budget=budget, seed=6, ei=True, log_dir="./log_data", cmaes_restarts=0),
-                       SmsEgo(test_function, x_limits, surrogate, n_initial=10, budget=budget, seed=7, ei=True, log_dir="./log_data", cmaes_restarts=0),
-                       SmsEgo(test_function, x_limits, surrogate, n_initial=10, budget=budget, seed=2, ei=False, log_dir="./log_data", cmaes_restarts=0),
-                       SmsEgo(test_function, x_limits, surrogate, n_initial=10, budget=budget, seed=6, ei=False, log_dir="./log_data", cmaes_restarts=0),
-                       SmsEgo(test_function, x_limits, surrogate, n_initial=10, budget=budget, seed=10, ei=False, log_dir="./log_data", cmaes_restarts=0)]
-
-
-
+        optimisers += [SmsEgo(test_function, x_limits, surrogate, n_initial=10, budget=budget, seed=n, ei=True, log_dir="./log_data", cmaes_restarts=0),
+                      SmsEgo(test_function, x_limits, surrogate, n_initial=10, budget=budget, seed=n, ei=False, log_dir="./log_data", cmaes_restarts=0),
+                      Saf(test_function, x_limits, surrogate, n_initial=10, budget=budget, seed=n, ei=True, log_dir="./log_data", cmaes_restarts=0), 
+                      Saf(test_function, x_limits, surrogate,  n_initial=10, budget=budget, seed=n, ei=False, log_dir="./log_data", cmaes_restarts=0),
+                      ParEgo(objective_function=test_function, limits=x_limits, surrogate=GP(), seed=n, n_initial=10, s=5, rho=0.5, budget=budget, log_dir="./log_data", cmaes_restarts=0),
+                      Mpoi(objective_function=test_function, limits=x_limits, surrogate=surrogate, n_initial=10, seed=n, budget=budget, cmaes_restarts=0),
+                      Lhs(objective_function = test_function, limits=x_limits, n_initial=10, budget=budget, seed=n)]
     
     # optimisers = [Saf(test_function, x_limits, surrogate, n_initial=10, budget=budget, seed=0, ei=True, log_dir="./log_data", cmaes_restarts=0)]
     # optimisers = [SmsEgo(test_function, x_limits, surrogate, n_initial=10, budget=budget, seed=n, ei=True, log_dir="./log_data", cmaes_restarts=0)]
@@ -66,7 +62,7 @@ if __name__ == "__main__":
     ## establish parallel processing pool
     n_proc = mp.cpu_count()
     print("{} processors found".format(n_proc))
-    n_proc_cap = 18 
+    n_proc_cap = 20 
     pool = mp.Pool(min(n_proc, n_proc_cap))
     
     pool.map(objective_function, optimisers)
