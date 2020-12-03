@@ -19,8 +19,8 @@ PLOT_STYLE = {"scatter_cmap": mpl.cm.Purples,
               "plot_style": 'seaborn',
               "plot_cmap": mpl.cm.rainbow}
 
-def load_all(directory):
-    paths = [file for file in os.listdir(directory) if file[-4:] == ".pkl"]
+def load_all(directory, trailing_text = ".pkl"):
+    paths = [file for file in os.listdir(directory) if file[-len(trailing_text):] == trailing_text]
     combined_resuts = {}
     for log_path in paths:
         result = pickle.load(open(os.path.join(directory, log_path), "rb"))

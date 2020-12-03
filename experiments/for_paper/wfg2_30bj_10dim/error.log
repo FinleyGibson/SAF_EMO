@@ -1,8 +1,0 @@
-ERROR:root:Exception met in <class 'testsuite.optimisers.SmsEgo'>, seed 8, at step 38.
-ERROR:root:Exception met in <class 'testsuite.optimisers.SmsEgo'>, seed 4, at step 82.
-ERROR:root:Exception met in <class 'testsuite.optimisers.SmsEgo'>, seed 7, at step 107.
-ERROR:root:Exception met in <class 'testsuite.optimisers.SmsEgo'>, seed 11, at step 24.
-ERROR:root:Exception met in <class 'testsuite.optimisers.SmsEgo'>, seed 16, at step 11.
-ERROR:root:Exception met in <class 'testsuite.optimisers.SmsEgo'>, seed 16, at step 11.
-ERROR:root:Exception met in <class 'testsuite.optimisers.SmsEgo'>, seed 16, at step 11.
-ERROR:root:Exception met in <class 'testsuite.optimisers.SmsEgo'>, seed 16, at step 11.
