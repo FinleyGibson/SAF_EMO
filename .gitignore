@@ -2,7 +2,11 @@
 *outcmaes*
 *ipynb_checkpoints*
 *.pkl
-*log_data*
 *.pyc
 *.profile
-*.pkl
+
+./experiments/data/*/log_data/*
+./experiments/data/*/pkl_data/*
+./experiments/data/*/problem_setup.py
+./experiments/data/*/error.log
+
