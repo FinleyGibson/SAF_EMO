@@ -10,4 +10,5 @@
 !./experiments/data/*/figures/*
 !./experiments/data/*/pkl_data/*
 !./experiments/data/*/problem_setup.py
+!./experiments/data/*/
 
