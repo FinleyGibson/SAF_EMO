@@ -5,10 +5,8 @@
 *.pyc
 *.profile
 
-./experiments/*
-!./experiments/template/*
-!./experiments/data/*/figures/*
-!./experiments/data/*/pkl_data/*
-!./experiments/data/*/problem_setup.py
-!./experiments/data/*/
+./experiments/data/*/log_data/*
+./experiments/data/*/pkl_data/*
+./experiments/data/*/problem_setup.py
+./experiments/data/*/error.log
 
