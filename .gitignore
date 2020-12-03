@@ -13,5 +13,6 @@
 ./experiments/data/*/outcmaes/
 ./experiments/data/*/__pycache__/
 ./experiments/data/*/opt_queue/
+./experiments/data/*/remaining_opts
 
 
