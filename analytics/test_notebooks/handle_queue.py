@@ -9,11 +9,9 @@ from filelock import FileLock
 lock = FileLock("./lock")
 q = persistqueue.SQLiteAckQueue("./sleep_queue", multithreading=True) 
 
-def worker(i):
+def worker(i, q):
 
-    q = persistqueue.SQLiteAckQueue("./sleep_queue", multithreading=True) 
-    print(q.size)
-
+#     q = persistqueue.SQLiteAckQueue("./sleep_queue", multithreading=True) 
     if q.size:
         cont=True
     else:
@@ -42,5 +40,5 @@ n_cpus = cpu_count()
 print(n_cpus, " detected.")
 
 with Pool(n_cpus) as pool:
-    pool.map(worker, range(n_cpus))
+    pool.map(worker, range(n_cpus), q)
 

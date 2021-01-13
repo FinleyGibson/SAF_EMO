@@ -2,13 +2,9 @@ import sys
 import os
 import pickle
 import numpy as np
-import persistqueue
 import pickle
-from filelock import FileLock
-from problem_setup import n_obj
-log_dir = "./log_data"
-
-lock = FileLock('./lock')
+import rootpath
+sys.path.append(rootpath.detect())
 
 def get_missing(a, total): 
     b = np.arange(total) 
@@ -26,27 +22,49 @@ def get_seed_from_str(string):
     numstr = [i for i in string[ind:ind+4] if i in list('0987654321')] 
     return int(''.join(numstr))
 
-results_dirs = sorted([os.path.join(log_dir, result_dir) for result_dir in os.listdir(log_dir)])
+# set up parent dir
+try:
+    parent_dir = sys.argv[1]
+    if parent_dir[-1] == '/':
+        # robust to dirs which end in "/"
+        parent_dir = parent_dir[:-1]
+except IndexError:
+    parent_dir = '.'
 
-# result_files = [[os.path.join(resuts_dir, file_dir) for file_dir in os.listdir(results_dir)] for results_dir in results_dirs]
-result_files = [[os.path.join(results_dir, file_dir) for file_dir in os.listdir(results_dir) if file_dir[-11:]=="results.pkl"] for results_dir in results_dirs]
+sys.path.insert(1, parent_dir)
+from problem_setup import n_obj
 
+## logged data
+log_dir = parent_dir+"/log_data/"
+# get result paths from provided parent dir, else use ./log_data/
+directory_paths = sorted([os.path.join(log_dir, dir_name) for dir_name in os.listdir(log_dir)])
+result_paths = [[os.path.join(d, f) for f in os.listdir(d) if f[-11:]=="results.pkl"] for d in directory_paths]
+print("{} directories found:".format(len(directory_paths)))
 
-print("{} directories found containing {} results files.".format(len(results_dirs), sum([len(l) for l in result_files])))
-print()
-
+print("\n Logged data:")
+# load each result fom result_paths
 D = []
-for directory in results_dirs:
-    files = [f for f in os.listdir(directory) if f[-10:] != '_model.pkl']
-    print("Directory", directory, "contains {} files: ".format(len(files)))
+for parent, file_paths in zip(directory_paths, result_paths):
+    print("Directory", parent, " "*(50-len(parent)),  " contains {} files: ".format(len(file_paths)), end="    ")
+
     seeds = []
-    for f in files:
+    evals = []
+    for f in file_paths:
         seed = get_seed_from_str(f)
+        with open(f, 'rb') as infile:
+            result = pickle.load(infile)
         seeds.append(seed)
+        evals.append(result['n_evaluations'])
 
     expected = range(31)
     if sorted(seeds) == sorted(expected):
-        print("All accounted for")
+        print("All files accounted for", end=", ")
+        if all([i == 250 for i in evals]):
+            print("All otimisations complete!")
+        else:
+            for s, i in zip(seeds, evals):     
+                if i != 250:
+                    print(s, "\t",  i)
         duplicates = []
         missing = []
     else:
@@ -55,56 +73,45 @@ for directory in results_dirs:
             print("Directory contains duplicates: ", *duplicates)
         if len(missing)>0:
             print("Directory contains missing opts: ", *missing)
+        for s, i in zip(seeds, evals):     
+            if i != 250:
+                print(s, "\t", i)
 
-    print('\n')
-    D.append({'directory': directory, 'duplicates': duplicates, 'missing': missing, 'seeds':seeds})
+    # store remiaining opts
+    D.append({'directory': parent, 'duplicates': duplicates, 'missing': missing, 'seeds':seeds})
 
-        
+# write remaining optimisations to disk
 with open('./remaining_opts', 'wb') as outfile:
     pickle.dump(D, outfile)
-# results = []
-# n_results = 0
-# for filei in result_files:
-#     for f in filei:
-#         n_results += 1
-#         with open(f, "rb") as infile:
-#             result = pickle.load(infile)
-#         results.append(result)
-# 
-# print(n_results)
-# completed = []
-# print(len(completed))
-# for i, result in enumerate(results):
-#     if result["budget"]==result["n_evaluations"]:
-#         completed.append(True)
-#     else:
-#         completed.append(False)
-# 
-# print()
-# print("{} completed out of {} started.".format(sum(completed), len(completed)))
-# 
-# for result in results:
-#     print(result["budget"], result["n_evaluations"])
-# 
-with lock:
-    q = persistqueue.SQLiteAckQueue('./opt_queue')
-print("current queue length: ", q.size)
 
+# check queue
+with open('opt_queue', 'rb') as infile:
+    q = pickle.load(infile)
+if q != None:
+    print("current queue length: ", len(q), end = "\n\n")
+else:
+    print("no queue found")
+
+
+## Pickled data
+        
+print("Pickle data:")
+pkl_dir = parent_dir +"/pkl_data/"
 try:
-    with open('./pkl_data/results.pkl', 'rb') as infile:
+    with open(pkl_dir+'results.pkl', 'rb') as infile:
         results = pickle.load(infile)
-    print("PICKLED DATA:")
     for result in results:
-        print(result['name'], ":\t", len(result['log_dir']), "/31")
         try:
             assert np.shape(result['y']) == (31, 250,  n_obj)
-            print("Complete!")
+            print(result['name'], ":"+' '*(20-len(result['name'])), len(result['log_dir']), "/31", "\tComplete!")
         except:
             if result['name'].lower() == 'lhs':
                 print("???") 
             else:
-                print("Incomplete!")
-                for y in result["y"]:
-                    print(np.shape(y))
+                print(result['log_dir'][0], ":", len(result['log_dir']), "/31", "\tIncomplete!")
+                for seed, y in zip(result['seed'], result["y"]):
+                    shape = np.shape(y)
+                    if shape[0] != 250:
+                        print(seed, "\t", shape)
 except FileNotFoundError:
     print("No pickle data found")

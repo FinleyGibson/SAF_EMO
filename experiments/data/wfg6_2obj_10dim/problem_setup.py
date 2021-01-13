@@ -12,7 +12,7 @@ l = lfactor*2           # distance related params
 
 n_dim = k+l
 n_obj = M
-func = wfg.WFG2
+func = wfg.WFG6
 
 
 limits = np.zeros((2, n_dim))
