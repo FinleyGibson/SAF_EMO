@@ -49,7 +49,7 @@ if __name__ == "__main__":
     
     
     fig = plt.figure(figsize=[10, 4])
-    if n_obj > 4:
+    if n_obj > 3:
         pass
     else:
         if n_obj == 2:

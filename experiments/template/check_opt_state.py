@@ -5,6 +5,7 @@ import numpy as np
 import persistqueue
 import pickle
 from filelock import FileLock
+from problem_setup import n_obj
 log_dir = "./log_data"
 
 lock = FileLock('./lock')
@@ -88,4 +89,23 @@ with open('./remaining_opts', 'wb') as outfile:
 with lock:
     q = persistqueue.SQLiteAckQueue('./opt_queue')
 print("current queue length: ", q.size)
-# 
+
+try:
+    with open('./pkl_data/results.pkl', 'rb') as infile:
+        results = pickle.load(infile)
+    print("PICKLED DATA:")
+    for result in results:
+        try:
+            assert np.shape(result['y']) == (31, 250,  n_obj)
+            print(result['name'], ":\t", len(result['log_dir']), "/31", "\tComplete!")
+        except:
+            if result['name'].lower() == 'lhs':
+                print("???") 
+            else:
+                print(result['log_dir'][0], ":\t", len(result['log_dir']), "/31", "\tIncomplete!")
+                for seed, y in zip(result['seed'], result["y"]):
+                    shape = np.shape(y)
+                    if shape[0] != 250:
+                        print(seed, "\t", shape)
+except FileNotFoundError:
+    print("No pickle data found")
