@@ -2,12 +2,14 @@ import rootpath
 import sys
 sys.path.append(rootpath.detect())
 import pickle
-
+import persistqueue
 from testsuite.surrogates import GP, MultiSurrogate
 from testsuite.optimisers import *
 from problem_setup import func, objective_function, limits
 exec("objective_function.__name__ = '{}'".format(func.__name__))
 from filelock import FileLock
+
+lock = FileLock("./lock")
 
 ## set up optimisers
 mono_surrogate = GP(scaled=True)
@@ -16,6 +18,11 @@ multi_surrogate = MultiSurrogate(GP, scaled=True)
 budget = 250
 log_dir = "./log_data"
 cmaes_restarts=0
+
+
+# set up queue
+with lock: 
+    q = persistqueue.SQLiteAckQueue('./opt_queue', multithreading=True)
 
 if len(sys.argv)>1:
     opt_opts = {
@@ -54,33 +61,38 @@ else:
                       Mpoi(objective_function=objective_function, limits=limits, surrogate=multi_surrogate, n_initial=10, seed=seed, budget=budget, cmaes_restarts=cmaes_restarts),
                       Lhs(objective_function = objective_function, limits=limits, n_initial=10, budget=budget, seed=seed)]
     
+             
 n_opt = len(optimisers)
 
 if __name__ == "__main__":
-    lock = FileLock("./lock")
+    import shutil
 
-    # try to load existing queue
-    with lock:
-        try:
-            with open('./opt_queue' , 'rb') as infile:
-                q = pickle.load(infile)
-            print("Queue exists with {} tasks.".format(len(q)))
-            add_to_q = input("Would you like to add to existing queue? Y/N")
-        except FileNotFoundError:
-            print("No existant queue.")
-            add_to_q = 'n' 
 
-    if add_to_q.lower() == 'y':
-        tasks = q.append(optimisers)
-    elif add_to_q.lower() == 'n':
-        tasks = optimisers 
+    if q.size>0:
+        print("{} items already in queue".format(q.size))
+        reset = input("Would you like to delete the existing queue? Y/N:\t").lower()
+        if reset == "y":
+            reset = True
+        elif reset == "n":
+            reset = False
+        else:
+            print("Input not recognised")
     else:
-        print("Input not recognised")
+        reset = True 
+
+    if reset == True:
+        shutil.rmtree('./opt_queue', ignore_errors=True)
+        print("removed existing queue.")
+        with lock:
+            q = persistqueue.SQLiteAckQueue('./opt_queue', multithreading=True) 
+
+    else: 
+        pass
+
+    # add to queue
 
     with lock:
-        try:
-            with open('./opt_queue' , 'wb') as outfile:
-                pickle.dump(tasks, outfile)
-            print("Updated queue now has {} tasks.".format(len(tasks)))
-        except:
-            print("Failed")
+        for optimiser in optimisers:
+            q.put(optimiser)
+
+    print("Added {}  optimisers to ./opt_queue, queue length now {}.".format(n_opt, q.size))
