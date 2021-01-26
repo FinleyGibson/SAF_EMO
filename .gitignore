@@ -5,14 +5,4 @@
 *.pyc
 *.profile
 
-./experiments/data/*/log_data/*
-./experiments/data/*/pkl_data/*
-./experiments/data/*/problem_setup.py
-./experiments/data/*/error.log
-./experiments/data/*/lock
-./experiments/data/*/outcmaes/
-./experiments/data/*/__pycache__/
-./experiments/data/*/opt_queue/
-./experiments/data/*/remaining_opts
-
-
+./experiments/data/**
