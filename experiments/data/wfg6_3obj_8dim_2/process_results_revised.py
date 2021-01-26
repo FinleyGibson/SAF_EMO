@@ -115,9 +115,12 @@ plt.show()
 
 # get all results aside from lhs as lhs is in list(np.array) format
 for result in tqdm(results):
+<<<<<<< HEAD
     a = result['y']
     for ai, aa in enumerate(a):
         print(result["name"][ai], "\t", result["seed"][ai], np.shape(aa))
+=======
+>>>>>>> b63038f4cb33791e77352ff20182b14f83e6d958
     ys_adjusted = [y/weighting for y in result["y"] if type(y) is np.ndarray]
     result["hpv"] = [extract_performance(y, hv_measure) for y in ys_adjusted]
     result["igd+"] = [extract_performance(y, igdp_measure) for y in ys_adjusted]

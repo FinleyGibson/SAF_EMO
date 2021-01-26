@@ -1,5 +1,6 @@
 import time
 import random
+from multiprocessing import Manager
 import persistqueue
 import shutil
 import os
