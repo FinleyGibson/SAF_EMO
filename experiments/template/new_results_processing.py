@@ -52,35 +52,36 @@ print("saving processed results to ",  os.path.join(problem_path, "log_data/"))
 
 # get refpoints
 p = np.load(sys.argv[1])
-ref_point = np.round(p.max(axis=0))*1.1
+ref_point = np.round(p.max(axis=0), 1)*1.5
 
-# setup measurement systems
-hv_measure = get_performance_indicator("hv", ref_point=ref_point)
-igdp_measure = get_performance_indicator("igd+", p)
-
-# process results, storing in d
-D = {}
-for result in tqdm(results):
-    print(result['name'])
-    y = np.array(result['y'])
-
-    if result['name'] == 'lhs':
-        hvs = np.zeros((y.shape[0], y.shape[1]+10))
-        igdps = np.zeros((y.shape[0], y.shape[1]+10))
-        for i, yi in tqdm(enumerate(y)):
-            for j, yii in enumerate(yi):
-                hvs[i, j+10] = hv_measure.calc(yii)
-                igdps[i, j+10] = igdp_measure.calc(yii)
-    else:
-        hvs = np.zeros((y.shape[0], y.shape[1]))
-        igdps = np.zeros((y.shape[0], y.shape[1]))
-        for i, yi in tqdm(enumerate(y)):
-            for j in range(1, y.shape[1]+1):
-                hvs[i, j-1] = hv_measure.calc(yi[:j])
-                igdps[i, j-1] = igdp_measure.calc(yi[:j])
-
-    D[result['name']] = {'name':result['name'], 'hypervolume': hvs, 'igd+':igdps}
-
-# save processed results
-with open(os.path.join(problem_path, 'pkl_data/results_new.pkl'), 'wb') as outfile:
-    pkl.dump(D, outfile)
+print("RP: ", ref_point)
+# # setup measurement systems
+# hv_measure = get_performance_indicator("hv", ref_point=ref_point)
+# igdp_measure = get_performance_indicator("igd+", p)
+# 
+# # process results, storing in d
+# D = {}
+# for result in tqdm(results):
+#     print(result['name'])
+#     y = np.array(result['y'])
+# 
+#     if result['name'] == 'lhs':
+#         hvs = np.zeros((y.shape[0], y.shape[1]+10))
+#         igdps = np.zeros((y.shape[0], y.shape[1]+10))
+#         for i, yi in tqdm(enumerate(y)):
+#             for j, yii in enumerate(yi):
+#                 hvs[i, j+10] = hv_measure.calc(yii)
+#                 igdps[i, j+10] = igdp_measure.calc(yii)
+#     else:
+#         hvs = np.zeros((y.shape[0], y.shape[1]))
+#         igdps = np.zeros((y.shape[0], y.shape[1]))
+#         for i, yi in tqdm(enumerate(y)):
+#             for j in range(1, y.shape[1]+1):
+#                 hvs[i, j-1] = hv_measure.calc(yi[:j])
+#                 igdps[i, j-1] = igdp_measure.calc(yi[:j])
+# 
+#     D[result['name']] = {'name':result['name'], 'hypervolume': hvs, 'igd+':igdps}
+# 
+# # save processed results
+# with open(os.path.join(problem_path, 'pkl_data/results_new.pkl'), 'wb') as outfile:
+#     pkl.dump(D, outfile)
