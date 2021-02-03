@@ -133,7 +133,8 @@ def plot_measure(results, measure, axis=None, plot_individuals=False,
                       upper_qa, 
                       color=color, alpha=0.2) 
  
-    axis.set_xlim([10, mes.shape[1]-1])
+    axis.set_xlim([10, 150])
+    # axis.set_xlim([10, mes.shape[1]-1])
     if axis is None: 
         return fig 
 
@@ -173,7 +174,6 @@ fig_igd = plt.figure(figsize=[8, 5])
 ax_igd = fig_igd.gca()
 for result, color, marker,in zip(results.values(), colors, markers):
     plot_measure(result, measure="igd+", axis=ax_igd, plot_individuals=False, color=color, marker=marker)
-ax_igd.set_xlim([10, 250])
 ax_igd.set_xlabel("Evaluations")
 ax_igd.set_ylabel("Dominated Hypervolume")
 ax_igd.legend()

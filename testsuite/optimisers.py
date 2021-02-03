@@ -601,7 +601,8 @@ class Saf(BayesianOptimiser):
         assert std_put.shape[0]==1
 
         if self.ei:
-            return float(self.saf_ei(y_put, std_put, invert=False))
+            return float(self.saf_ei(y_put, std_put, n_samples=10000*self.n_obj,
+                invert=False))
         else:
             return float(self.saf(y_put, self.apply_weighting(self.p),
                                   invert=False))
@@ -866,7 +867,7 @@ class Sms_Saf(SmsEgo):
             return saf_v
         else:
             # compute and update hypervolumes
-            current_hv = self.current_hv
+            current_hv = self._compute_hypervolume()
             put_hv = self._compute_hypervolume(
                 Pareto_split(np.vstack((p, lcb)))[0]
             )
