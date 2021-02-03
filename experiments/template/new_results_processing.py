@@ -52,7 +52,8 @@ print("saving processed results to ",  os.path.join(problem_path, "log_data/"))
 
 # get refpoints
 p = np.load(sys.argv[1])
-ref_point = np.round(p.max(axis=0), 1)*1.5
+#ref_point = np.round(p.max(axis=0), 1)*1.5
+ref_point = np.array([3.3, 2.5, 3.1, 5.4])
 
 # setup measurement systems
 hv_measure = get_performance_indicator("hv", ref_point=ref_point)
