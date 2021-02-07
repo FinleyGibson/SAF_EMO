@@ -601,7 +601,7 @@ class Saf(BayesianOptimiser):
         assert std_put.shape[0]==1
 
         if self.ei:
-            return float(self.saf_ei(y_put, std_put, n_samples=10000*self.n_obj,
+            return float(self.saf_ei(y_put, std_put, n_samples=10000*self.n_objectives,
                 invert=False))
         else:
             return float(self.saf(y_put, self.apply_weighting(self.p),
@@ -615,7 +615,7 @@ class Saf(BayesianOptimiser):
 
 class SmsEgo(BayesianOptimiser):
 
-    def __init__(self, *args, ei=True, ref_vector=None, **kwargs):
+    def __init__(self, *args, ref_vector=None, **kwargs):
 
         self.ei = ei
         super().__init__(*args, **kwargs)
@@ -682,7 +682,7 @@ class SmsEgo(BayesianOptimiser):
         c = 1 - (1/2**self.n_objectives)
         b_count = self.budget - len(self.x) - 1
 
-        epsilon = (y.max(axis=0) - y.min(axis=0))/(n_pfr + (c * b_count))
+        epsilon = (p.max(axis=0) - p.min(axis=0))/(n_pfr + (c * b_count))
 
         yt = y_test - (epsilon * self.obj_sense)
         l = [-1 + np.prod(1 + y_test - y[i])
@@ -726,7 +726,7 @@ class SmsEgo(BayesianOptimiser):
 
         # TODO is b_count supposed to be the remaining budget?
         b_count = self.budget - self.n_evaluations - 1
-        epsilon = (y.max(axis=0) - y.min(axis=0)) / (n_pfr + (c * b_count))
+        epsilon = (p.max(axis=0) - p.min(axis=0)) / (n_pfr + (c * b_count))
 
         yt = lcb - (epsilon*self.obj_sense)
         l = [-1 + np.prod(1 + lcb - p_i)
