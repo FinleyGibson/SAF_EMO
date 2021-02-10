@@ -306,7 +306,7 @@ class Optimiser:
             os.makedirs(self.log_dir)
 
         # generate unique filename, accommodating repeat optimisations
-        filename = 'seed_{}_'.format(self.seed)+file_dir +"_"+ self.unique_code
+        filename = 'seed_{:02d}_'.format(self.seed)+file_dir +"_"+ self.unique_code
         return filename
 
     def _already_evaluated(self, x_put, thresh=1e-9):
@@ -1027,10 +1027,11 @@ if __name__ == "__main__":
     # opt = Saf(objective_function=test_function, ei=True,  limits=limits, surrogate=gp_surr_multi, n_initial=10, budget=12, seed=None)
     # opt = Saf(objective_function=test_function, ei=False,  limits=limits, surrogate=gp_surr_multi, n_initial=10, budget=20, seed=None, log_models=True, log_interval=1)
     opt = SmsEgo(objective_function=test_function, limits=limits, surrogate=gp_surr_multi, n_initial=10, budget =50, seed=None)
+    opt2 = SmsEgoMu(objective_function=test_function, limits=limits, surrogate=gp_surr_multi, n_initial=10, budget =50, seed=None)
     # opt = SmsEgo(objective_function=test_function, ei=False,  limits=limits, surrogate=gp_surr_multi, n_initial=10, seed=17, budget=100)
     # opt = ParEgo(objective_function=test_function, limits=limits, surrogate=GP(), n_initial=10, s=5, rho=0.5)
     # opt = Lhs(objective_function = test_function, limits=limits, n_initial=10, budget=20, seed=None)
 
-    opt.optimise(10)
-    opt.optimise(10)
+    # opt.optimise(10)
+    # opt.optimise(10)
     pass
