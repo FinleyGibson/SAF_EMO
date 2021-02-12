@@ -58,7 +58,7 @@ class Optimiser:
                                                   self.limits)
         self.n_objectives = self.y.shape[1]
         # TODO obj_sense currently only allows minimisation of objectives.
-        self.obj_sense = [-1]*self.n_objectives
+        # self.obj_sense = [-1]*self.n_objectives
 
         # computed once and stored for efficiency.
         # TODO possibly more efficient to compute dominance matrix and
@@ -635,6 +635,7 @@ class SmsEgo(BayesianOptimiser):
                                      "of size {}.".format(self.n_objectives))
 
         self.hpv = FonsecaHyperVolume(reference_point=self.ref_vector)
+        self.chv = self._compute_hypervolume()
         # self.current_hv = self._compute_hypervolume()
 
     def _generate_filename(self):
@@ -666,7 +667,7 @@ class SmsEgo(BayesianOptimiser):
                 # update hypervolume calc to include new ref and update ref
                 self.hpv=FonsecaHyperVolume(reference_point=ref_vector)
                 self.ref_vector = ref_vector
-
+                self.chv = self._compute_hypervolume()
         # update hypervolume
         # self.current_hv = self._compute_hypervolume()
 
@@ -681,13 +682,15 @@ class SmsEgo(BayesianOptimiser):
         return epsilon
 
     def _compute_penalty(self, lcb, p):
-        yt = lcb - (self._compute_epsilon(p)*self.obj_sense)
-        if np.all(Pareto_split(np.vstack((yt, p)))[0] == p):
-            assert lcb.ndim==2
-            return np.max([-1 + np.product([1+(lcb[0, j]-pi[j]) for j in range(lcb.shape[1])]) for pi in p])
+        pt = p + self._compute_epsilon(p)
+        # pt = p
+        # yt = lcb + self._compute_epsilon(p)
+        yt = lcb
+        if np.all(Pareto_split(np.vstack((yt, pt)))[0] == pt):
+            assert lcb.ndim == 2
+            return np.max([-1+np.prod(1+lcb-pi) for pi in p])
         else:
             return 0
-
 
     @optional_inversion
     def _scalarise_y(self, y_put, std_put):
@@ -701,11 +704,11 @@ class SmsEgo(BayesianOptimiser):
         assert std_put.shape[0] == 1
 
         # lower confidence bounds
-        lcb = y_put - (self.gain * np.multiply(self.obj_sense, std_put))
+        lcb = y_put + (self.gain * std_put)
 
-        yt = lcb - (self._compute_epsilon(p)*self.obj_sense)
+        yt = lcb + (self._compute_epsilon(p))
         l = [-1 + np.prod(1 + lcb - p_i)
-             if cs.compare_solutions(p_i, yt, self.obj_sense) == 0
+             if cs.compare_solutions(p_i, yt, [-1, -1]) == 0
              else 0 for p_i in p]
 
         penalty = (max([0, max(l)]))
@@ -716,7 +719,7 @@ class SmsEgo(BayesianOptimiser):
             return -penalty
         else:
             # compute and update hypervolumes
-            current_hv = self._compute_hypervolume()
+            current_hv = self.chv
             # we use vstack(self.p, lcb) here without Pareto_split becasue
             # it is more efficient and gives the same answer. Verified
             # TODO create temporary class variable to store best hv so that
@@ -1032,6 +1035,6 @@ if __name__ == "__main__":
     # opt = ParEgo(objective_function=test_function, limits=limits, surrogate=GP(), n_initial=10, s=5, rho=0.5)
     # opt = Lhs(objective_function = test_function, limits=limits, n_initial=10, budget=20, seed=None)
 
-    # opt.optimise(10)
+    opt.optimise(10)
     # opt.optimise(10)
     pass
