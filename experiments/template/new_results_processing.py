@@ -54,7 +54,7 @@ print("saving processed results to ",  os.path.join(problem_path, "log_data/"))
 # get refpoints
 p = np.load(sys.argv[1])
 y_maxs = np.concatenate([r['y'] for r in results if r['name'] != "lhs"], axis=0).reshape(-1, n_obj)
-ref_point =  y_max.max(axis=0)
+ref_point =  y_maxs.max(axis=0)
 
 # setup measurement systems
 hv_measure = get_performance_indicator("hv", ref_point=ref_point)
@@ -81,7 +81,7 @@ for result in tqdm(results):
                 hvs[i, j-1] = hv_measure.calc(yi[:j])
                 igdps[i, j-1] = igdp_measure.calc(yi[:j])
 
-    D[result['name']] = {'name':result['name'], 'hypervolume': hvs, 'igd+':igdps, 'y': result['y'], 'hv_ref': ref_pointi, 'igd_ref': p}
+    D[result['name']] = {'name':result['name'], 'hypervolume': hvs, 'igd+':igdps, 'y': result['y'], 'hv_ref': ref_point, 'igd_ref': p}
 
 # save processed results
 with open(os.path.join(problem_path, 'pkl_data/results__newsms.pkl'), 'wb') as outfile:
