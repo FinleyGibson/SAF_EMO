@@ -81,7 +81,7 @@ for result in tqdm(results):
                 hvs[i, j-1] = hv_measure.calc(yi[:j])
                 igdps[i, j-1] = igdp_measure.calc(yi[:j])
 
-    D[result['name']] = {'name':result['name'], 'hypervolume': hvs, 'igd+':igdps, 'y': result['y'], 'hv_ref': ref_point, 'igd_ref': p}
+    D[result['name']] = {'name':result['name'], 'hypervolume': hvs, 'igd+':igdps, 'y': result['y'], 'hv_ref': ref_point, 'igd_ref': p, 'x': results['x'], 'seed': results['seed']}
 
 # save processed results
 with open(os.path.join(problem_path, 'pkl_data/results__newsms.pkl'), 'wb') as outfile:
