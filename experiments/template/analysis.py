@@ -36,7 +36,7 @@ try:
     get_ipython().__class__.__name__
     script_dir = os.path.dirname(os.path.realpath(__file__))
 except:
-     script_dir = os.getcwd()
+    script_dir = os.path.dirname(os.path.realpath(__file__))
 results_dir = os.path.join(script_dir, "log_data/")
 result_dirs = sorted(os.listdir(results_dir))
 
@@ -56,6 +56,8 @@ try:
 except FileNotFoundError:
     print("Failed to find results file in {}".format(pkl_filename))
     print("Results processing should be done first by running results_processing.py")
+except:
+    print("failed to load results")
     
 # assert len(results.keys()) == 7, "Not all optimisers present"
 for key, value in results.items():
