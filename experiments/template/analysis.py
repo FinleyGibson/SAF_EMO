@@ -36,28 +36,26 @@ try:
     get_ipython().__class__.__name__
     script_dir = os.path.dirname(os.path.realpath(__file__))
 except:
-    script_dir = os.path.dirname(os.path.realpath(__file__))
+     script_dir = os.path.dirname(os.path.realpath(__file__))
 results_dir = os.path.join(script_dir, "log_data/")
 result_dirs = sorted(os.listdir(results_dir))
 
 pkl_dir = os.path.join(script_dir, "pkl_data/")
-pkl_filename = pkl_dir+'results__newsms.pkl'
+pkl_filename = pkl_dir+'results_sorted_newsms.pkl'
 if not os.path.isdir(pkl_dir):
     os.makedirs(pkl_dir)
 
 
-# In[4]:
+# In[5]:
 
 
 try:
     with open(pkl_filename,'rb') as infile:
         results = pickle.load(infile)
-    print("results loaded from ", pkl_dir)
+    print("results loaded from ", pkl_dir, pkl_filename)
 except FileNotFoundError:
     print("Failed to find results file in {}".format(pkl_filename))
     print("Results processing should be done first by running results_processing.py")
-except:
-    print("failed to load results")
     
 # assert len(results.keys()) == 7, "Not all optimisers present"
 for key, value in results.items():
@@ -70,7 +68,13 @@ for key, value in results.items():
     print("name changed {} \t--->\t{}".format(old_name, new_name))
 
 
-# In[5]:
+# In[6]:
+
+
+chosen_optimisers = ['lhs', 'Mpoi', 'ParEgo', 'SmsEgo', 'SmsEgoMu', 'Saf_ei', 'Saf_$\\mu$']
+
+
+# In[8]:
 
 
 matplotlib.rcParams['mathtext.fontset'] = 'stix';
@@ -95,7 +99,7 @@ colors = cmap([0, 1, 2, 3, 4, 5, 6, 7, 8])
 # colors = np.array(colors)/255
 
 
-# In[6]:
+# In[9]:
 
 
 #fig = plt.figure(figsize=[10, 4])
@@ -117,7 +121,7 @@ colors = cmap([0, 1, 2, 3, 4, 5, 6, 7, 8])
 #    plt.show(block=True)
 
 
-# In[7]:
+# In[10]:
 
 
 def plot_measure(results, measure, axis=None, plot_individuals=False, 
@@ -172,7 +176,7 @@ def save_fig(fig, name=None):
         orientation='portrait', pad_inches=0.12)
 
 
-# In[8]:
+# In[11]:
 
 
 hv_ref = results['Mpoi']['hv_ref']
@@ -180,7 +184,7 @@ p = results['Mpoi']['igd_ref']
 p.shape
 
 
-# In[9]:
+# In[12]:
 
 
 from pymoo.factory import get_performance_indicator
@@ -188,24 +192,26 @@ hv_measure = get_performance_indicator("hv", ref_point=hv_ref)
 baseline_hv = hv_measure.calc(p[::10])
 
 
-# In[10]:
+# In[13]:
 
 
 for key, value in results.items():
     value['hypervolume'] /= baseline_hv
 
 
-# In[11]:
+
 
 
 fig_hv = plt.figure(figsize=[10, 5])
 ax_hv = fig_hv.gca()
-for result, color, marker in zip(results.values(), colors, markers):
-    if result['name'] not in  ['SMS-EGO: ei old', 'SMS-EGO: $\mu$ old']:
-        plot_measure(result, measure="hypervolume", axis=ax_hv, plot_individuals=False, color=color, marker=marker)
+i = 0
+for opt, color, marker in zip(chosen_optimisers, colors, markers):
+    result = results[opt]
+    plot_measure(result, measure="hypervolume", axis=ax_hv, plot_individuals=False, color=colors[i], marker=marker)
+    i+=1
 
-lower_y = result['hypervolume'][0][11]*0.8
-# ax_hv.set_ylim([lower_y, ax_hv.get_ylim()[1]*1.1])
+lower_y = np.min([results[name]['hypervolume'].min(axis=0)[11] for name in chosen_optimisers])
+ax_hv.set_ylim([lower_y, ax_hv.get_ylim()[1]*1.1])
 ax_hv.set_xlabel("Evaluations")
 ax_hv.set_ylabel("Dominated Hypervolume")
 ax_hv.legend()
@@ -213,16 +219,18 @@ ax_hv.axhline(1.0, linestyle="--", c="lightgrey")
 save_fig(fig_hv, "hv_plot")
 
 
-# In[12]:
+# In[42]:
 
 
 fig_igd = plt.figure(figsize=[10, 5])
 ax_igd = fig_igd.gca()
-for result, color, marker,in zip(results.values(), colors, markers):
-    if result['name'] not in  ['SMS-EGO: ei old', 'SMS-EGO: $\mu$ old']:
-        plot_measure(result, measure="igd+", axis=ax_igd, plot_individuals=False, color=color, marker=marker)
-upper_y = result['igd+'][0][11]*1.2
-ax_igd.set_ylim([0., upper_y])
+ymin = np.inf
+for opt, color, marker,in zip(chosen_optimisers, colors, markers):
+    result = results[opt] 
+    plot_measure(result, measure="igd+", axis=ax_igd, plot_individuals=False, color=color, marker=marker)
+upper_y = np.max([results[name]['igd+'].max(axis=0)[11] for name in chosen_optimisers])
+lower_y = np.min([results[name]['igd+'].min(axis=0)[150] for name in chosen_optimisers])
+ax_igd.set_ylim([lower_y, upper_y])
 ax_igd.set_xlabel("Evaluations")
 ax_igd.set_ylabel("IGD$_+$")
 ax_igd.legend()
@@ -230,13 +238,7 @@ ax_igd.legend()
 save_fig(fig_igd, "igd_plot")
 
 
-# In[13]:
-
-
-print(upper_y)
-
-
-# In[14]:
+# In[43]:
 
 
 fig_hv_box = plt.figure(figsize=[16, 5])
@@ -247,18 +249,18 @@ ax_hv_250 = fig_hv_box.add_subplot(1,3,3)
 ax_hv_100.get_yaxis().set_visible(False)
 ax_hv_250.get_yaxis().set_visible(False)
 i = 6
-for result, color, marker,in zip(results.values(), colors, markers):
-    if result['name'] not in  ['SMS-EGO: ei old', 'SMS-EGO: $\mu$ old']:
-        boxprops= {'color':"k", 'facecolor':'white', 'alpha':0.3}
+for opt, color, marker,in zip(chosen_optimisers, colors, markers):
+    result = results[opt]
+    boxprops= {'color':"k", 'facecolor':'white', 'alpha':0.3}
 #         whiskerprops= {'color':color}
 #         meanprops = {"marker": marker, 'markerfacecolor': color, 'markeredgecolor': color}
 #         ax_hv_050.boxplot([hpv[50] for hpv in result["hypervolume"]], positions = [i], labels=[result["name"]], patch_artist=True, boxprops=boxprops, whiskerprops=whiskerprops, meanprops=meanprops, showmeans=False, vert=False)
 #         ax_hv_100.boxplot([hpv[100] for hpv in result["hypervolume"]], positions = [i], labels=[result["name"]], patch_artist=True, boxprops=boxprops, whiskerprops=whiskerprops, meanprops=meanprops, showmeans=False, vert=False)
 #         ax_hv_250.boxplot([hpv[150] for hpv in result["hypervolume"]], positions = [i], labels=[result["name"]], patch_artist=True, boxprops=boxprops, whiskerprops=whiskerprops, meanprops=meanprops, showmeans=False, vert=False)
-        ax_hv_050.boxplot([hpv[50] for hpv in result["hypervolume"]], positions = [i], labels=[result["name"]], patch_artist=True, boxprops=boxprops, widths=[.5],  showmeans=False, vert=False)
-        ax_hv_100.boxplot([hpv[100] for hpv in result["hypervolume"]], positions = [i], labels=[result["name"]], patch_artist=True, boxprops=boxprops, widths=[.5], showmeans=False, vert=False)
-        ax_hv_250.boxplot([hpv[150] for hpv in result["hypervolume"]], positions = [i], labels=[result["name"]], patch_artist=True, boxprops=boxprops, widths=[.5], showmeans=False, vert=False)
-        i-=1
+    ax_hv_050.boxplot([hpv[50] for hpv in result["hypervolume"]], positions = [i], labels=[result["name"]], patch_artist=True, boxprops=boxprops, widths=[.5],  showmeans=False, vert=False)
+    ax_hv_100.boxplot([hpv[100] for hpv in result["hypervolume"]], positions = [i], labels=[result["name"]], patch_artist=True, boxprops=boxprops, widths=[.5], showmeans=False, vert=False)
+    ax_hv_250.boxplot([hpv[150] for hpv in result["hypervolume"]], positions = [i], labels=[result["name"]], patch_artist=True, boxprops=boxprops, widths=[.5], showmeans=False, vert=False)
+    i-=1
 
 ax_hv_050.set_xlabel('Dominated Hypervolume')
 ax_hv_050.set_title('50 Evaluations')
@@ -270,7 +272,7 @@ ax_hv_250.set_title('150 Evaluations')
 save_fig(fig_hv_box, "hv_boxplot")
 
 
-# In[20]:
+# In[44]:
 
 
 fig_igd_box = plt.figure(figsize=[16, 5])
@@ -280,18 +282,19 @@ ax_igd_100 = fig_igd_box.add_subplot(1,3,2)
 ax_igd_250 = fig_igd_box.add_subplot(1,3,3)
 ax_igd_100.get_yaxis().set_visible(False)
 ax_igd_250.get_yaxis().set_visible(False)
-for result, color, marker,in zip(results.values(), colors, markers):
-    if result['name'] not in  ['SMS-EGO: ei old', 'SMS-EGO: $\mu$ old']:
-        boxprops= {'color':"k", 'facecolor':'white', 'alpha':0.3}
+i = 6
+for opt, color, marker,in zip(chosen_optimisers, colors, markers):
+    result = results[opt]
+    boxprops= {'color':"k", 'facecolor':'white', 'alpha':0.3}
 #         whiskerprops= {'color':color}
 #         meanprops = {"marker": marker, 'markerfacecolor': color, 'markeredgecolor': color}
 #         ax_hv_050.boxplot([hpv[50] for hpv in result["hypervolume"]], positions = [i], labels=[result["name"]], patch_artist=True, boxprops=boxprops, whiskerprops=whiskerprops, meanprops=meanprops, showmeans=False, vert=False)
 #         ax_hv_100.boxplot([hpv[100] for hpv in result["hypervolume"]], positions = [i], labels=[result["name"]], patch_artist=True, boxprops=boxprops, whiskerprops=whiskerprops, meanprops=meanprops, showmeans=False, vert=False)
 #         ax_hv_250.boxplot([hpv[150] for hpv in result["hypervolume"]], positions = [i], labels=[result["name"]], patch_artist=True, boxprops=boxprops, whiskerprops=whiskerprops, meanprops=meanprops, showmeans=False, vert=False)
-        ax_igd_050.boxplot([hpv[50] for hpv in result["igd+"]], positions = [i], labels=[result["name"]], patch_artist=True, boxprops=boxprops, widths=[.5],  showmeans=False, vert=False)
-        ax_igd_100.boxplot([hpv[100] for hpv in result["igd+"]], positions = [i], labels=[result["name"]], patch_artist=True, boxprops=boxprops, widths=[.5], showmeans=False, vert=False)
-        ax_igd_250.boxplot([hpv[150] for hpv in result["igd+"]], positions = [i], labels=[result["name"]], patch_artist=True, boxprops=boxprops, widths=[.5], showmeans=False, vert=False)
-        i-=1
+    ax_igd_050.boxplot([hpv[50] for hpv in result["igd+"]], positions = [i], labels=[result["name"]], patch_artist=True, boxprops=boxprops, widths=[.5],  showmeans=False, vert=False)
+    ax_igd_100.boxplot([hpv[100] for hpv in result["igd+"]], positions = [i], labels=[result["name"]], patch_artist=True, boxprops=boxprops, widths=[.5], showmeans=False, vert=False)
+    ax_igd_250.boxplot([hpv[150] for hpv in result["igd+"]], positions = [i], labels=[result["name"]], patch_artist=True, boxprops=boxprops, widths=[.5], showmeans=False, vert=False)
+    i-=1
 
 
 ax_igd_050.set_xlabel('IGD$^+$')
