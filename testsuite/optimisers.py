@@ -601,7 +601,7 @@ class Saf(BayesianOptimiser):
         assert std_put.shape[0]==1
 
         if self.ei:
-            return float(self.saf_ei(y_put, std_put, n_samples=1000*self.n_objectives,
+            return float(self.saf_ei(y_put, std_put, n_samples=3000*self.n_objectives,
                 invert=False))
         else:
             return float(self.saf(y_put, self.apply_weighting(self.p),
