@@ -46,20 +46,21 @@ for path in result_dirs:
     result = load_result(os.path.join(problem_path, 'log_data/',  path))
     results.append(result)
     
-
+n_obj = np.shape(results[0]['y'])[-1]
+print("n_obj", n_obj)
 print("loading ref points from , ", ref_path)
 print("saving processed results to ",  os.path.join(problem_path, "log_data/"))
 
 # get refpoints
 p = np.load(sys.argv[1])
-#ref_point = np.round(p.max(axis=0), 1)*1.5
-ref_point = np.array([3.3, 2.5, 3.1, 5.4])
+y_maxs = np.concatenate([r['y'] for r in results if r['name'] != "lhs"], axis=0).reshape(-1, n_obj)
+ref_point =  y_maxs.max(axis=0)
 
 # setup measurement systems
 hv_measure = get_performance_indicator("hv", ref_point=ref_point)
 igdp_measure = get_performance_indicator("igd+", p)
 
-# process results, storing in d
+# process results, storing in D
 D = {}
 for result in tqdm(results):
     print(result['name'])
@@ -80,8 +81,8 @@ for result in tqdm(results):
                 hvs[i, j-1] = hv_measure.calc(yi[:j])
                 igdps[i, j-1] = igdp_measure.calc(yi[:j])
 
-    D[result['name']] = {'name':result['name'], 'hypervolume': hvs, 'igd+':igdps}
+    D[result['name']] = {'name':result['name'], 'hypervolume': hvs, 'igd+':igdps, 'y': result['y'], 'hv_ref': ref_point, 'igd_ref': p, 'x': results['x'], 'seed': results['seed']}
 
 # save processed results
-with open(os.path.join(problem_path, 'pkl_data/results_new.pkl'), 'wb') as outfile:
+with open(os.path.join(problem_path, 'pkl_data/results__newsms.pkl'), 'wb') as outfile:
     pkl.dump(D, outfile)

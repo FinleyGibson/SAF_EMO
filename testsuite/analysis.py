@@ -22,14 +22,19 @@ PLOT_STYLE = {"scatter_cmap": mpl.cm.Purples,
 def load_all(directory, trailing_text = ".pkl"):
     paths = [file for file in os.listdir(directory) if file[-len(trailing_text):] == trailing_text]
     combined_resuts = {}
+
+    loaded_seeds = [] # ignores repeated seeds
     for log_path in paths:
         result = pickle.load(open(os.path.join(directory, log_path), "rb"))
-        for key, value in result.items():
-            try:
-                combined_resuts[key] += [value]
-            except KeyError:
-                combined_resuts[key] = [value]
-
+        if result['seed'] not in loaded_seeds:
+            for key, value in result.items():
+                try:
+                    combined_resuts[key] += [value]
+                except KeyError:
+                    combined_resuts[key] = [value]
+            loaded_seeds.append(result['seed'])
+        else:
+            pass
     return combined_resuts
 
 def plot_pareto_2d(result, axis=None):

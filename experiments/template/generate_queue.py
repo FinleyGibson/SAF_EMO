@@ -26,7 +26,8 @@ with lock:
 
 if len(sys.argv)>1:
     opt_opts = {
-                'smsego': "SmsEgo(objective_function=objective_function, limits=limits, surrogate=multi_surrogate, n_initial=10, budget=budget, seed={}, ei={}, log_dir=log_dir, cmaes_restarts=cmaes_restarts)", 
+                'smsego': "SmsEgo(objective_function=objective_function, limits=limits, surrogate=multi_surrogate, n_initial=10, budget=budget, seed={}, log_dir=log_dir, cmaes_restarts=cmaes_restarts)", 
+                'smsegomu': "SmsEgoMu(objective_function=objective_function, limits=limits, surrogate=multi_surrogate, n_initial=10, budget=budget, seed={}, log_dir=log_dir, cmaes_restarts=cmaes_restarts)", 
                 'saf':"Saf(objective_function=objective_function, limits=limits, surrogate=multi_surrogate, n_initial=10, budget=budget, seed={}, ei={}, log_dir=log_dir, cmaes_restarts=cmaes_restarts)",
                 'mpoi':"Mpoi(objective_function=objective_function, limits=limits, surrogate=multi_surrogate, n_initial=10, seed={}, budget=budget, cmaes_restarts=cmaes_restarts)",
                 'lhs': "Lhs(objective_function = objective_function, limits=limits, n_initial=10, budget=budget, seed={})",
@@ -44,8 +45,9 @@ if len(sys.argv)>1:
         optimiser = list(opt_opts.keys())[np.nonzero([opt in path_split for opt in opt_opts.keys()])[0][0]]
         ei = 'ei' in  path_split
         for seed in D["missing"]:
-            opt = opt_opts[optimiser].format(seed, ei)
-            exec('optimisers.append('+opt+')')
+            if seed <31:
+                opt = opt_opts[optimiser].format(seed, ei)
+                exec('optimisers.append('+opt+')')
 else:
     seeds = range(28, 31)
     
@@ -53,8 +55,8 @@ else:
     optimisers = []
     for seed in seeds:
         #create optimisers
-        optimisers += [SmsEgo(objective_function=objective_function, limits=limits, surrogate=multi_surrogate, n_initial=10, budget=budget, seed=seed, ei=True, log_dir=log_dir, cmaes_restarts=cmaes_restarts),
-                      SmsEgo(objective_function=objective_function, limits=limits, surrogate=multi_surrogate, n_initial=10, budget=budget, seed=seed, ei=False, log_dir=log_dir, cmaes_restarts=cmaes_restarts),
+        optimisers += [SmsEgoMu(objective_function=objective_function, limits=limits, surrogate=multi_surrogate, n_initial=10, budget=budget, seed=seed, log_dir=log_dir, cmaes_restarts=cmaes_restarts),
+                      SmsEgo(objective_function=objective_function, limits=limits, surrogate=multi_surrogate, n_initial=10, budget=budget, seed=seed, log_dir=log_dir, cmaes_restarts=cmaes_restarts),
                       Saf(objective_function=objective_function, limits=limits, surrogate=multi_surrogate, n_initial=10, budget=budget, seed=seed, ei=True, log_dir=log_dir, cmaes_restarts=cmaes_restarts),
                       Saf(objective_function=objective_function, limits=limits, surrogate=multi_surrogate,  n_initial=10, budget=budget, seed=seed, ei=False, log_dir=log_dir, cmaes_restarts=cmaes_restarts),
                       ParEgo(objective_function=objective_function, limits=limits, surrogate=mono_surrogate, n_initial=10, seed=seed, budget=budget, cmaes_restarts=cmaes_restarts),

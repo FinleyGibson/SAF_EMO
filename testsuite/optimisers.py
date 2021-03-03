@@ -58,7 +58,7 @@ class Optimiser:
                                                   self.limits)
         self.n_objectives = self.y.shape[1]
         # TODO obj_sense currently only allows minimisation of objectives.
-        self.obj_sense = [-1]*self.n_objectives
+        # self.obj_sense = [-1]*self.n_objectives
 
         # computed once and stored for efficiency.
         # TODO possibly more efficient to compute dominance matrix and
@@ -306,7 +306,7 @@ class Optimiser:
             os.makedirs(self.log_dir)
 
         # generate unique filename, accommodating repeat optimisations
-        filename = 'seed_{}_'.format(self.seed)+file_dir +"_"+ self.unique_code
+        filename = 'seed_{:02d}_'.format(self.seed)+file_dir +"_"+ self.unique_code
         return filename
 
     def _already_evaluated(self, x_put, thresh=1e-9):
@@ -601,7 +601,7 @@ class Saf(BayesianOptimiser):
         assert std_put.shape[0]==1
 
         if self.ei:
-            return float(self.saf_ei(y_put, std_put, n_samples=10000*self.n_objectives,
+            return float(self.saf_ei(y_put, std_put, n_samples=3000*self.n_objectives,
                 invert=False))
         else:
             return float(self.saf(y_put, self.apply_weighting(self.p),
@@ -617,15 +617,13 @@ class SmsEgo(BayesianOptimiser):
 
     def __init__(self, *args, ref_vector=None, **kwargs):
 
-        self.ei = ei
-        super().__init__(*args, **kwargs)
-
+        super().__init__(*args, **kwargs, )
         self.gain = -norm.ppf(0.5 * (0.5 ** (1 / self.n_objectives)))
 
         # set dynamic reference vector if not specified
         if ref_vector is None:
             self.dynamic_ref = True
-            self.ref_vector = self.apply_weighting(self.p).max(axis=0)*1.2
+            self.ref_vector = self.apply_weighting(self.p).max(axis=0)+1
         else:
             self.dynamic_ref = False
             try:
@@ -636,14 +634,12 @@ class SmsEgo(BayesianOptimiser):
                                      "formatted correctly. should be 1d array "
                                      "of size {}.".format(self.n_objectives))
 
-        self.hpv=FonsecaHyperVolume(reference_point=self.ref_vector)
+        self.hpv = FonsecaHyperVolume(reference_point=self.ref_vector)
+        self.chv = self._compute_hypervolume()
         # self.current_hv = self._compute_hypervolume()
 
     def _generate_filename(self):
-        if self.ei:
-            return super()._generate_filename("ei")
-        else:
-            return super()._generate_filename("mean")
+        return super()._generate_filename()
 
     def _compute_hypervolume(self, p=None):
         """
@@ -662,55 +658,45 @@ class SmsEgo(BayesianOptimiser):
         else:
             return np.min(p)
 
-    def _penalty(self, y, y_test):
-        '''
-        Penalty mechanism in the infill criterion. Penalise if dominated by the
-        current front.
-
-        Parameters.
-        -----------
-        y (np.array): current Pareto front elements.
-        y_test (np.array): tentative solution.
-
-        Returns a penalty value.
-        '''
-        # TODO check this maths against paper.
-        p = self.apply_weighting(self.p)
-        y = self.apply_weighting(y)
-
-        n_pfr = len(p)
-        c = 1 - (1/2**self.n_objectives)
-        b_count = self.budget - len(self.x) - 1
-
-        epsilon = (p.max(axis=0) - p.min(axis=0))/(n_pfr + (c * b_count))
-
-        yt = y_test - (epsilon * self.obj_sense)
-        l = [-1 + np.prod(1 + y_test - y[i])
-             if cs.compare_solutions(y[i], yt, self.obj_sense) == 0
-             else 0 for i in range(y.shape[0])]
-        return max([0, max(l)])
-
     def step(self):
         super().step()
         if self.dynamic_ref:
             # update ref vector to max observed if it was initially unspecified
-            ref_vector = self.apply_weighting(self.p).max(axis=0)*1.2
+            ref_vector = self.apply_weighting(self.p).max(axis=0)+1
             if np.any(ref_vector != self.ref_vector):
                 # update hypervolume calc to include new ref and update ref
                 self.hpv=FonsecaHyperVolume(reference_point=ref_vector)
                 self.ref_vector = ref_vector
-
+                self.chv = self._compute_hypervolume()
         # update hypervolume
         # self.current_hv = self._compute_hypervolume()
+
+    def _compute_epsilon(self, p_scaled):
+        n_pfr = len(p_scaled)
+        c = 1 - (1 / 2 ** self.n_objectives)
+
+        # TODO is b_count supposed to be the remaining budget?
+        b_count = self.budget - self.n_evaluations - 1
+        epsilon = (p_scaled.max(axis=0) - p_scaled.min(axis=0)) \
+                  / (n_pfr + (c*b_count))
+        return epsilon
+
+    def _compute_penalty(self, lcb, p):
+        pt = p + self._compute_epsilon(p)
+        # pt = p
+        # yt = lcb + self._compute_epsilon(p)
+        yt = lcb
+        if np.all(Pareto_split(np.vstack((yt, pt)))[0] == pt):
+            assert lcb.ndim == 2
+            return np.max([-1+np.prod(1+lcb-pi) for pi in p])
+        else:
+            return 0
 
     @optional_inversion
     def _scalarise_y(self, y_put, std_put):
         p = self.apply_weighting(self.p)
-        y = self.apply_weighting(self.y)
 
-        if not self.ei:
-            std_put = np.zeros_like(std_put)
-        if y_put.ndim<2:
+        if y_put.ndim < 2:
             y_put = y_put.reshape(1, -1)
             std_put = std_put.reshape(1, -1)
 
@@ -718,38 +704,47 @@ class SmsEgo(BayesianOptimiser):
         assert std_put.shape[0] == 1
 
         # lower confidence bounds
-        lcb = y_put - (self.gain * np.multiply(self.obj_sense, std_put))
+        lcb = y_put + (self.gain * std_put)
 
-        # calculate penalty
-        n_pfr = len(p)
-        c = 1 - (1 / 2 ** self.n_objectives)
-
-        # TODO is b_count supposed to be the remaining budget?
-        b_count = self.budget - self.n_evaluations - 1
-        epsilon = (p.max(axis=0) - p.min(axis=0)) / (n_pfr + (c * b_count))
-
-        yt = lcb - (epsilon*self.obj_sense)
+        yt = lcb + (self._compute_epsilon(p))
         l = [-1 + np.prod(1 + lcb - p_i)
-             if cs.compare_solutions(p_i, yt, self.obj_sense) == 0
+             if cs.compare_solutions(p_i, yt, [-1, -1]) == 0
              else 0 for p_i in p]
 
         penalty = (max([0, max(l)]))
+
+        # penalty = self._compute_penalty(lcb, p)
 
         if penalty > 0:
             return -penalty
         else:
             # compute and update hypervolumes
-            current_hv = self._compute_hypervolume()
+            current_hv = self.chv
             # we use vstack(self.p, lcb) here without Pareto_split becasue
             # it is more efficient and gives the same answer. Verified
             # TODO create temporary class variable to store best hv so that
             #  it does not have to be recomputed in self.step
-            put_hv = self._compute_hypervolume(np.vstack((p, lcb)))
+            put_hv = self._compute_hypervolume(np.vstack((p, y_put)))
             return put_hv - current_hv
 
     def alpha(self, x_put):
         y_put, var_put = self.surrogate.predict(x_put)
         return float(self._scalarise_y(y_put, var_put**0.5, invert=True))
+
+
+class SmsEgoMu(SmsEgo):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    def _compute_epsilon(self, p_scaled):
+        epsilon = np.zeros(self.n_objectives)
+        return epsilon
+
+    def alpha(self, x_put):
+        y_put, var_put = self.surrogate.predict(x_put)
+        efficacy_put = self._scalarise_y(y_put, np.zeros_like(var_put),
+                                         invert=True)
+        return float(efficacy_put)
 
 
 class Mpoi(BayesianOptimiser):
@@ -1034,11 +1029,12 @@ if __name__ == "__main__":
     # opt = Mpoi(objective_function=test_function, limits=limits, surrogate=gp_surr_multi, n_initial=10, seed=None)
     # opt = Saf(objective_function=test_function, ei=True,  limits=limits, surrogate=gp_surr_multi, n_initial=10, budget=12, seed=None)
     # opt = Saf(objective_function=test_function, ei=False,  limits=limits, surrogate=gp_surr_multi, n_initial=10, budget=20, seed=None, log_models=True, log_interval=1)
-    opt = SmsEgo(objective_function=test_function, ei=True,  limits=limits, surrogate=gp_surr_multi, n_initial=10, budget =50, seed=None)
+    opt = SmsEgo(objective_function=test_function, limits=limits, surrogate=gp_surr_multi, n_initial=10, budget =50, seed=None)
+    opt2 = SmsEgoMu(objective_function=test_function, limits=limits, surrogate=gp_surr_multi, n_initial=10, budget =50, seed=None)
     # opt = SmsEgo(objective_function=test_function, ei=False,  limits=limits, surrogate=gp_surr_multi, n_initial=10, seed=17, budget=100)
     # opt = ParEgo(objective_function=test_function, limits=limits, surrogate=GP(), n_initial=10, s=5, rho=0.5)
     # opt = Lhs(objective_function = test_function, limits=limits, n_initial=10, budget=20, seed=None)
 
     opt.optimise(10)
-    opt.optimise(10)
+    # opt.optimise(10)
     pass
