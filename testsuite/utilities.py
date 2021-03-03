@@ -1,6 +1,10 @@
 import numpy as np
 
 
+def sigmoid(x, beta=1):
+    squashed = 1 / (1 + np.exp(-beta * x))
+    return squashed
+
 def optional_inversion(f):
     """decorator to invert the value of a function, and turn maximisation
     problem to minimization problem. Invoke by passing a keyword argument

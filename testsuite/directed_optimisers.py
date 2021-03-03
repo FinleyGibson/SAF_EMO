@@ -1,20 +1,49 @@
 import numpy as np
-from optimisers import Saf
-from testsuite.utilities import Pareto_split, optional_inversion
+from testsuite.optimisers import Saf
+from testsuite.utilities import Pareto_split, optional_inversion, sigmoid
+
 
 class DirectedSaf(Saf):
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, targets, w, **kwargs):
+        self.targets = np.asarray(targets)
+        self.targets = self.targets.reshape(1, -1) if self.targets.ndim ==1 \
+            else self.targets
+        self.w = w
         super().__init__(*args, **kwargs)
 
     @staticmethod
-    @optional_inversion
-    def osaf(y: np.ndarray, p: np.ndarray) -> np.ndarray:
-        raise NotImplementedError
+    def optimistic_saf(T, X):
+        """
+        Calculates optimmistic summary attainment front distances
+        Calculates the osaf distance between the points in X and the targets defined by T
+
+        :param T [np.array]: targetd points, shape[n,m]
+        :param X [np.array]: points for which the distance to the summary attainment front is to be calculated, shape[]
+        :param beta [float]: if not None, the saf distance is passed through sigmoid function with beta=squashed
+        :param normalized [Bool]: if not None, the saf distance for points in X is normalized to a range from 0-1
+
+        :return [np.array]: numpy array of saf distances between points in X and saf defined by T, shape[X.shape]
+        """
+        if T is None:
+            Dq = np.ones(len(X))
+        else:
+            assert T.shape[1] == X.shape[1]
+            D = np.zeros((X.shape[0], T.shape[0]))
+            for i, p in enumerate(T):
+                D[:, i] = np.min(p - X, axis=1)
+
+            Dq = np.max(D, axis=1)
+        return Dq
+
 
     @staticmethod
     @optional_inversion
-    def osaf(y: np.ndarray, p: np.ndarray) -> np.ndarray:
+    def osaf_ei(y: np.ndarray, p: np.ndarray) -> np.ndarray:
+        raise NotImplementedError
+
+    @optional_inversion
+    def osaf(self, y: np.ndarray, p: np.ndarray) -> np.ndarray:
         """
         Calculates summary attainment front distances.
         Calculates the distance of n, m-dimensional points X from the
@@ -27,12 +56,11 @@ class DirectedSaf(Saf):
         :return np.array: numpy array of saf distances between points in
         X and saf defined by P, shape[X.shape]
         """
+        D_osaf = self.optimistic_saf(self.targets, y)
+        D_saf = self.saf(y, p)
 
-        D = np.zeros((y.shape[0], p.shape[0]))
-
-        for i, p in enumerate(p):
-            D[:, i] = np.min(p - y, axis=1).reshape(-1)
-        Dq = np.max(D, axis=1)
+        beta = 1.
+        Dq = self.w*sigmoid(D_saf, beta) + (1-self.w)*sigmoid(D_osaf, beta)
         return Dq
 
     @optional_inversion
@@ -84,5 +112,5 @@ if __name__ == "__main__":
             x = x.reshape(1, -1)
         return np.array([func(xi, k, n_obj) for xi in x])
 
-    opt = DirectedSaf(objective_function=test_function, ei=False,  limits=limits, surrogate=gp_surr_multi, n_initial=10, budget=20, seed=None, log_models=True, log_interval=1)
+    opt = DirectedSaf(objective_function=test_function, ei=False,  targets=[1, 1], w=0.5, limits=limits, surrogate=gp_surr_multi, n_initial=10, budget=20, seed=None, log_models=True, log_interval=1)
     opt.optimise(10)
