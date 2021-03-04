@@ -12,6 +12,12 @@ class DirectedSaf(Saf):
         self.w = w
         super().__init__(*args, **kwargs)
 
+    def _generate_filename(self):
+        if self.ei:
+            return super()._generate_filename("ei_target{}".format(str(self.targets).replace('.', 'p').replace(' ', '_')))
+        else:
+            return super()._generate_filename("mean_target{}".format(str(self.targets).replace('.', 'p').replace(' ', '_')))
+
     @staticmethod
     def optimistic_saf(T, X):
         """
@@ -28,7 +34,7 @@ class DirectedSaf(Saf):
         if T is None:
             Dq = np.ones(len(X))
         else:
-            assert T.shape[1] == X.shape[1]
+            assert T.shape[1] == X.shape[1], "shape missmatch, {} and {}".format(T.shape, X.shape)
             D = np.zeros((X.shape[0], T.shape[0]))
             for i, p in enumerate(T):
                 D[:, i] = np.min(p - X, axis=1)

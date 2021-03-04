@@ -535,11 +535,11 @@ class Saf(BayesianOptimiser):
         self.ei = ei
         super().__init__(*args, **kwargs)
 
-    def _generate_filename(self):
+    def _generate_filename(self, *args):
         if self.ei:
-            return super()._generate_filename("ei")
+            return super()._generate_filename("ei", *args)
         else:
-            return super()._generate_filename("mean")
+            return super()._generate_filename("mean", *args)
 
     @staticmethod
     @optional_inversion
