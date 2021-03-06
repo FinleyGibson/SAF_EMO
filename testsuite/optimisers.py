@@ -450,7 +450,7 @@ class BayesianOptimiser(Optimiser):
             # multi-surrogate
             return super()._generate_filename(
                 self.surrogate.__class__.__name__,
-                self.surrogate.surrogate.__name__, *args)
+                self.surrogate.surrogate_model.__name__, *args)
         except AttributeError:
             # mono-surrogate
             return super()._generate_filename(
