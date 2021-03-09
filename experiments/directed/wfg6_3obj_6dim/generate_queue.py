@@ -17,7 +17,7 @@ multi_surrogate = MultiSurrogate(GP, scaled=True)
 budget = 150
 log_dir = "./log_data"
 cmaes_restarts=0
-targets = np.array([[1.79, 1.79],[1.79*0.8, 1.79*0.8],[1.79*1.1, 1.79*1.1]])
+targets = np.array([[1.79, 1.79],[1.79*0.8, 1.79*0.8],[1.79*1.1, 1.79*1.1], [.985, 3.48],[0.985*0.9, 3.48*0.9], [0.985*1.1, 3.48*1.1]])
 
 # set up queue
 with lock: 
