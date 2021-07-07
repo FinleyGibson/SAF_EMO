@@ -17,26 +17,54 @@ def scalar_expected_improvement(mu, var, y, xi=0.01, invert=False):
     :param float xi:
     :return float: expected improvement
     """
-
     if invert:
-        mu_opt = np.min(y)
+        muq = -1*mu
+        yq = -1*y
     else:
-        mu_opt = np.max(y)
+        muq = mu
+        yq = y
+
+    mu_opt = np.max(yq)
 
     sigma = var**0.5
 
     with np.errstate(divide='warn'):
-        if invert:
-            imp = -mu + mu_opt + xi
-        else:
-            imp = mu - mu_opt - xi
+        imp = muq - mu_opt - xi
         Z = imp / sigma
         ei = imp * norm.cdf(Z) + sigma * norm.pdf(Z)
         ei[sigma == 0.0] = 0.0
     return ei
 
 
+def UCB(mu, var, beta=0.05, invert=False):
+    ucb =  mu + beta * var**0.5
+    if invert:
+        return -ucb
+    else:
+        return ucb
+
+
+def PI(mu, var, y, xi=0.01, invert=False):
+
+    if invert:
+        muq = -1*mu
+        yq = -1*y
+    else:
+        muq = mu
+        yq = y
+
+    mu_opt = np.max(yq)
+
+    sigma = var**0.5
+
+    imp = muq - mu_opt - xi
+    Z = imp / sigma
+    pi = norm.cdf(Z) + sigma * norm.pdf(Z)
+    return norm.cdf(Z)
+
+
 def _mean_signed_improvement(x_put, x_observed, surrogate):
+
     mu, var = surrogate.predict(x_observed)
     mu_put, var_put = surrogate.predict(x_put)
 
@@ -71,9 +99,10 @@ if __name__ == "__main__":
     def test_function(x):
         return np.sin(x)
 
+    np.random.seed(1)
     x = np.linspace(-5, 5, 200).reshape(-1, 1)
     y = test_function(x)
-    xtr = np.random.uniform(-5, 5, 7).reshape(-1, 1)
+    xtr = np.random.uniform(-5, 5, 4).reshape(-1, 1)
     ytr = test_function(xtr)
 
     model = GP(scaled=True)
@@ -90,13 +119,31 @@ if __name__ == "__main__":
                      color="C0", alpha=0.3)
     ax00.scatter(xtr, ytr, marker="x", c="C0", label="observations")
     ax00.legend()
-
-    # use get_y() as y is scaled
-    ei = scalar_expected_improvement(model_y, model_var, model.get_y())
+    ei = scalar_expected_improvement(model_y, model_var, model.get_y(), invert=False) # use get_y() as y is scaled
+    pi = PI(model_y, model_var, model.get_y(), invert=False)# use get_y() as y is scaled
+    beta = 0.5
+    ucb = UCB(model_y, model_var, beta=beta, invert=False)
     ax01.plot(x, ei, c="C4", alpha=0.7, label="ei")
-    ei_inv = scalar_expected_improvement(model_y, model_var, model.get_y(),
-                                         invert=True)
-    ax01.plot(x, ei_inv, c="C2", alpha=0.7, label="ei inverted")
+    ax01.plot(x, ucb, c="C5", alpha=0.7, label="ucb")
+    ax01.plot(x, pi, c="C6", alpha=0.7, label="pi")
+
     ax01.legend()
 
+
+    fig1, [ax10, ax11] = plt.subplots(2, 1)
+    ax10.plot(x, y, c="grey", label="objective function")
+    ax10.plot(x, model_y, c="C0", alpha=1., label="surrogate model")
+    ax10.fill_between(x.flatten(),
+                      (model_y-(2*np.sqrt(model_var))).flatten(),
+                      (model_y+(2*np.sqrt(model_var))).flatten(),
+                      color="C0", alpha=0.3)
+    ax10.scatter(xtr, ytr, marker="x", c="C0", label="observations")
+    ax10.legend()
+    ei_inv = scalar_expected_improvement(model_y, model_var, model.get_y(), invert=True) # use get_y() as y is scaled
+    pi_inv = PI(model_y, model_var, model.get_y(), invert=True)# use get_y() as y is scaled
+    ucb_inv = UCB(model_y, model_var, beta=beta, invert=True)
+    ax11.plot(x, ei_inv, c="C4", alpha=0.7, label="ei")
+    ax11.plot(x, ucb_inv, c="C5", alpha=0.7, label="ucb")
+    ax11.plot(x, pi_inv, c="C6", alpha=0.7, label="pi")
+    ax11.legend()
     plt.show()

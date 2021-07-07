@@ -1,0 +1,2 @@
+ERROR:root:Exception met in <class 'testsuite.directed_optimisers.DirectedSaf'>, seed 1, at step 145.
+ERROR:root:Exception met in <class 'testsuite.directed_optimisers.DirectedSaf'>, seed 6, at step 73.
