@@ -6,5 +6,7 @@
 *.profile
 
 experiments/data/*/*
+experiments/comp/data/*
+experiments/directed/data/*
 *experiments/data/*/problem_setup.py
 
