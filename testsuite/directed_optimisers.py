@@ -15,11 +15,9 @@ class DirectedSaf(Saf):
         self.w = w
         super().__init__(*args, **kwargs)
 
-    def _generate_filename(self):
-        if self.ei:
-            return super()._generate_filename("ei_target{}".format(str(self.targets).replace('.', 'p').replace(' ', '_')))
-        else:
-            return super()._generate_filename("mean_target{}".format(str(self.targets).replace('.', 'p').replace(' ', '_')))
+    def _generate_filename(self, **kwargs):
+        return super()._generate_filename(target=np.round(self.targets,2),
+                                          w=np.round(self.w,2), **kwargs)
 
     @staticmethod
     def optimistic_saf(T, X):
@@ -294,11 +292,8 @@ class DmVector(DirectedSaf):
             S += np.sqrt(1 - cs * cs) * lenv
         return S
 
-    def _generate_filename(self):
-        return BayesianOptimiser._generate_filename(self,
-            "w_{}".format(str(self.w).replace(".", "p")),
-            "dmv_{}".format(str(self.dmv).replace('.', 'p').replace(' ', '_')
-                            .replace("[","_").replace("]", "_")))
+    def _generate_filename(self, **kwargs):
+        return Saf._generate_filename(self, dmv=np.round(self.dmv, 2), **kwargs)
 
 
 if __name__ == "__main__":
@@ -329,56 +324,63 @@ if __name__ == "__main__":
             x = x.reshape(1, -1)
         return np.array([func(xi, k, n_obj) for xi in x])
 
-    M= n_obj
-    N = 500
-    y = np.zeros((N, n_obj))
-    x = np.zeros((N, n_dim))
-    for n in range(N):
-        z = wfg.random_soln(k, l, func.__name__)
-        y[n, :] = func(z, k, M)
-        x[n, :] = z
+    optimisers =  [DirectedSaf(test_function, limits=limits, surrogate=gp_surr_multi, ei=True, targets = [[1., 1., 1.5]], w=0.5),
+                   DmVector(test_function, limits=limits, surrogate=gp_surr_multi, ei=True, dmv=[[1., 1., 1.5]], w=0.5)]
 
-    fig00 = plt.figure(figsize=[8, 8])
-    fig00_ax = fig00.gca(projection="3d")
-    fig00_ax.scatter(*y.T, c="C0")
+    for opt in optimisers:
+        print(opt._generate_filename()[0] + "/" + opt._generate_filename()[1])
 
-    fig01 = plt.figure(figsize=[8, 8])
-    fig01_ax = fig01.gca(projection="3d")
-
-    if test_opt == DirectedSaf:
-        target = np.array([[0.985*1.1, 3.48*1.1]])
-        fig00_ax.scatter(*target.T, c="magenta")
-
-        # multi_surrogate = MultiSurrogate(RF)
-        opt = DirectedSaf(objective_function=test_function, ei=False,
-                          targets= target, w=0.5, limits=limits,
-                          surrogate=gp_surr_multi, n_initial=10, budget=15,
-                          seed=10, cmaes_restarts=0)
-        fig01_ax.scatter(*opt.targets.T, c="magenta")
-
-    elif test_opt == DmVector:
-        dmv = np.array([[1.5, 1.5, 2.]])
-        fig01_ax.plot(*np.vstack((np.zeros_like(dmv), dmv)).T, c="C1", linestyle="--")
-        opt = DmVector(objective_function=test_function, ei=False, w=0.5,
-                       limits=limits, surrogate=gp_surr_multi, n_initial=10, budget=25,
-                       seed=10, cmaes_restarts=0, dmv=dmv)
-
-    opt.optimise()
-
-    fig01_ax.plot(*y[np.argsort(y[:, 0])].T, c="C0")
-
-    fig01_ax.scatter(*np.vstack(opt.target_history).T, c="magenta", alpha=0.2, s=150)
-    fig01_ax.scatter(*opt.targets.T, c="magenta", marker="v", label="current targets")
-
-    fig01_ax.scatter(*opt.y[:10].T, c="C0", alpha=0.5, label="intial")
-    fig01_ax.scatter(*opt.y[10:].T, c="C1", alpha=0.5, label="BO steps")
-    fig01_ax.legend()
-    # c=viridis(np.linspace(0, 1, opt.n_evaluations-10)))
-    fig02 = plt.figure()
-    ax = fig02.gca(projection="3d")
-    ax.scatter(*opt.y.T)
-
-    fig01.show()
-    fig02.show()
-    plt.show()
-    pass
+    #
+    # M= n_obj
+    # N = 500
+    # y = np.zeros((N, n_obj))
+    # x = np.zeros((N, n_dim))
+    # for n in range(N):
+    #     z = wfg.random_soln(k, l, func.__name__)
+    #     y[n, :] = func(z, k, M)
+    #     x[n, :] = z
+    #
+    # fig00 = plt.figure(figsize=[8, 8])
+    # fig00_ax = fig00.gca(projection="3d")
+    # fig00_ax.scatter(*y.T, c="C0")
+    #
+    # fig01 = plt.figure(figsize=[8, 8])
+    # fig01_ax = fig01.gca(projection="3d")
+    #
+    # if test_opt == DirectedSaf:
+    #     target = np.array([[0.985*1.1, 3.48*1.1]])
+    #     fig00_ax.scatter(*target.T, c="magenta")
+    #
+    #     # multi_surrogate = MultiSurrogate(RF)
+    #     opt = DirectedSaf(objective_function=test_function, ei=False,
+    #                       targets= target, w=0.5, limits=limits,
+    #                       surrogate=gp_surr_multi, n_initial=10, budget=15,
+    #                       seed=10, cmaes_restarts=0)
+    #     fig01_ax.scatter(*opt.targets.T, c="magenta")
+    #
+    # elif test_opt == DmVector:
+    #     dmv = np.array([[1.5, 1.5, 2.]])
+    #     fig01_ax.plot(*np.vstack((np.zeros_like(dmv), dmv)).T, c="C1", linestyle="--")
+    #     opt = DmVector(objective_function=test_function, ei=False, w=0.5,
+    #                    limits=limits, surrogate=gp_surr_multi, n_initial=10, budget=25,
+    #                    seed=10, cmaes_restarts=0, dmv=dmv)
+    #
+    # opt.optimise()
+    #
+    # fig01_ax.plot(*y[np.argsort(y[:, 0])].T, c="C0")
+    #
+    # fig01_ax.scatter(*np.vstack(opt.target_history).T, c="magenta", alpha=0.2, s=150)
+    # fig01_ax.scatter(*opt.targets.T, c="magenta", marker="v", label="current targets")
+    #
+    # fig01_ax.scatter(*opt.y[:10].T, c="C0", alpha=0.5, label="intial")
+    # fig01_ax.scatter(*opt.y[10:].T, c="C1", alpha=0.5, label="BO steps")
+    # fig01_ax.legend()
+    # # c=viridis(np.linspace(0, 1, opt.n_evaluations-10)))
+    # fig02 = plt.figure()
+    # ax = fig02.gca(projection="3d")
+    # ax.scatter(*opt.y.T)
+    #
+    # fig01.show()
+    # fig02.show()
+    # plt.show()
+    # pass

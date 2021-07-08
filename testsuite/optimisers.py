@@ -35,6 +35,10 @@ def increment_evaluation_count(f):
     return wrapper
 
 
+def str_format(a):
+    return str(a).replace(".", "p").replace(" ", "_")
+
+
 class Optimiser:
     def __init__(self, objective_function, limits,
                  n_initial=10, budget=30, of_args=[], seed=None,
@@ -68,10 +72,16 @@ class Optimiser:
         self.d = self.y[self.Pareto_indices[1]]
         self.obj_weights, self.obj_offset = self.get_obj_weighting()
 
+        # set up logging and create directories
+        # parent dir
         self.log_dir = log_dir
         if not os.path.exists(log_dir):
             os.makedirs(self.log_dir)
-        self.log_filename = self._generate_filename()
+        sub_dir, self.log_filename = self._generate_filename()
+        self.log_dir = os.path.join(self.log_dir, sub_dir)
+        if not os.path.exists(self.log_dir):
+            os.makedirs(self.log_dir)
+
         self.log_data = None
         self.log_optimisation()
 
@@ -278,7 +288,7 @@ class Optimiser:
             with open(log_filepath+"_model.pkl", 'wb') as handle:
                 pickle.dump(self, handle, protocol=2)
 
-    def _generate_filename(self, *args):
+    def _generate_filename(self, **kwargs):
         """
         generates a filename from optimiser parameters, and ensures
         uniqueness. Creates a directory under that filename within
@@ -295,19 +305,17 @@ class Optimiser:
 
         # generate a sub dir to contain similar optimisations. Dir name
         # is the same as file name without the repeat number.
-        file_dir = "{}_{}_init{}" + "_{}" * len(args)
+        filename_dict = {**{"OF": objective_function,
+                           "opt": optimiser,
+                           "ninit": initial_samples}, **kwargs}
 
-        file_dir = file_dir.format(objective_function, optimiser,
-                                   initial_samples, *args)
-
-        # update location to log data to incorporate sub dir
-        self.log_dir = os.path.join(self.log_dir, file_dir)
-        if not os.path.exists(self.log_dir):
-            os.makedirs(self.log_dir)
+        file_dir = "__".join(["{}-{}".format(str_format(k),
+                                             str_format(v))
+                              for k, v in filename_dict.items()])
 
         # generate unique filename, accommodating repeat optimisations
-        filename = 'seed_{:02d}_'.format(self.seed)+file_dir +"_"+ self.unique_code
-        return filename
+        filename = file_dir+'__seed-{:02d}'.format(self.seed)+"__uuid-"+self.unique_code
+        return file_dir, filename
 
     def _already_evaluated(self, x_put, thresh=1e-9):
         """
@@ -444,17 +452,19 @@ class BayesianOptimiser(Optimiser):
         super().__init__(objective_function, limits, **kwargs)
         self.cmaes_restarts = cmaes_restarts
 
-    def _generate_filename(self, *args):
+    def _generate_filename(self, **kwargs):
         """include surrogate and acquisition function for logging"""
         try:
             # multi-surrogate
             return super()._generate_filename(
-                self.surrogate.__class__.__name__,
-                self.surrogate.surrogate_model.__name__, *args)
+                surrogate=self.surrogate.__class__.__name__+
+                          self.surrogate.surrogate_model.__name__,
+                **kwargs)
         except AttributeError:
             # mono-surrogate
             return super()._generate_filename(
-                self.surrogate.__class__.__name__, *args)
+                surrogate=self.surrogate.__class__.__name__,
+                **kwargs)
 
     def get_next_x(self, excluded_indices=None):
         """
@@ -535,11 +545,8 @@ class Saf(BayesianOptimiser):
         self.ei = ei
         super().__init__(*args, **kwargs)
 
-    def _generate_filename(self, *args):
-        if self.ei:
-            return super()._generate_filename("ei", *args)
-        else:
-            return super()._generate_filename("mean", *args)
+    def _generate_filename(self, **kwargs):
+        return super()._generate_filename(ei=self.ei, **kwargs)
 
     @staticmethod
     @optional_inversion
@@ -637,9 +644,6 @@ class SmsEgo(BayesianOptimiser):
         self.hpv = FonsecaHyperVolume(reference_point=self.ref_vector)
         self.chv = self._compute_hypervolume()
         # self.current_hv = self._compute_hypervolume()
-
-    def _generate_filename(self):
-        return super()._generate_filename()
 
     def _compute_hypervolume(self, p=None):
         """
@@ -751,9 +755,6 @@ class Mpoi(BayesianOptimiser):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-    def _generate_filename(self):
-        return super()._generate_filename("Mpoi")
 
     @optional_inversion
     def _scalarise_y(self, y_put, std_put):
@@ -887,10 +888,12 @@ class Saf_Saf(Saf):
         else:
             return float(self.saf_ei(y_put, std_put, invert=False))
 
+
 class Lhs():
     def __init__(self, objective_function, limits, n_initial=10, budget=30, 
                  of_args=[], seed=None, log_dir="./log_data"):
 
+        self.unique_code = str(uuid.uuid1())
         self.objective_function = objective_function
         self.of_args = of_args
         self.log_data = {}
@@ -905,11 +908,17 @@ class Lhs():
         self.y = [self.objective_function(self.x[0], *of_args)]
         self.n_objectives = self.y[0].shape[1]
         self.n_evaluations = n_initial
-        
+
+        # set up logging and create directories
+        # parent dir
         self.log_dir = log_dir
         if not os.path.exists(log_dir):
             os.makedirs(self.log_dir)
-        self.log_filename = self._generate_filename()
+        sub_dir, self.log_filename = self._generate_filename()
+        self.log_dir = os.path.join(self.log_dir, sub_dir)
+        if not os.path.exists(self.log_dir):
+            os.makedirs(self.log_dir)
+
         self.log_data = None
 
     def lhs_sample(self, n_samples):
@@ -936,25 +945,8 @@ class Lhs():
 
         self.log_optimisation(save=True)
 
-    def _generate_filename(self):
-        file_dir = "{}_{}_init{}"
-        # get information to include in filename
-        objective_function = str(self.objective_function.__name__)
-        optimiser = "lhs"
-        initial_samples = self.n_initial
-
-        file_dir = file_dir.format(objective_function, optimiser,
-                                   initial_samples)
-
-        # update location to log data to incorporate sub dir
-        self.log_dir = os.path.join(self.log_dir, file_dir)
-        if not os.path.exists(self.log_dir):
-            os.makedirs(self.log_dir)
-            
-        # generate unique filename, accommodating repeat optimisations
-        unique_code = str(uuid.uuid1())
-        filename = file_dir+'seed_{}_'.format(self.seed)+unique_code+"_results"
-        return filename
+    def _generate_filename(self, **kwargs):
+        return Optimiser._generate_filename(self, **kwargs)
 
     def log_optimisation(self, save=False, **kwargs):
         """
@@ -1026,15 +1018,15 @@ if __name__ == "__main__":
             x = x.reshape(1, -1)
         return np.array([func(xi, k, n_obj) for xi in x])
 
-    # opt = Mpoi(objective_function=test_function, limits=limits, surrogate=gp_surr_multi, n_initial=10, seed=None)
-    # opt = Saf(objective_function=test_function, ei=True,  limits=limits, surrogate=gp_surr_multi, n_initial=10, budget=12, seed=None)
-    # opt = Saf(objective_function=test_function, ei=False,  limits=limits, surrogate=gp_surr_multi, n_initial=10, budget=20, seed=None, log_models=True, log_interval=1)
-    # opt = SmsEgo(objective_function=test_function, limits=limits, surrogate=gp_surr_multi, n_initial=10, budget =50, seed=None)
-    # opt2 = SmsEgoMu(objective_function=test_function, limits=limits, surrogate=gp_surr_multi, n_initial=10, budget =50, seed=None)
-    # opt = SmsEgo(objective_function=test_function, ei=False,  limits=limits, surrogate=gp_surr_multi, n_initial=10, seed=17, budget=100)
-    # opt = ParEgo(objective_function=test_function, limits=limits, surrogate=GP(), n_initial=10, s=5, rho=0.5)
-    # opt = Lhs(objective_function = test_function, limits=limits, n_initial=10, budget=20, seed=None)
+    optimisers = [Optimiser(test_function, limits=limits),
+                  ParEgo(test_function, limits=limits),
+                  BayesianOptimiser(test_function, limits=limits, surrogate=gp_surr_multi),
+                  Saf(test_function, limits=limits, surrogate=gp_surr_multi, ei=True),
+                  SmsEgo(test_function, limits=limits, surrogate=gp_surr_multi),
+                  SmsEgoMu(test_function, limits=limits, surrogate=gp_surr_multi),
+                  Mpoi(test_function, limits=limits, surrogate=gp_surr_multi),
+                  Lhs(test_function, limits=limits)]
 
-    opt.optimise()
-    # opt.optimise(10)
-    pass
+    for opt in optimisers:
+        print(opt._generate_filename()[0]+"/"+opt._generate_filename()[1])
+
