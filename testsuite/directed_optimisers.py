@@ -1,5 +1,5 @@
 import numpy as np
-from testsuite.optimisers import Saf
+from testsuite.optimisers import Saf, BayesianOptimiser
 from testsuite.utilities import Pareto_split, optional_inversion, sigmoid
 from scipy.linalg import svd
 from itertools import combinations
@@ -293,6 +293,12 @@ class DmVector(DirectedSaf):
             cs = vhat @ xhat
             S += np.sqrt(1 - cs * cs) * lenv
         return S
+
+    def _generate_filename(self):
+        return BayesianOptimiser._generate_filename(self,
+            "w_{}".format(str(self.w).replace(".", "p")),
+            "dmv_{}".format(str(self.dmv).replace('.', 'p').replace(' ', '_')
+                            .replace("[","_").replace("]", "_")))
 
 
 if __name__ == "__main__":
