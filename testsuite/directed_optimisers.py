@@ -14,6 +14,7 @@ class DirectedSaf(Saf):
             else self.targets
         self.w = w
         super().__init__(*args, **kwargs)
+        self.target_history = {self.n_initial: self.targets}
 
     def _generate_filename(self, **kwargs):
         return super()._generate_filename(target=np.round(self.targets,2),
@@ -80,13 +81,22 @@ class DirectedSaf(Saf):
             return float(self.osaf(y_put, self.apply_weighting(self.p),
                                   invert=False))
 
+    def update_targets(self, new_targets):
+        self.targets = np.asarray(new_targets)
+        self.target_history[self.n_evaluations] = new_targets
+
+    def _get_loggables(self, **kwargs):
+        log_data = {'targets': self.targets,
+                    'target_history': self.target_history
+                    }
+        return super()._get_loggables(**log_data, **kwargs)
+
 
 class DmVector(DirectedSaf):
 
     def __init__(self, *args, w, dmv, **kwargs):
         self.dmv = dmv/np.linalg.norm(dmv)
         super().__init__(*args, targets=None, w=w, **kwargs)
-        self.target_history = []
         self.dm_times = []
         self.update_targets()
 
@@ -149,8 +159,7 @@ class DmVector(DirectedSaf):
 
         # update target_history with new targets if they change
         if not np.all(existing_targets == new_targets):
-            self.target_history.append(new_targets)
-            self.targets = new_targets
+            super().update_targets(new_targets)
         self.dm_times.append(time.time()-tic)
 
     @staticmethod
@@ -295,6 +304,11 @@ class DmVector(DirectedSaf):
     def _generate_filename(self, **kwargs):
         return Saf._generate_filename(self, dmv=np.round(self.dmv, 2), **kwargs)
 
+    def _get_loggables(self, **kwargs):
+        log_data = {'dmv': self.dmv,
+                    'dm_times': self.dm_times}
+        return super()._get_loggables(**log_data, **kwargs)
+
 
 if __name__ == "__main__":
     import matplotlib.pyplot as plt
@@ -324,12 +338,16 @@ if __name__ == "__main__":
             x = x.reshape(1, -1)
         return np.array([func(xi, k, n_obj) for xi in x])
 
-    optimisers =  [DirectedSaf(test_function, limits=limits, surrogate=gp_surr_multi, ei=True, targets = [[1., 1., 1.5]], w=0.5),
-                   DmVector(test_function, limits=limits, surrogate=gp_surr_multi, ei=True, dmv=[[1., 1., 1.5]], w=0.5)]
+    optimisers =  [DirectedSaf(test_function, limits=limits, surrogate=gp_surr_multi, ei=False, targets = [[1., 1., 1.5]], w=0.5),
+                   DmVector(test_function, limits=limits, surrogate=gp_surr_multi, ei=False, dmv=[[1., 1., 1.5]], w=0.5)]
 
     for opt in optimisers:
         print(opt._generate_filename()[0] + "/" + opt._generate_filename()[1])
 
+    for opt in optimisers:
+        opt.optimise(1)
+        opt.update_targets(opt.targets*2)
+        opt.optimise(1)
     #
     # M= n_obj
     # N = 500

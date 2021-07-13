@@ -27,9 +27,9 @@ def increment_evaluation_count(f):
         return_value = f(self, *args, **kwargs)
         if self.n_evaluations%self.log_interval == 0 \
                 or self.n_evaluations == self.budget:
-            self.log_optimisation(save=True)
+            self.log_optimisation()
         else:
-            self.log_optimisation(save=False)
+            self.log_optimisation()
 
         return return_value
     return wrapper
@@ -63,14 +63,13 @@ class Optimiser:
         self.x_dims = np.shape(limits)[1]
         self.log_interval = log_interval if log_interval else budget
         self.train_time = 0.
+        self.errors = []
 
         # generate initial samples
         self.x, self.y = self.initial_evaluations(n_initial,
                                                   self.x_dims,
                                                   self.limits)
         self.n_objectives = self.y.shape[1]
-        # TODO obj_sense currently only allows minimisation of objectives.
-        # self.obj_sense = [-1]*self.n_objectives
 
         # computed once and stored for efficiency.
         # TODO possibly more efficient to compute dominance matrix and
@@ -89,9 +88,6 @@ class Optimiser:
         self.log_dir = os.path.join(self.log_dir, sub_dir)
         if not os.path.exists(self.log_dir):
             os.makedirs(self.log_dir)
-
-        self.log_data = None
-        self.log_optimisation()
 
     def initial_evaluations(self, n_samples, x_dims, limits):
         """
@@ -136,6 +132,10 @@ class Optimiser:
         """takes one step in the optimisation, getting the next decision
         vector by calling the get_next_x method"""
 
+        if self.n_evaluations == self.n_initial:
+            # make initial log entry if its the first step
+            self.log_optimisation()
+
         self.obj_weights, self.obj_offset = self.get_obj_weighting()
         # ensures unique evaluation
         x_new = self.get_next_x()
@@ -149,12 +149,12 @@ class Optimiser:
         if try_count > 1 and self._already_evaluated(x_new):
             # Error#01 -> failed to find a unique solution after 3 optimisations
             # of the acquisition function
-            self.log_data["errors"].append(
+            self.errors.append(
                 "Error#01: Failed to find unique new solution at eval {} "
                 "seed:{}".format(self.n_evaluations+1, self.seed))
         elif try_count > 1 and not self._already_evaluated(x_new):
             # Error#02 -> required repeats to find a unique solution
-            self.log_data["errors"].append(
+            self.errors.append(
                 "Error#02: Took {} attempts to find unique solution at eval "
                 "{} seed:{}".format(try_count, self.n_evaluations+1, self.seed))
 
@@ -170,7 +170,7 @@ class Optimiser:
             if try_count > 5:
                 # This should not occur multiple times. Something is
                 # wrong here.
-                self.log_optimisation(save=True, failed=True)
+                self.log_optimisation()
 
                 raise RuntimeError("Optimsation of acquisition function"
                                    "failed to find a unique new "
@@ -180,7 +180,7 @@ class Optimiser:
 
         if try_count > 1:
             # Error#03 -> required point removal to find a unique solution
-            self.log_data["errors"].append(
+            self.errors.append(
                 "Error#03: Took removal of {} points to find unique solution "
                 "at eval {}".format(try_count-1, self.n_evaluations+1))
 
@@ -199,7 +199,7 @@ class Optimiser:
         
         if self.n_evaluations % self.log_interval == 0 \
                 or self.n_evaluations == self.budget:
-            self.log_optimisation(save=True)
+            self.log_optimisation()
 
     def get_obj_weighting(self):
         """set the weighting equal to the range observed in the non-dominated
@@ -226,48 +226,10 @@ class Optimiser:
             assert y.shape[1] == self.n_objectives
         return (y-self.obj_offset)*self.obj_weights
 
-    def log_optimisation(self, save=False, **kwargs):
-        """
-        updates dictionary of saved optimisation information and saves
-        to disk, including keyword arguments pased by the child class
-        in the log_data dict.
-
-        :param bool save: Save to disk if True
-        :param kwargs: dictionary of keyword arguments to include in
-        log_data
-        :return: N/A
-        """
-        try:
-            # log modifications each self.log_interval steps. Called in
-            # increment_evaluation_count decorator.
-            self.log_data["x"] = self.x
-            self.log_data["y"] = self.y
-            self.log_data["n_evaluations"] = self.n_evaluations
-            self.log_data["train_time"] = self.train_time
-            for key, value in kwargs.items():
-                self.log_data[key] = value
-
-        except TypeError:
-            # initial information logging called by Optimiser __init__
-            log_data = {"objective_function": self.objective_function.__name__,
-                        "limits": self.limits,
-                        "n_initial": self.n_initial,
-                        "seed": self.seed,
-                        "x": self.x,
-                        "y": self.y,
-                        "log_dir": self.log_dir,
-                        "log_filename": self.log_filename,
-                        "n_evaluations": self.n_evaluations,
-                        "budget": self.budget,
-                        "errors": [],
-                        "train_time": self.train_time
-                        }
-            log_data.update(kwargs)
-            self.log_data = log_data
-
+    def log_optimisation(self):
+        log_data = self._get_loggables()
         # save log_data and model to file.
-        if save:
-            self._write_log()
+        self.write_log(log_data)
 
     def _generate_filename(self, **kwargs):
         """
@@ -314,12 +276,30 @@ class Optimiser:
         evaluated = np.any(np.all((difference_matrix<thresh), axis=1))
         return evaluated
 
-    def _write_log(self):
+    def write_log(self, log_data):
         log_filepath = os.path.join(self.log_dir, self.log_filename)
+        
         with open(log_filepath + "_results.pkl", 'wb') as handle:
-            pickle.dump(self.log_data, handle, protocol=2)
+            pickle.dump(log_data, handle, protocol=2)
+            
         with open(log_filepath + "_model.pkl", 'wb') as handle:
             pickle.dump(self, handle, protocol=2)
+
+    def _get_loggables(self, **kwargs):
+        log_data = {"objective_function": self.objective_function.__name__,
+                    "limits": self.limits,
+                    "n_initial": self.n_initial,
+                    "seed": self.seed,
+                    "x": self.x,
+                    "y": self.y,
+                    "log_dir": self.log_dir,
+                    "log_filename": self.log_filename,
+                    "n_evaluations": self.n_evaluations,
+                    "budget": self.budget,
+                    "errors": self.errors,
+                    "train_time": self.train_time,
+                    }
+        return {**log_data, **kwargs}
 
 
 class ParEgo(Optimiser):
@@ -420,6 +400,12 @@ class ParEgo(Optimiser):
             # use mean prediction instead
             efficacy = self.surrogate.predict(x)[0]
         return float(efficacy)
+    
+    def _get_loggables(self, **kwargs):
+        log_data = {'surogate': self.surrogate.__class__.__name__,
+                    'cmaes_restarts': self.cmaes_restarts
+                    } 
+        return super()._get_loggables(**log_data, **kwargs)
 
 
 class BayesianOptimiser(Optimiser):
@@ -427,6 +413,7 @@ class BayesianOptimiser(Optimiser):
                  log_models=False, **kwargs):
 
         self.raw_surrogate = surrogate
+        self.cmaes_restarts = cmaes_restarts
         self.surrogate = copy.deepcopy(self.raw_surrogate)
         self.log_models = log_models
         if isinstance(surrogate, MultiSurrogate):
@@ -436,6 +423,8 @@ class BayesianOptimiser(Optimiser):
 
         if self.log_models:
             self.model_log = []
+        else:
+            self.model_log = None
 
         super().__init__(objective_function, limits, **kwargs)
         self.cmaes_restarts = cmaes_restarts
@@ -517,10 +506,11 @@ class BayesianOptimiser(Optimiser):
         put_y, put_var = self.surrogate.predict(x_put)
         return self._scalarise_y(put_y, put_var**0.5, invert=True)
 
-    def log_optimisation(self, save=False):
-        if save:
-            self.surrogate = copy.deepcopy(self.raw_surrogate)
-        super().log_optimisation(save=save)
+    def _get_loggables(self, **kwargs):
+        log_data = {'surogate': self.surrogate.__class__.__name__,
+                    'cmaes_restarts': self.cmaes_restarts,
+                    }
+        return super()._get_loggables(**log_data, **kwargs)
 
     @optional_inversion
     def _scalarise_y(self, put_y, put_std):
@@ -606,6 +596,10 @@ class Saf(BayesianOptimiser):
             y_put, var_put = self.surrogate.predict(x_put)
             efficacy_put = self._scalarise_y(y_put, var_put**0.5, invert=True)
             return efficacy_put
+
+    def _get_loggables(self, **kwargs):
+        log_data = {'ei': self.ei}
+        return super()._get_loggables(**log_data, **kwargs)
 
 
 class SmsEgo(BayesianOptimiser):
@@ -722,6 +716,10 @@ class SmsEgo(BayesianOptimiser):
     def alpha(self, x_put):
         y_put, var_put = self.surrogate.predict(x_put)
         return float(self._scalarise_y(y_put, var_put**0.5, invert=True))
+
+    def _get_loggables(self, **kwargs):
+        log_data = {'ref_vector': self.ref_vector}
+        return super()._get_loggables(**log_data, **kwargs)
 
 
 class SmsEgoMu(SmsEgo):
@@ -931,7 +929,7 @@ class Lhs():
             self.step()
         self.train_time+=time.time()-tic
 
-        self.log_optimisation(save=True)
+        self.log_optimisation()
 
     def _generate_filename(self, **kwargs):
         return Optimiser._generate_filename(self, **kwargs)
@@ -1018,3 +1016,6 @@ if __name__ == "__main__":
     for opt in optimisers:
         print(opt._generate_filename()[0]+"/"+opt._generate_filename()[1])
 
+    for opt in optimisers:
+        if opt.__class__ not in  [Optimiser, BayesianOptimiser]:
+            opt.optimise(1)
