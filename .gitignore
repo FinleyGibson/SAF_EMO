@@ -5,8 +5,7 @@
 *.pyc
 *.profile
 
-experiments/data/*/*
-experiments/comp/data/*
 experiments/directed/data/*
-*experiments/data/*
+experiments/undirected/data/*
+experiments/DM_directed/data/*
 
