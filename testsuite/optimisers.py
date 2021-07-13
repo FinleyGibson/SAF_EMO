@@ -36,7 +36,15 @@ def increment_evaluation_count(f):
 
 
 def str_format(a):
-    return str(a).replace(".", "p").replace(" ", "_")
+    replacemen_pairs = {'.':'p',
+                        ' ': '_',
+                        '[': '',
+                        ']': ''
+                        }
+    a = str(a)
+    for k, v in replacemen_pairs.items():
+        a = a.replace(k, v)
+    return a
 
 
 class Optimiser:
@@ -134,38 +142,11 @@ class Optimiser:
 
         try_count = 0
         while self._already_evaluated(x_new) and try_count < 3:
-            # repeats optimisation of the acquisition function up to
-            # three times to try and find a unique solution.
-
-            # # logs models which produced errors.
-            # # TODO: Remove this once problem solved.
-            # try:
-            #     try:
-            #         # self.log_data["error models"].append(
-            #         #     self.surrogate.model.copy())
-            #         self.log_data["error models"].append(
-            #             self.surrogate.model.copy())
-            #     except KeyError:
-            #         self.log_data["error models"] =\
-            #             [self.surrogate.model.copy()]
-            # except AttributeError:
-            #     # multi-surrogate case
-            #     try:
-            #         self.log_data["error models"].append(
-            #             [surrogate.model.copy() for surrogate in
-            #              self.surrogate.mono_surrogates])
-            #     except KeyError:
-            #         self.log_data["error models"] = [
-            #             [surrogate.model.copy() for surrogate in
-            #              self.surrogate.mono_surrogates]]
-            #     except AttributeError:
-            #         pass
-
+            # repeat until unique solution is found.
             x_new = self.get_next_x()
             try_count += 1
 
         if try_count > 1 and self._already_evaluated(x_new):
-            # TODO error handling like this to be removed. Dev use only
             # Error#01 -> failed to find a unique solution after 3 optimisations
             # of the acquisition function
             self.log_data["errors"].append(
@@ -206,15 +187,19 @@ class Optimiser:
         # get objective function evaluation for the new point
         y_new = self.objective_function(x_new, *self.of_args)
 
-        # TODO if self.y dominates y_new then can be appended to Pareto
-        #  indices without calling Pareto split. This would be more efficnet.
-        # update observations with new observed point
+        # update x and y
         self.x = np.vstack((self.x, x_new))
         self.y = np.vstack((self.y, y_new))
-
         self.Pareto_indices = [*Pareto_split(self.y, return_indices=True)]
         self.p = self.y[self.Pareto_indices[0]]
         self.d = self.y[self.Pareto_indices[1]]
+
+        # increment logging
+        self.n_evaluations += 1
+        
+        if self.n_evaluations % self.log_interval == 0 \
+                or self.n_evaluations == self.budget:
+            self.log_optimisation(save=True)
 
     def get_obj_weighting(self):
         """set the weighting equal to the range observed in the non-dominated
@@ -282,11 +267,7 @@ class Optimiser:
 
         # save log_data and model to file.
         if save:
-            log_filepath = os.path.join(self.log_dir, self.log_filename)
-            with open(log_filepath+"_results.pkl", 'wb') as handle:
-                pickle.dump(self.log_data, handle, protocol=2)
-            with open(log_filepath+"_model.pkl", 'wb') as handle:
-                pickle.dump(self, handle, protocol=2)
+            self._write_log()
 
     def _generate_filename(self, **kwargs):
         """
@@ -309,12 +290,12 @@ class Optimiser:
                            "opt": optimiser,
                            "ninit": initial_samples}, **kwargs}
 
-        file_dir = "__".join(["{}-{}".format(str_format(k),
+        file_dir = "__".join(["{}_{}".format(str_format(k),
                                              str_format(v))
                               for k, v in filename_dict.items()])
 
         # generate unique filename, accommodating repeat optimisations
-        filename = file_dir+'__seed-{:02d}'.format(self.seed)+"__uuid-"+self.unique_code
+        filename = file_dir+'__seed_{:02d}'.format(self.seed)+"__uuid_"+self.unique_code
         return file_dir, filename
 
     def _already_evaluated(self, x_put, thresh=1e-9):
@@ -332,6 +313,13 @@ class Optimiser:
         difference_matrix = (self.x-x_put)**2
         evaluated = np.any(np.all((difference_matrix<thresh), axis=1))
         return evaluated
+
+    def _write_log(self):
+        log_filepath = os.path.join(self.log_dir, self.log_filename)
+        with open(log_filepath + "_results.pkl", 'wb') as handle:
+            pickle.dump(self.log_data, handle, protocol=2)
+        with open(log_filepath + "_model.pkl", 'wb') as handle:
+            pickle.dump(self, handle, protocol=2)
 
 
 class ParEgo(Optimiser):

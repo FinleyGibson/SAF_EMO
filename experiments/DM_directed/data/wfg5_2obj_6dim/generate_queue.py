@@ -23,7 +23,9 @@ dmvs = np.array([[1.5, 1.], [1., 2.5]])
 with lock: 
     q = persistqueue.SQLiteAckQueue('./opt_queue', multithreading=True)
 
-if len(sys.argv)>1:
+ipy_import = 'ipykernel_launcher.py' in [v.split('/')[-1] for v in sys.argv]
+    
+if len(sys.argv)>1 and not ipy_import:
     opt_opts = {
                 'dm_saf': "DmVector(objective_function=objective_function, ei=False,  dmv=dmv, w=0.5, limits=limits, surrogate=multi_surrogate, n_initial=10, budget=budget, seed=seed)"}
 
@@ -41,7 +43,8 @@ if len(sys.argv)>1:
             if seed <31:
                 opt = opt_opts[optimiser].format(seed, ei)
                 exec('optimisers.append('+opt+')')
-else:
+        n_opt = len(optimisers)
+elif len(sys.argv)==1 and not ipy_import:
     seeds = range(0, 11)
     
     # add optimsers to queue
@@ -50,7 +53,12 @@ else:
         #create optimisers
         for dmv in dmvs:
             optimisers += [DmVector(objective_function=objective_function, ei=False,  dmv=dmv, w=0.5, limits=limits, surrogate=multi_surrogate, n_initial=10, budget=budget, seed=seed)]
-n_opt = len(optimisers)
+    n_opt = len(optimisers)
+else:
+    pass
+
+
+
 
 if __name__ == "__main__":
     import shutil
