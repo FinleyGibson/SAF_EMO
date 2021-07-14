@@ -18,23 +18,6 @@ from testsuite.surrogates import GP, MultiSurrogate, MonoSurrogate
 from testsuite.acquisition_functions import scalar_expected_improvement
 
 
-def increment_evaluation_count(f):
-    # TODO move this into Optimiser class.
-    """decorator to increment the number of evaluations with each
-    function call and log the process"""
-    def wrapper(self, *args, **kwargs):
-        self.n_evaluations += 1
-        return_value = f(self, *args, **kwargs)
-        if self.n_evaluations%self.log_interval == 0 \
-                or self.n_evaluations == self.budget:
-            self.log_optimisation()
-        else:
-            self.log_optimisation()
-
-        return return_value
-    return wrapper
-
-
 def str_format(a):
     replacemen_pairs = {'.':'p',
                         ' ': '_',
@@ -127,7 +110,6 @@ class Optimiser:
 
         self.train_time += time.time()-tic
 
-    @increment_evaluation_count
     def step(self):
         """takes one step in the optimisation, getting the next decision
         vector by calling the get_next_x method"""
