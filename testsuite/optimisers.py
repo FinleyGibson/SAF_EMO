@@ -153,7 +153,8 @@ class Optimiser:
                 # This should not occur multiple times. Something is
                 # wrong here.
                 self.log_optimisation()
-
+                self.log_filename = self.log_filename+"__FAILED"
+                self.log_optimisation()
                 raise RuntimeError("Optimsation of acquisition function"
                                    "failed to find a unique new "
                                    "evaluation parameter even with the "
@@ -179,8 +180,7 @@ class Optimiser:
         # increment logging
         self.n_evaluations += 1
         
-        if self.n_evaluations % self.log_interval == 0 \
-                or self.n_evaluations == self.budget:
+        if (self.n_evaluations-self.n_initial) % self.log_interval == 0 or self.n_evaluations == self.budget:
             self.log_optimisation()
 
     def get_obj_weighting(self):

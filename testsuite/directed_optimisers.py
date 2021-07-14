@@ -338,16 +338,16 @@ if __name__ == "__main__":
             x = x.reshape(1, -1)
         return np.array([func(xi, k, n_obj) for xi in x])
 
-    optimisers =  [DirectedSaf(test_function, limits=limits, surrogate=gp_surr_multi, ei=False, targets = [[1., 1., 1.5]], w=0.5),
-                   DmVector(test_function, limits=limits, surrogate=gp_surr_multi, ei=False, dmv=[[1., 1., 1.5]], w=0.5)]
+    optimisers =  [DirectedSaf(test_function, limits=limits, surrogate=gp_surr_multi, ei=False, targets = [[1., 1., 1.5]], w=0.5, log_interval=2)]
+                   # DmVector(test_function, limits=limits, surrogate=gp_surr_multi, ei=False, dmv=[[1., 1., 1.5]], w=0.5)]
 
     for opt in optimisers:
         print(opt._generate_filename()[0] + "/" + opt._generate_filename()[1])
 
     for opt in optimisers:
-        opt.optimise(1)
-        opt.update_targets(opt.targets*2)
-        opt.optimise(1)
+        opt.optimise(10)
+        # opt.update_targets(opt.targets*2)
+        # opt.optimise(1)
     #
     # M= n_obj
     # N = 500
