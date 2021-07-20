@@ -16,7 +16,7 @@ multi_surrogate = MultiSurrogate(GP, scaled=True)
 
 budget = 150
 log_dir = "./log_data"
-cmaes_restarts=0
+cmaes_restarts=1
 dmvs = np.array([[1.5, 1.], [1., 2.5]])
 
 # set up queue
