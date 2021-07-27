@@ -43,14 +43,14 @@ class Optimiser:
         self.n_initial = n_initial
         self.budget = budget
         self.n_evaluations = 0
-        self.x_dims = np.shape(limits)[1]
+        self.n_dims = np.shape(limits)[1]
         self.log_interval = log_interval if log_interval else budget
         self.train_time = 0.
         self.errors = []
 
         # generate initial samples
         self.x, self.y = self.initial_evaluations(n_initial,
-                                                  self.x_dims,
+                                                  self.n_dims,
                                                   self.limits)
         self.n_objectives = self.y.shape[1]
 
@@ -95,7 +95,7 @@ class Optimiser:
         """
         Implementation required in child: method to find next parameter
         to evaluate in optimisation sequence.
-        :return: x_new [np.array] shape (1, x_dims)
+        :return: x_new [np.array] shape (1, n_dims)
         """
         raise NotImplementedError
 
@@ -274,6 +274,8 @@ class Optimiser:
                     "seed": self.seed,
                     "x": self.x,
                     "y": self.y,
+                    "p": self.p,
+                    "d": self.d,
                     "log_dir": self.log_dir,
                     "log_filename": self.log_filename,
                     "n_evaluations": self.n_evaluations,
@@ -306,7 +308,7 @@ class ParEgo(Optimiser):
         """
         Implementation required in child: method to find next parameter
         to evaluate in optimisation sequence.
-        :return: x_new [np.array] shape (1, x_dims)
+        :return: x_new [np.array] shape (1, n_dims)
         """
         y = self.apply_weighting(self.y)
         lambda_i = self._get_lambda(self.s, self.n_objectives)

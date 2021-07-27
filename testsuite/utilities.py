@@ -95,5 +95,5 @@ def get_target_igd_refpoints(target, ref_points):
         dominated_by_t = [dominates(target, rp, maximize=True) for rp in ref_points]
         if sum(dominated_by_t) == 0:
             # target on pareto front
-            return np.array([]), ref_points
+            return target.reshape(1,-1), ref_points
     return ref_points[dominated_by_t], ref_points[np.logical_not(dominated_by_t)]

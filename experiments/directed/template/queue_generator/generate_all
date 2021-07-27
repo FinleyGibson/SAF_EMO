@@ -1,0 +1,6 @@
+#!/bin/bash
+
+for directory in "$1"*
+do
+  python queue_generator_2.py "$directory"
+done

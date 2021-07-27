@@ -4,13 +4,6 @@ from testsuite.acquisition_functions import saf_mu, saf_ei
 from testsuite.surrogates import GP, RF
 import numpy as np
 
-from inspect import getmembers, isfunction
-# # get list of acquisition functions from testsuite.acquisition_functions
-# acq_list = [f[1] for f in getmembers(acquisition_functions, isfunction)
-#             if f[1].__module__ == acquisition_functions.__name__ and
-#             f[1].__name__[0] != "_"]
-
-
 @parameterized_class([
     {"name": "GP", "surrogate": GP, "args": [],
      "kwargs": {"scaled": True}},
