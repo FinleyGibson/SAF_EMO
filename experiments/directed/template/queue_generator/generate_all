@@ -1,6 +1,6 @@
 #!/bin/bash
 
-for directory in "$1"*
+for directory in ../../data/*
 do
   python queue_generator_2.py "$directory"
 done

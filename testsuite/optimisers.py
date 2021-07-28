@@ -263,8 +263,8 @@ class Optimiser:
         
         with open(log_filepath + "_results.pkl", 'wb') as handle:
             pickle.dump(log_data, handle, protocol=2)
-            
-        with open(log_filepath + "_model.pkl", 'wb') as handle:
+
+        with open(log_filepath   + "_model.pkl", 'wb') as handle:
             pickle.dump(self, handle, protocol=2)
 
     def _get_loggables(self, **kwargs):

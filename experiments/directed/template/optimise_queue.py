@@ -21,6 +21,7 @@ except IndexError:
 lock = FileLock("./lock")
 n_proc = min(proc_count, m_proc)
 
+
 def worker(i):
     with lock:
         q = persistqueue.SQLiteAckQueue('./opt_queue', multithreading=True)
@@ -45,11 +46,11 @@ def worker(i):
 
 with lock:
     q = persistqueue.SQLiteAckQueue('./opt_queue', multithreading=True)
-print("{} processors found, limited to access {} processors.".format(proc_count, n_proc))
-print("{} optimsations found in queue.".format(q.size))
+    print("{} processors found, limited to access {} processors.".format(proc_count, n_proc))
+    print("{} optimsations found in queue.".format(q.size))
 go = input("Press Enter to begin, optimisation, input N to cancel:\t").lower()
 
-logging.basicConfig(filename='error.log',level=logging.ERROR)
+logging.basicConfig(filename='error.log', level=logging.ERROR)
 if go != "n":
     with Pool(n_proc) as pool:
         pool.map(worker, range(n_proc))

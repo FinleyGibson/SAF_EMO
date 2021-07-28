@@ -15,8 +15,9 @@ print(rootpath.detect())
 optimiser_path = str(sys.argv[1])
 
 # lock path
-lock_path = os.path.join(optimiser_path, "lock")
-queue_path = os.path.join(optimiser_path, "queue")
+lock_path = os.path.abspath(os.path.join(optimiser_path, "lock"))
+queue_path = os.path.abspath(os.path.join(optimiser_path, "queue"))
+log_path = os.path.abspath(os.path.join(optimiser_path, "log_data"))
 
 # strip out function number
 func_n = int(func.__name__.strip('WFG'))
@@ -48,7 +49,7 @@ with lock:
 opt_opts = {'dsaf': "DirectedSaf(objective_function=objective_function, "
                     "ei=False,  targets=t, w=0.5, limits=limits, "
                     "surrogate=surrogate, n_initial=10, budget=budget, "
-                    "seed=seed)"}
+                    "log_dir=log_path, seed=seed)"}
 
 if len(sys.argv) > 2:
     pass
@@ -67,7 +68,7 @@ else:
     optimisers = []
     for seed in seeds:
         for t in targets:
-            optimisers += [exec(opt_opts['dsaf'])]
+            exec('optimisers += [{}]'.format(opt_opts['dsaf']))
 n_opt = len(optimisers)
 
 
@@ -86,7 +87,7 @@ if __name__ == "__main__":
         reset = True
 
     if reset == True:
-        shutil.rmtree('./opt_queue', ignore_errors=True)
+        shutil.rmtree(queue_path, ignore_errors=True)
         print("removed existing queue.")
         with lock:
             q = SQLiteAckQueue(queue_path, multithreading=True)
