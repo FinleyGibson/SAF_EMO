@@ -2,14 +2,27 @@ import rootpath
 import sys
 sys.path.append(rootpath.detect())
 import os
+import pickle
+import numpy as np
+from itertools import product
 from testsuite.surrogates import GP, MultiSurrogate
 from testsuite.directed_optimisers import DirectedSaf
+from testsuite.utilities import check_results_within_tree
+from testsuite.utilities import get_filenames_of_incompletes_within_tree
+from testsuite.utilities import get_filenames_of_all_results_within_tree
 sys.path.append(sys.argv[1])
 from problem_setup import func, objective_function, limits, n_dim, n_obj
 from json import load
 from persistqueue import SQLiteAckQueue
 from filelock import FileLock
 print(rootpath.detect())
+
+
+def get_seed_and_target_from_string(string):
+    with open(string, 'rb') as infile:
+        result = pickle.load(infile)
+    return result['seed'], result['targets'],
+
 
 # path to optimisier
 optimiser_path = str(sys.argv[1])
@@ -33,6 +46,7 @@ else:
 with open("../targets/targets", "r") as infile:
     targets = load(infile)
 targets = targets[target_name]
+targets =[np.array(t).reshape(1,-1) for t in targets]
 
 # set optimiser parameters
 budget = 150
@@ -51,26 +65,28 @@ opt_opts = {'dsaf': "DirectedSaf(objective_function=objective_function, "
                     "surrogate=surrogate, n_initial=10, budget=budget, "
                     "log_dir=log_path, seed=seed)"}
 
-if len(sys.argv) > 2:
-    pass
-    # TODO: add this
-    # # if remaining optimisations are provided
-    #
-    # # read remaining opts
-    # with open(sys.argv[2], 'rb') as infile:
-    #     lst = pickle.load(infile)
+# do initial optimisations
+seeds = list(range(0, 6))
 
-else:
-    # do initial optimisations
-    seeds = range(0, 6)
+# find which exist already
+existing_result_paths = get_filenames_of_all_results_within_tree(log_dir)
+existing_configs = [get_seed_and_target_from_string(path)
+                          for path in existing_result_paths]
 
-    # add optimsers to queue
-    optimisers = []
-    for seed in seeds:
-        for t in targets:
-            exec('optimisers += [{}]'.format(opt_opts['dsaf']))
+
+required_configs = np.array(list(product(seeds, targets)))
+
+# finds which configs in required_configs are not in existing_configs
+remaining_configs = required_configs[np.logical_not(np.array(
+    [np.any([np.all([np.all(d[i] == ci[i]) for i in range(len(d))])
+     for ci in existing_configs]) for d in required_configs]))]
+
+
+# add outstanding optimsations to queue
+optimisers = []
+for seed, t in remaining_configs:
+    exec('optimisers += [{}]'.format(opt_opts['dsaf']))
 n_opt = len(optimisers)
-
 
 if __name__ == "__main__":
     import shutil

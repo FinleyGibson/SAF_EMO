@@ -49,7 +49,7 @@ with lock:
     print("{} optimsations found in queue.".format(q.size))
 go = input("Press Enter to begin, optimisation, input N to cancel:\t").lower()
 
-logging.basicConfig(filename='error.log', level=logging.ERROR)
+logging.basicConfig(filename=os.path.join(optimiser_path, 'error.log'), level=logging.ERROR)
 if go != "n":
     with Pool(n_proc) as pool:
         pool.map(worker, range(n_proc))

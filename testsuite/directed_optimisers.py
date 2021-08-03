@@ -315,90 +315,25 @@ if __name__ == "__main__":
     from matplotlib.cm import viridis
     import wfg
     from testsuite.surrogates import GP, RF, MultiSurrogate
+    import sys
+    import os
+    import rootpath
+    from testsuite.surrogates import  MultiSurrogate, GP
 
-    # test_opt = DirectedSaf
-    test_opt = DmVector
+    problem_path = os.path.join(rootpath.detect(), 'experiments/directed/data/wfg6_3obj_8dim')
+    sys.path.append(problem_path)
 
-    # setup function
-    n_obj = 3  # Number of objectives
-    kfactor = 4
-    lfactor = 4
-    k = kfactor * (n_obj - 1)  # position related params
-    l = lfactor * 2  # distance related params
-    n_dim = k + l
-    limits = np.zeros((2, n_dim))
-    limits[1] = np.array(range(1, n_dim + 1)) * 2
+    from problem_setup import func, limits, objective_function
 
-    func = wfg.WFG5
-    gp_surr_multi = MultiSurrogate(GP, scaled=True)
-    # gp_surr_mono = GP(scaled=True)
+    t = [0.561, 4.037, 2.013]
+    seed = 5
+    surrogate = MultiSurrogate(GP, scaled=True)
 
-    def test_function(x):
-        if x.ndim < 2:
-            x = x.reshape(1, -1)
-        return np.array([func(xi, k, n_obj) for xi in x])
+    opt = DirectedSaf(objective_function=objective_function, ei=False,  targets=t,
+                w=0.5, limits=limits, surrogate=surrogate, n_initial=10,
+                budget=150, log_dir="./log_dir", seed=seed)
 
-    optimisers =  [DirectedSaf(test_function, limits=limits, surrogate=gp_surr_multi, ei=False, targets = [[1., 1., 1.5]], w=0.5, log_interval=2)]
-                   # DmVector(test_function, limits=limits, surrogate=gp_surr_multi, ei=False, dmv=[[1., 1., 1.5]], w=0.5)]
+    opt.optimise()
 
-    for opt in optimisers:
-        print(opt._generate_filename()[0] + "/" + opt._generate_filename()[1])
 
-    for opt in optimisers:
-        opt.optimise(10)
-        # opt.update_targets(opt.targets*2)
-        # opt.optimise(1)
-    #
-    # M= n_obj
-    # N = 500
-    # y = np.zeros((N, n_obj))
-    # x = np.zeros((N, n_dim))
-    # for n in range(N):
-    #     z = wfg.random_soln(k, l, func.__name__)
-    #     y[n, :] = func(z, k, M)
-    #     x[n, :] = z
-    #
-    # fig00 = plt.figure(figsize=[8, 8])
-    # fig00_ax = fig00.gca(projection="3d")
-    # fig00_ax.scatter(*y.T, c="C0")
-    #
-    # fig01 = plt.figure(figsize=[8, 8])
-    # fig01_ax = fig01.gca(projection="3d")
-    #
-    # if test_opt == DirectedSaf:
-    #     target = np.array([[0.985*1.1, 3.48*1.1]])
-    #     fig00_ax.scatter(*target.T, c="magenta")
-    #
-    #     # multi_surrogate = MultiSurrogate(RF)
-    #     opt = DirectedSaf(objective_function=test_function, ei=False,
-    #                       targets= target, w=0.5, limits=limits,
-    #                       surrogate=gp_surr_multi, n_initial=10, budget=15,
-    #                       seed=10, cmaes_restarts=0)
-    #     fig01_ax.scatter(*opt.targets.T, c="magenta")
-    #
-    # elif test_opt == DmVector:
-    #     dmv = np.array([[1.5, 1.5, 2.]])
-    #     fig01_ax.plot(*np.vstack((np.zeros_like(dmv), dmv)).T, c="C1", linestyle="--")
-    #     opt = DmVector(objective_function=test_function, ei=False, w=0.5,
-    #                    limits=limits, surrogate=gp_surr_multi, n_initial=10, budget=25,
-    #                    seed=10, cmaes_restarts=0, dmv=dmv)
-    #
-    # opt.optimise()
-    #
-    # fig01_ax.plot(*y[np.argsort(y[:, 0])].T, c="C0")
-    #
-    # fig01_ax.scatter(*np.vstack(opt.target_history).T, c="magenta", alpha=0.2, s=150)
-    # fig01_ax.scatter(*opt.targets.T, c="magenta", marker="v", label="current targets")
-    #
-    # fig01_ax.scatter(*opt.y[:10].T, c="C0", alpha=0.5, label="intial")
-    # fig01_ax.scatter(*opt.y[10:].T, c="C1", alpha=0.5, label="BO steps")
-    # fig01_ax.legend()
-    # # c=viridis(np.linspace(0, 1, opt.n_evaluations-10)))
-    # fig02 = plt.figure()
-    # ax = fig02.gca(projection="3d")
-    # ax.scatter(*opt.y.T)
-    #
-    # fig01.show()
-    # fig02.show()
-    # plt.show()
-    # pass
+

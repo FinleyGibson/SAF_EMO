@@ -13,21 +13,9 @@ from scipy.stats import norm
 from scipy.special import erf
 from evoalgos.performance import FonsecaHyperVolume
 
-from testsuite.utilities import Pareto_split, optional_inversion, dominates
+from testsuite.utilities import Pareto_split, optional_inversion, str_format
 from testsuite.surrogates import GP, MultiSurrogate, MonoSurrogate
 from testsuite.acquisition_functions import scalar_expected_improvement
-
-
-def str_format(a):
-    replacemen_pairs = {'.':'p',
-                        ' ': '_',
-                        '[': '',
-                        ']': ''
-                        }
-    a = str(a)
-    for k, v in replacemen_pairs.items():
-        a = a.replace(k, v)
-    return a
 
 
 class Optimiser:
