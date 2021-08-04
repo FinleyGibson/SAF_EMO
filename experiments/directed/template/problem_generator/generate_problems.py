@@ -27,7 +27,8 @@ def strip_folder_names(folder):
     dim = int(dim.strip("dim"))
     return prob, obj, dim
 
-target_dir = os.path.join(rootpath.detect(), "experiments/directed/data/")
+# target_dir = os.path.join(rootpath.detect(), "experiments/directed/data/")
+target_dir = os.path.join(rootpath.detect(), "experiments/directed/data_undirected_comp/")
 # target_dir = "./test_dir"
 assert os.path.isdir(target_dir)
 

@@ -6,6 +6,7 @@
 *.profile
 
 experiments/directed/data/*
+experiments/directed/data_undirected_comp/*
 experiments/undirected/data/*
 experiments/DM_directed/data/*
 

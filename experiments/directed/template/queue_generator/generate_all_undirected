@@ -1,0 +1,6 @@
+#!/bin/bash
+
+for directory in ../../data_undirected_comp/*
+do
+  python generate_queue_undirected.py "$directory"
+done

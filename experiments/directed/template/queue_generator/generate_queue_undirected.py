@@ -6,9 +6,7 @@ import pickle
 import numpy as np
 from itertools import product
 from testsuite.surrogates import GP, MultiSurrogate
-from testsuite.directed_optimisers import DirectedSaf
-from testsuite.utilities import check_results_within_tree
-from testsuite.utilities import get_filenames_of_incompletes_within_tree
+from testsuite.optimisers import Saf
 from testsuite.utilities import get_filenames_of_all_results_within_tree
 sys.path.append(sys.argv[1])
 from problem_setup import func, objective_function, limits, n_dim, n_obj
@@ -60,10 +58,9 @@ with lock:
     q = SQLiteAckQueue(queue_path, multithreading=True)
 
 
-opt_opts = {'dsaf': "DirectedSaf(objective_function=objective_function, "
-                    "ei=False,  targets=t, w=0.5, limits=limits, "
-                    "surrogate=surrogate, n_initial=10, budget=budget, "
-                    "log_dir=log_path, seed=seed)"}
+opt_opts = {'saf': "Saf(objective_function=objective_function, "
+                   "ei=False, limits=limits, surrogate=surrogate,"
+                   "n_initial=10, budget=budget, log_dir=log_path, seed=seed)"}
 
 # do initial optimisations
 seeds = list(range(0, 6))
@@ -85,7 +82,7 @@ remaining_configs = required_configs[np.logical_not(np.array(
 # add outstanding optimsations to queue
 optimisers = []
 for seed, t in remaining_configs:
-    exec('optimisers += [{}]'.format(opt_opts['dsaf']))
+    exec('optimisers += [{}]'.format(opt_opts['saf']))
 n_opt = len(optimisers)
 
 if __name__ == "__main__":

@@ -1,60 +1,91 @@
-"""
-generates queue of optimisation tasks for problem_setup.py in directory
-provided as first argument
-"""
 import rootpath
 import sys
 sys.path.append(rootpath.detect())
-
-from filelock import FileLock
-
+import os
 import pickle
-import persistqueue
+import numpy as np
+from itertools import product
 from testsuite.surrogates import GP, MultiSurrogate
 from testsuite.directed_optimisers import DirectedSaf
-from problem_setup import func, objective_function, limits
-exec("objective_function.__name__ = '{}'".format(func.__name__))
-import numpy as np
+from testsuite.utilities import check_results_within_tree
+from testsuite.utilities import get_filenames_of_incompletes_within_tree
+from testsuite.utilities import get_filenames_of_all_results_within_tree
+sys.path.append(sys.argv[1])
+from problem_setup import func, objective_function, limits, n_dim, n_obj
+from json import load
+from persistqueue import SQLiteAckQueue
+from filelock import FileLock
+print(rootpath.detect())
 
-lock = FileLock("../q_lock")
 
+def get_seed_and_target_from_string(string):
+    with open(string, 'rb') as infile:
+        result = pickle.load(infile)
+    return result['seed'], result['targets'],
+
+
+# path to optimisier
+optimiser_path = str(sys.argv[1])
+
+# lock path
+lock_path = os.path.abspath(os.path.join(optimiser_path, "lock"))
+queue_path = os.path.abspath(os.path.join(optimiser_path, "queue"))
+log_path = os.path.abspath(os.path.join(optimiser_path, "log_data"))
+
+# strip out function number
+func_n = int(func.__name__.strip('WFG'))
+
+# get targets
+if n_obj>4:
+    raise Exception
+
+if func_n < 4:
+    target_name = "WFG{}_{}obj_{}dim".format(func_n, n_obj, n_dim)
+else:
+    target_name = "ELLIPSOID_{}obj".format(n_obj)
+with open("../targets/targets", "r") as infile:
+    targets = load(infile)
+targets = targets[target_name]
+targets =[np.array(t).reshape(1,-1) for t in targets]
+
+# set optimiser parameters
+budget = 150
+log_dir = os.path.join(optimiser_path, "log_data/")
+cmaes_restarts = 1
 surrogate = MultiSurrogate(GP, scaled=True)
 
-budget = 150
-log_dir = "./log_data"
-cmaes_restarts = 1
-
-targets = np.array([[1.79, 1.79],[1.79*0.8, 1.79*0.8],[1.79*1.1, 1.79*1.1], [.985, 3.48],[0.985*0.9, 3.48*0.9], [0.985*1.1, 3.48*1.1]])
+# set up lock file to manage queue access
+lock = FileLock(lock_path)
 with lock:
-    q = persistqueue.SQLiteAckQueue('./opt_queue', multithreading=True)
+    q = SQLiteAckQueue(queue_path, multithreading=True)
 
-if len(sys.argv)>1:
-    opt_opts = {
-                'dsaf': "DirectedSaf(objective_function=objective_function, ei=False,  targets=t, w=0.5, limits=limits, surrogate=multi_surrogate, n_initial=10, budget=budget, seed=seed)"}
 
-    with open(sys.argv[1], 'rb') as infile:
-        lst = pickle.load(infile)
+opt_opts = {'dsaf': "DirectedSaf(objective_function=objective_function, "
+                    "ei=False,  targets=t, w=0.5, limits=limits, "
+                    "surrogate=surrogate, n_initial=10, budget=budget, "
+                    "log_dir=log_path, seed=seed)"}
 
-    optimisers = []
-    for D in lst:
-        path = D['directory']
-        print(path)
-        path_split = [i.strip('_').lower() for i in path.split('_')]
-        optimiser = list(opt_opts.keys())[np.nonzero([opt in path_split for opt in opt_opts.keys()])[0][0]]
-        ei = 'ei' in  path_split
-        for seed in D["missing"]:
-            if seed <31:
-                opt = opt_opts[optimiser].format(seed, ei)
-                exec('optimisers.append('+opt+')')
-else:
-    seeds = range(0, 11)
+# do initial optimisations
+seeds = list(range(0, 6))
 
-    # add optimsers to queue
-    optimisers = []
-    for seed in seeds:
-        #create optimisers
-        for t in targets:
-            optimisers += [DirectedSaf(objective_function=objective_function, ei=False,  targets=t, w=0.5, limits=limits, surrogate=multi_surrogate, n_initial=10, budget=budget, seed=seed)]
+# find which exist already
+existing_result_paths = get_filenames_of_all_results_within_tree(log_dir)
+existing_configs = [get_seed_and_target_from_string(path)
+                          for path in existing_result_paths]
+
+
+required_configs = np.array(list(product(seeds, targets)))
+
+# finds which configs in required_configs are not in existing_configs
+remaining_configs = required_configs[np.logical_not(np.array(
+    [np.any([np.all([np.all(d[i] == ci[i]) for i in range(len(d))])
+     for ci in existing_configs]) for d in required_configs]))]
+
+
+# add outstanding optimsations to queue
+optimisers = []
+for seed, t in remaining_configs:
+    exec('optimisers += [{}]'.format(opt_opts['dsaf']))
 n_opt = len(optimisers)
 
 if __name__ == "__main__":
@@ -72,10 +103,10 @@ if __name__ == "__main__":
         reset = True
 
     if reset == True:
-        shutil.rmtree('./opt_queue', ignore_errors=True)
+        shutil.rmtree(queue_path, ignore_errors=True)
         print("removed existing queue.")
         with lock:
-            q = persistqueue.SQLiteAckQueue('./opt_queue', multithreading=True)
+            q = SQLiteAckQueue(queue_path, multithreading=True)
 
     else:
         pass
