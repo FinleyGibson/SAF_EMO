@@ -16,10 +16,10 @@ from filelock import FileLock
 print(rootpath.detect())
 
 
-def get_seed_and_target_from_string(string):
+def get_seed_from_string(string):
     with open(string, 'rb') as infile:
         result = pickle.load(infile)
-    return result['seed'], result['targets'],
+    return result['seed']
 
 
 # path to optimisier
@@ -67,21 +67,19 @@ seeds = list(range(0, 6))
 
 # find which exist already
 existing_result_paths = get_filenames_of_all_results_within_tree(log_dir)
-existing_configs = [get_seed_and_target_from_string(path)
-                          for path in existing_result_paths]
+existing_configs = [get_seed_from_string(path) for path in
+                    existing_result_paths]
 
 
-required_configs = np.array(list(product(seeds, targets)))
+required_configs = np.array(list(seeds))
 
 # finds which configs in required_configs are not in existing_configs
-remaining_configs = required_configs[np.logical_not(np.array(
-    [np.any([np.all([np.all(d[i] == ci[i]) for i in range(len(d))])
-     for ci in existing_configs]) for d in required_configs]))]
+remaining_configs = [i for i in required_configs if i not in existing_configs]
 
 
 # add outstanding optimsations to queue
 optimisers = []
-for seed, t in remaining_configs:
+for seed in remaining_configs:
     exec('optimisers += [{}]'.format(opt_opts['saf']))
 n_opt = len(optimisers)
 
