@@ -63,7 +63,7 @@ opt_opts = {'saf': "Saf(objective_function=objective_function, "
                    "n_initial=10, budget=budget, log_dir=log_path, seed=seed)"}
 
 # do initial optimisations
-seeds = list(range(0, 6))
+seeds = list(range(6, 7))
 
 # find which exist already
 existing_result_paths = get_filenames_of_all_results_within_tree(log_dir)

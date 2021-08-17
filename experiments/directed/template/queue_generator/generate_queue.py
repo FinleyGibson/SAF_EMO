@@ -6,6 +6,7 @@ import pickle
 import numpy as np
 from itertools import product
 from testsuite.surrogates import GP, MultiSurrogate
+from testsuite.directed_optimisers import DirectedSaf
 from testsuite.analysis_tools import get_filenames_of_all_results_within_tree
 sys.path.append(sys.argv[1])
 from problem_setup import func, objective_function, limits, n_dim, n_obj
@@ -63,7 +64,7 @@ opt_opts = {'dsaf': "DirectedSaf(objective_function=objective_function, "
                     "log_dir=log_path, seed=seed)"}
 
 # do initial optimisations
-seeds = list(range(0, 6))
+seeds = list(range(6, 7))
 
 # find which exist already
 existing_result_paths = get_filenames_of_all_results_within_tree(log_dir)

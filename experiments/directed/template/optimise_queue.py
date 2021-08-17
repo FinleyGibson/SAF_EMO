@@ -1,58 +1,56 @@
-from multiprocessing import cpu_count, Pool
-# from generate_queue import n_opt
-import persistqueue
-
-from filelock import FileLock
-import logging
 import rootpath
-import copy
 import sys
 sys.path.append(rootpath.detect())
-import testsuite
+sys.path.append(sys.argv[1])
+import os
+from multiprocessing import cpu_count, Pool
+from persistqueue import SQLiteAckQueue
+from filelock import FileLock
+import logging
+import copy
 
-# get processor count
-proc_count = cpu_count()
-# cap processor usage
-try:
-    m_proc = int(sys.argv[1])
-except IndexError:
-    m_proc = proc_count
+# path to optimisier
+optimiser_path = str(sys.argv[1])
 
-lock = FileLock("./lock")
-n_proc = min(proc_count, m_proc)
-
+# lock path
+lock_path = os.path.join(os.path.dirname(__file__), optimiser_path, "lock")
+queue_path = os.path.join(os.path.dirname(__file__), optimiser_path, "queue")
 
 def worker(i):
     with lock:
-        q = persistqueue.SQLiteAckQueue('./opt_queue', multithreading=True)
+        q = SQLiteAckQueue(queue_path, multithreading=True)
         cont = not q.empty()
     while cont:
         with lock:
-            q = persistqueue.SQLiteAckQueue('./opt_queue', multithreading=True)
+            q = SQLiteAckQueue(queue_path, multithreading=True)
             optimiser = q.get()
             q.ack(optimiser)
         optimiser_cp = copy.deepcopy(optimiser)
-        try:
-            optimiser.optimise()
-        except  Exception as e:
-            logging.error('Exception met in {}, seed {}, at step {}.'.
-                    format(optimiser.__class__, optimiser.log_data["seed"], optimiser.n_evaluations))
-            with lock:
-                q.put(optimiser_cp)
+        optimiser.optimise()
         with lock:
-            q = persistqueue.SQLiteAckQueue('./opt_queue', multithreading=True)
+            q = SQLiteAckQueue(queue_path, multithreading=True)
             cont = not q.empty()
 
 
+# decide how many processors
+proc_count = cpu_count()
+try:
+    # cap processor usage
+    n_proc = min(int(sys.argv[2]), proc_count)
+except IndexError:
+    # use all available
+    n_proc = proc_count
+
+lock = FileLock(lock_path)
+
 with lock:
-    q = persistqueue.SQLiteAckQueue('./opt_queue', multithreading=True)
-    print("{} processors found, limited to access {} processors.".format(proc_count, n_proc))
+    q = SQLiteAckQueue(queue_path, multithreading=True)
+    print("{} processors found, limited access to {} ".format(proc_count, n_proc))
     print("{} optimsations found in queue.".format(q.size))
 go = input("Press Enter to begin, optimisation, input N to cancel:\t").lower()
 
-logging.basicConfig(filename='error.log', level=logging.ERROR)
+logging.basicConfig(filename=os.path.join(optimiser_path, 'error.log'), level=logging.ERROR)
 if go != "n":
     with Pool(n_proc) as pool:
         pool.map(worker, range(n_proc))
-
 
