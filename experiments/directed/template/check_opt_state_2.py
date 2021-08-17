@@ -9,8 +9,8 @@ import sys
 import rootpath
 sys.path.append(rootpath.detect())
 import numpy as np
-from testsuite.utilities import get_result_dirs_from_tree
-from testsuite.utilities import check_results_within_directory
+from testsuite.analysis_tools import get_result_dirs_from_tree
+from testsuite.analysis_tools import check_results_within_directory
 
 
 enq_dir = sys.argv[1]

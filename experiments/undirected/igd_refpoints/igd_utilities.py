@@ -95,7 +95,7 @@ def attainment_sample(Y, Nsamples=1000):
     -------
     S : ndarray
         Array of samples from the attainment surface.
-        Shape; Nsamples by Y.shape[1] 
+        Shape; n_samples by Y.shape[1]
     
     Notes
     -----

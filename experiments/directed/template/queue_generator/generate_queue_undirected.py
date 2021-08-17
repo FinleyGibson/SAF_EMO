@@ -7,7 +7,7 @@ import numpy as np
 from itertools import product
 from testsuite.surrogates import GP, MultiSurrogate
 from testsuite.optimisers import Saf
-from testsuite.utilities import get_filenames_of_all_results_within_tree
+from testsuite.analysis_tools import get_filenames_of_all_results_within_tree
 sys.path.append(sys.argv[1])
 from problem_setup import func, objective_function, limits, n_dim, n_obj
 from json import load

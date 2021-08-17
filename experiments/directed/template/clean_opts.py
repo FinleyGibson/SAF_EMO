@@ -1,7 +1,7 @@
 import sys
 import os
 
-from testsuite.utilities import get_filenames_of_incompletes_within_tree
+from testsuite.analysis_tools import get_filenames_of_incompletes_within_tree
 
 top_dir = sys.argv[1]
 print("Cleaning incomplete files from ", top_dir)
