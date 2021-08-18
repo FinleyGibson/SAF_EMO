@@ -125,7 +125,10 @@ class Result:
         intervals of sample_freq
         :param measure: pymoo.performance_indicator
         :param sample_freq:
-        :return:
+        :return: tuple (np.ndarray, np.ndarray)
+            history of the measurement score over the optimisation, at
+            the sample frequency specified, as well as the corresponding
+            steps for these measurements.
         """
         # steps at intervals determined by sample_freq, bookended by the
         # initial and final evaluations
@@ -139,7 +142,9 @@ class Result:
         history[-1] = measure.calc(self.y)
         # step states
         for i, step in enumerate(steps):
-            history[i+1] = measure.calc(self.y[:step])
+            # check all points are Pareto optimal. May not be required
+            yi = Pareto_split(self.y[:step])[0]
+            history[i+1] = measure.calc(yi)
 
         hist_x = np.asarray([self.n_initial]+list(steps)+[self.n_evaluations])
         return history, hist_x
@@ -179,7 +184,6 @@ class Result:
             return axis
         else:
             return fig
-
 
     def plot_igd(self, axis=None, c=None, label=None):
         """
