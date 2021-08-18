@@ -22,10 +22,10 @@ def get_seed_and_target_from_string(string):
     return result['seed'], result['targets'],
 
 
-# path to optimisier
+# raw_path to optimisier
 optimiser_path = str(sys.argv[1])
 
-# lock path
+# lock raw_path
 lock_path = os.path.abspath(os.path.join(optimiser_path, "lock"))
 queue_path = os.path.abspath(os.path.join(optimiser_path, "queue"))
 log_path = os.path.abspath(os.path.join(optimiser_path, "log_data"))

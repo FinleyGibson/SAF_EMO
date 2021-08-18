@@ -3,7 +3,7 @@ import rootpath
 from testsuite.analysis_tools import strip_problem_names, get_factors
 
 
-# target_dir = os.path.join(rootpath.detect(), "experiments/directed/data/")
+# target_dir = os.raw_path.join(rootpath.detect(), "experiments/directed/data/")
 target_dir = os.path.join(rootpath.detect(), "experiments/directed/data_undirected_comp/")
 # target_dir = "./test_dir"
 assert os.path.isdir(target_dir)

@@ -9,10 +9,10 @@ from filelock import FileLock
 import logging
 import copy
 
-# path to optimisier
+# raw_path to optimisier
 optimiser_path = str(sys.argv[1])
 
-# lock path
+# lock raw_path
 lock_path = os.path.join(os.path.dirname(__file__), optimiser_path, "lock")
 queue_path = os.path.join(os.path.dirname(__file__), optimiser_path, "queue")
 

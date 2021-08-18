@@ -47,23 +47,23 @@ def get_result_dirs_from_tree(parent_dir):
 
 def check_state_of_result(dir_path, file_name):
     """
-    Loads a result.pkl file from the path supplied by result_path and
+    Loads a result.pkl file from the raw_path supplied by result_path and
     checks the state of it; how many of the intended evaluations have
     been made.
     :param dir_path: str
-                string containing the path to the directory containing
-                results.pkl files, either an absolute or relative path.
+                string containing the raw_path to the directory containing
+                results.pkl files, either an absolute or relative raw_path.
     :param file_name: str
                 string containing the name of the file within dir_path
                 to be checked
     :return: tuple: (int, bool, (int, int), str)
 
-    :raises: AssertionError: supplied path invalid; not path to results.pkl
+    :raises: AssertionError: supplied raw_path invalid; not raw_path to results.pkl
                              file
     """
-    assert file_name[-11:] == 'results.pkl', "path supplied to " \
+    assert file_name[-11:] == 'results.pkl', "raw_path supplied to " \
                                              "check_state_of_result not a " \
-                                             "path to results.pkl file."
+                                             "raw_path to results.pkl file."
     # load result
     with open(os.path.join(dir_path, file_name), 'rb') as infile:
         result = pickle.load(infile)
@@ -81,7 +81,7 @@ def check_results_within_directory(dir):
     Checks the state of the results files within the supplied directory.
 
     :param dir: str
-                string path to the directory in which to check the results.
+                string raw_path to the directory in which to check the results.
     :return: list [(int, bool, (int, int), str)]
                 list of states of the results.pkl files within dir. The results
                 take the format:
@@ -102,7 +102,7 @@ def check_results_within_tree(top_dir):
     beneath top_dir.
 
     :param top_dir: str
-                path to the directory which forms the topmost directory in the
+                raw_path to the directory which forms the topmost directory in the
                 directory tree being considered.
     :return: dict {str, [(int, bool, (int, int), str]}
                 dictionary with paths to dirs containing results.pkl files as

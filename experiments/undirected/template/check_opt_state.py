@@ -28,7 +28,7 @@ def get_seed_from_str(string):
 
 results_dirs = sorted([os.path.join(log_dir, result_dir) for result_dir in os.listdir(log_dir)])
 
-# result_files = [[os.path.join(resuts_dir, file_dir) for file_dir in os.listdir(results_dir)] for results_dir in results_dirs]
+# result_files = [[os.raw_path.join(resuts_dir, file_dir) for file_dir in os.listdir(results_dir)] for results_dir in results_dirs]
 result_files = [[os.path.join(results_dir, file_dir) for file_dir in os.listdir(results_dir) if file_dir[-11:]=="results.pkl"] for results_dir in results_dirs]
 
 

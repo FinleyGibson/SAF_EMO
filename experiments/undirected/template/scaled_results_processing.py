@@ -87,6 +87,6 @@ for result in tqdm(results):
     D[result['name']] = {'name':result['name'], 'hypervolume': hvs, 'igd+':igdps, 'y': result['y'], 'hv_ref': ref_point, 'igd_ref': p, 'x': result['x'], 'seed': result['seed']}
 
 # save processed results
-#with open(os.path.join(problem_path, 'pkl_data/results__newsms.pkl'), 'wb') as outfile:
+#with open(os.raw_path.join(problem_path, 'pkl_data/results__newsms.pkl'), 'wb') as outfile:
 with open(os.path.join(problem_path, 'pkl_data/results_scaled_results.pkl'), 'wb') as outfile:
     pkl.dump(D, outfile)
