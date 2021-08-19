@@ -8,6 +8,48 @@ from pymoo.factory import get_performance_indicator
 from testsuite.utilities import Pareto_split
 
 
+class ResultsContainer:
+    def __init__(self, results: list):
+        self.iter_count = 0
+        self.results = results
+        for key in results[0].__dict__.keys():
+            setattr(self, key, self._amalgamate(key, results))
+
+    @staticmethod
+    def _amalgamate(name, results):
+        return [getattr(r, name) for r in results]
+
+    def __getitem__(self, item):
+        return self.results[item]
+
+    def __next__(self):
+        self.iter_count +=1
+        return self[self.iter_count-1]
+
+    def sort(self, attribute: str, reverse=False):
+        """
+        replaces self.results with copy of itself sorted  by the
+        attribute passed as attribute
+        :param attribute: str
+            string containing the name of the attribute by which to sort
+            self.results
+        """
+        # check attribute exists
+        assert attribute in self.__dict__.keys(), \
+            "Attribute does not exist, cannot sort. Please pass an attribute "\
+            "from: {}".format(self.__dict__.keys())
+
+        result_atts = [getattr(r, attribute) for r in self.results]
+        order = np.argsort(result_atts)
+        if not reverse:
+            for key in self.results[0].__dict__.keys():
+                setattr(self, key, [getattr(self, key)[n] for n in order])
+        else:
+            for key in self.results[0].__dict__.keys():
+                setattr(self, key, [getattr(self, key)[n] for n in order[::-1]])
+
+
+
 class Result:
     """
     class for containing and handling optimisation results
@@ -37,6 +79,7 @@ class Result:
         self.budget = self.raw_result['budget']
         self.n_evaluations = self.raw_result['n_evaluations']
         self.n_optimisation_steps = self.n_evaluations - self.n_initial
+        self.train_time = self.raw_result['train_time']
 
         # extract optimisation step information and assure consistency
         self.x = self.raw_result['x']
@@ -62,7 +105,6 @@ class Result:
         self.hpv_history = None     # set by calling self.compute_hpv_history()
         self.hpv_hist_x = None      # set by calling self.compute_hpv_history()
         self.hpv_refpoint = None    # set by calling self.compute_hpv_history()
-
 
     @staticmethod
     def load_result_from_path(path):
@@ -187,8 +229,8 @@ class Result:
 
     def plot_igd(self, axis=None, c=None, label=None):
         """
-        plots the igd+ history, either on a new figure
-        or adds to the axes provided
+        plots the igd+ history, either on a new figure or adds to the
+        axes provided
         :param axis: matplotlib.pyplot.axes
             axis object onto which to add the plot of the hpv.
         :param c: str
@@ -203,7 +245,7 @@ class Result:
         # create axes if one is not provided
         if axis is None:
             ax_provided = False
-            fig = plt.figure(figsize=[10,5])
+            fig = plt.figure(figsize=[10, 5])
             axis = fig.gca()
             axis.set_xlabel("Function evaluations")
             axis.set_ylabel("igd+ score")
@@ -221,34 +263,63 @@ class Result:
         else:
             return fig
 
-
 if __name__ == "__main__":
-    import sys
-    path = sys.argv[1]
-    result_inst = Result(path)
+    import copy
+    results_dir = os.path.join(rootpath.detect(),
+        'experiments/directed/data/wfg1_2obj_3dim/log_data/',
+        'OF_objective_function__opt_DirectedSaf__ninit_10__surrogate_MultiSurrogateGP__ei_False__target_1p68_1p09__w_0p5/')
+    assert os.path.isdir(results_dir)
+    result_paths = [os.path.join(results_dir, d) for d in
+                    os.listdir(results_dir) if d[-11:] == "results.pkl"]
+    result_insts = [Result(path) for path in result_paths]
 
-    test_refpoint0 = np.linspace(0, 1.5, 50)
-    test_refpoint1 = 1.5-np.linspace(0, 1.5, 50)
-    test_refpoints = np.vstack((test_refpoint0, test_refpoint1)).T
+    # result_inst = result_insts[0]
+    #
+    #
+    # test_refpoint0 = np.linspace(0, 1.5, 50)
+    # test_refpoint1 = 1.5-np.linspace(0, 1.5, 50)
+    # test_refpoints = np.vstack((test_refpoint0, test_refpoint1)).T
+    #
+    # result_inst.compute_igd_history(reference_points=test_refpoints,
+    #                                 sample_freq=1)
+    #
+    # test_refpoint = (np.ones(result_inst.n_obj)*3.5).reshape(1, -1)
+    # result_inst.compute_hpv_history(reference_point=test_refpoint,
+    #                                 sample_freq=1)
+    #
+    # fig0 = result_inst.plot_hpv()
+    # fig0.gca().legend()
+    #
+    # fig1 = result_inst.plot_igd()
+    # fig1.gca().legend()
+    # plt.show()
 
-    result_inst.compute_igd_history(reference_points=test_refpoints,
-                                    sample_freq=1)
+    container_inst = ResultsContainer(results=result_insts)
 
-    test_refpoint = (np.ones(result_inst.n_obj)*3.5).reshape(1, -1)
-    result_inst.compute_hpv_history(reference_point=test_refpoint,
-                                    sample_freq=1)
+    # ans = container_inst[0]
+    # ans2 = np.argsort([c.seed for c in container_inst])
+    # ans3 = [container_inst[i] for i in ans2]
+    # ans4 = ResultsContainer(ans3)
 
-    fig0 = result_inst.plot_hpv()
-    fig0.gca().legend()
+    prev = copy.deepcopy(container_inst)
+    container_inst.sort("seed")
 
-    fig1 = result_inst.plot_igd()
-    fig1.gca().legend()
+    # check attributes are sorted accordingly
+    for i, p in enumerate(prev.results):
+        for j, c in enumerate(container_inst.results):
+            if p.seed == c.seed:
+                np.testing.assert_array_equal(p.y, c.y)
+                np.testing.assert_array_equal(p.x, c.x)
 
-    fig0.show()
-    fig1.show()
+    container_inst.sort("train_time")
 
+    # check attributes are sorted accordingly
+    for i, p in enumerate(prev.results):
+        for j, c in enumerate(container_inst.results):
+            if p.seed == c.seed:
+                np.testing.assert_array_equal(p.y, c.y)
+                np.testing.assert_array_equal(p.x, c.x)
 
-
-
-
+    for i, result in enumerate(container_inst):
+        print(f"{i} \t {result.train_time}")
 
