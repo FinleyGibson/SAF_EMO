@@ -26,8 +26,8 @@ class ResultsContainer:
             elif isinstance(results[0], Result):
                 self.results = results
             self.iter_count = 0
-            for key in results[0].__dict__.keys():
-                setattr(self, key, self._amalgamate(key, results))
+            for key in self.results[0].__dict__.keys():
+                setattr(self, key, self._amalgamate(key, self.results))
         else:
             raise TypeError
 
@@ -407,60 +407,68 @@ class Result:
 
 
 if __name__ == "__main__":
-    import copy
-    results_dir = os.path.join(rootpath.detect(),
-        'experiments/directed/data/wfg1_2obj_3dim/log_data/',
-        'OF_objective_function__opt_DirectedSaf__ninit_10__surrogate_MultiSurrogateGP__ei_False__target_1p68_1p09__w_0p5/')
+    # import copy
+    # results_dir = os.path.join(rootpath.detect(),
+    #     'experiments/directed/data/wfg1_2obj_3dim/log_data/',
+    #     'OF_objective_function__opt_DirectedSaf__ninit_10__surrogate_MultiSurrogateGP__ei_False__target_1p68_1p09__w_0p5/')
+    # assert os.path.isdir(results_dir)
+    # result_paths = [os.path.join(results_dir, d) for d in
+    #                 os.listdir(results_dir) if d[-11:] == "results.pkl"]
+    # result_insts = [Result(path) for path in result_paths]
+    #
+    # result_inst = result_insts[0]
+    #
+    #
+    # test_refpoint0 = np.linspace(0, 1.5, 50)
+    # test_refpoint1 = 1.5-np.linspace(0, 1.5, 50)
+    # test_refpoints = np.vstack((test_refpoint0, test_refpoint1)).T
+    #
+    # result_inst.compute_igd_history(reference_points=test_refpoints,
+    #                                 sample_freq=1)
+    #
+    # test_refpoint = (np.ones(result_inst.n_obj)*3.5).reshape(1, -1)
+    # result_inst.compute_hpv_history(reference_point=test_refpoint,
+    #                                 sample_freq=1)
+    #
+    # fig0 = result_inst.plot_hpv()
+    # fig0.gca().legend()
+    #
+    # fig1 = result_inst.plot_igd()
+    # fig1.gca().legend()
+    # plt.show()
+    #
+    # container_inst = ResultsContainer(results=result_insts)
+    # container_inst.compute_igd_history(reference_points=test_refpoints,
+    #                                 sample_freq=1)
+    # container_inst.compute_hpv_history(reference_point=test_refpoint,
+    #                                 sample_freq=1)
+    #
+    # prev = copy.deepcopy(container_inst)
+    # container_inst.sort("seed")
+    #
+    # # check attributes are sorted accordingly
+    # for i, p in enumerate(prev.results):
+    #     for j, c in enumerate(container_inst.results):
+    #         if p.seed == c.seed:
+    #             np.testing.assert_array_equal(p.y, c.y)
+    #             np.testing.assert_array_equal(p.x, c.x)
+    #
+    # container_inst.save("./test_save")
+    #
+    # container_loaded = ResultsContainer("./test_save")
+    #
+    # for method in dir(container_inst):
+    #     print(method)
+    #
+    # fig_cont = container_inst.plot_hpv()
+    # fig_cont = container_inst.plot_igd(c="C1")
+    # plt.show()
+    # pass
+
+    results_dir = os.path.join(rootpath.detect(), 'experiments/directed/data/wfg1_2obj_3dim/log_data/OF_objective_function__opt_DirectedSaf__ninit_10__surrogate_MultiSurrogateGP__ei_False__target_0p35_3p14__w_0p5')
     assert os.path.isdir(results_dir)
-    result_paths = [os.path.join(results_dir, d) for d in
-                    os.listdir(results_dir) if d[-11:] == "results.pkl"]
-    result_insts = [Result(path) for path in result_paths]
 
-    result_inst = result_insts[0]
-
-
-    test_refpoint0 = np.linspace(0, 1.5, 50)
-    test_refpoint1 = 1.5-np.linspace(0, 1.5, 50)
-    test_refpoints = np.vstack((test_refpoint0, test_refpoint1)).T
-
-    result_inst.compute_igd_history(reference_points=test_refpoints,
-                                    sample_freq=1)
-
-    test_refpoint = (np.ones(result_inst.n_obj)*3.5).reshape(1, -1)
-    result_inst.compute_hpv_history(reference_point=test_refpoint,
-                                    sample_freq=1)
-
-    fig0 = result_inst.plot_hpv()
-    fig0.gca().legend()
-
-    fig1 = result_inst.plot_igd()
-    fig1.gca().legend()
-    plt.show()
-
-    container_inst = ResultsContainer(results=result_insts)
-    container_inst.compute_igd_history(reference_points=test_refpoints,
-                                    sample_freq=1)
-    container_inst.compute_hpv_history(reference_point=test_refpoint,
-                                    sample_freq=1)
-
-    prev = copy.deepcopy(container_inst)
-    container_inst.sort("seed")
-
-    # check attributes are sorted accordingly
-    for i, p in enumerate(prev.results):
-        for j, c in enumerate(container_inst.results):
-            if p.seed == c.seed:
-                np.testing.assert_array_equal(p.y, c.y)
-                np.testing.assert_array_equal(p.x, c.x)
-
-    container_inst.save("./test_save")
-
-    container_loaded = ResultsContainer("./test_save")
-
-    for method in dir(container_inst):
-        print(method)
-
-    fig_cont = container_inst.plot_hpv()
-    fig_cont = container_inst.plot_igd(c="C1")
-    plt.show()
+    result_paths = [os.path.join(results_dir, path) for path in
+                    os.listdir(results_dir) if path[-11:] == "results.pkl"]
+    results = ResultsContainer(result_paths)
     pass
