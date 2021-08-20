@@ -95,7 +95,6 @@ class Optimiser:
         tic = time.time()
         for i in range(n_steps):
             self.step()
-
         self.train_time += time.time()-tic
 
     def step(self):
@@ -989,5 +988,9 @@ if __name__ == "__main__":
         print(opt._generate_filename()[0]+"/"+opt._generate_filename()[1])
 
     for opt in optimisers:
-        if opt.__class__ not in  [Optimiser, BayesianOptimiser]:
+        if opt.__class__ not in [Optimiser, BayesianOptimiser]:
             opt.optimise(1)
+            pass
+            opt.optimise(1)
+            ans = opt._get_loggables()
+            pass

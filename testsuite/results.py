@@ -9,11 +9,37 @@ from testsuite.utilities import Pareto_split
 
 
 class ResultsContainer:
-    def __init__(self, results: list):
-        self.iter_count = 0
-        self.results = results
-        for key in results[0].__dict__.keys():
-            setattr(self, key, self._amalgamate(key, results))
+    def __init__(self, results):
+        """
+
+        :param results: [Result] or [str]
+            list of either Result objects, or strings which provide
+            paths to results.pkl files from which Results objects can be
+            formed.
+        """
+        # handle either list of path strings or Result objects
+        if isinstance(results, str):
+            self.load(results)
+        elif isinstance(results, list):
+            if isinstance(results[0], str):
+                self.results = [Result(r) for r in results]
+            elif isinstance(results[0], Result):
+                self.results = results
+            self.iter_count = 0
+            for key in results[0].__dict__.keys():
+                setattr(self, key, self._amalgamate(key, results))
+        else:
+            raise TypeError
+
+    def compute_hpv_history(self, reference_point, sample_freq=1):
+        for result in self.results:
+            result.compute_hpv_history(reference_point=reference_point,
+                                       sample_freq=sample_freq)
+
+    def compute_igd_history(self, reference_points, sample_freq=1):
+        for result in self.results:
+            result.compute_igd_history(reference_points=reference_points,
+                                       sample_freq=sample_freq)
 
     @staticmethod
     def _amalgamate(name, results):
@@ -48,6 +74,117 @@ class ResultsContainer:
             for key in self.results[0].__dict__.keys():
                 setattr(self, key, [getattr(self, key)[n] for n in order[::-1]])
 
+    def save(self, path):
+        with open(path, 'wb') as outfile:
+            pickle.dump(self, outfile)
+            print(f"Saved ResultsContainer to: ", path)
+
+    def load(self, path):
+        with open(path, 'rb') as infile:
+            replacement = pickle.load(infile)
+        for key, value in replacement.__dict__.items():
+            setattr(self, key, value)
+
+    def plot_hpv(self, axis=None, c="C0"):
+        # create axes if one is not provided
+        if axis is None:
+            ax_provided = False
+            fig = plt.figure(figsize=[10,5])
+            axis = fig.gca()
+            axis.set_xlabel("Function evaluations")
+            axis.set_ylabel("Dominated Hypervolume")
+        else:
+            ax_provided = True
+
+        # handles different colours provided
+        if not isinstance(c, str):
+            try:
+                # colour is iterable
+                for result, ci in zip(self.results, c):
+                    axis = result.plot_hpv(axis, c=ci, label=result.seed,
+                                           plot_kwargs={
+                                               'alpha': 0.3,
+                                               'linestyle': ':'
+                                           })
+            except TypeError:
+                # colour is not iterable
+                for result in self.results:
+                    axis = result.plot_hpv(axis, c=c, label=result.seed,
+                                           plot_kwargs = {
+                                               'alpha': 0.3,
+                                               'linestyle': ':'
+                                           })
+        else:
+            # colour is string and thus should not be iterated
+            for result in self.results:
+                axis = result.plot_hpv(axis, c=c, label=result.seed,
+                                       plot_kwargs = {
+                                           'alpha': 0.3,
+                                           'linestyle': ':'
+                                       })
+                pass
+        axis.plot(result.hpv_hist_x,
+                  np.median([r.hpv_history for r in self.results], axis=0),
+                  c=c,
+                  linewidth=2,
+                  label="median")
+        axis.legend()
+
+        if ax_provided:
+            return axis
+        else:
+            return fig
+
+    def plot_igd(self, axis=None, c="C0"):
+        # create axes if one is not provided
+        if axis is None:
+            ax_provided = False
+            fig = plt.figure(figsize=[10,5])
+            axis = fig.gca()
+            axis.set_xlabel("Function evaluations")
+            axis.set_ylabel("Dominated Hypervolume")
+        else:
+            ax_provided = True
+
+        # handles different colours provided
+        if not isinstance(c, str):
+            try:
+                # colour is iterable
+                for result, ci in zip(self.results, c):
+                    axis = result.plot_igd(axis, c=ci, label=result.seed,
+                                           plot_kwargs = {
+                                               'alpha': 0.3,
+                                               'linestyle': ':'
+                                           })
+            except TypeError:
+                # colour is not iterable
+                for result in self.results:
+                    axis = result.plot_igd(axis, c=c, label=result.seed,
+                                           plot_kwargs = {
+                                               'alpha': 0.3,
+                                               'linestyle': ':'
+                                           })
+        else:
+            # colour is string and thus should not be iterated
+            for result in self.results:
+                axis = result.plot_igd(axis, c=c, label=result.seed,
+                                       plot_kwargs = {
+                                           'alpha': 0.3,
+                                           'linestyle': ':'
+                                       })
+                pass
+
+        axis.plot(result.igd_hist_x,
+                  np.median([r.igd_history for r in self.results], axis=0),
+                  c=c,
+                  linewidth=2,
+                  label="median")
+        axis.legend()
+
+        if ax_provided:
+            return axis
+        else:
+            return fig
 
 
 class Result:
@@ -191,7 +328,7 @@ class Result:
         hist_x = np.asarray([self.n_initial]+list(steps)+[self.n_evaluations])
         return history, hist_x
 
-    def plot_hpv(self, axis=None, c=None, label=None):
+    def plot_hpv(self, axis=None, c=None, label=None, plot_kwargs={}):
         """
         plots the dominated hypervolume history, either on a new figure
         or adds to the axes provided
@@ -219,7 +356,11 @@ class Result:
         # plot hpv history on axes
         c = "C0" if c is None else c
         label = "dominated hypervolume" if label is None else label
-        axis.plot(self.hpv_hist_x, self.hpv_history, c=c, label=label)
+        try:
+            axis.plot(self.hpv_hist_x, self.hpv_history, c=c, label=label,
+                      **plot_kwargs)
+        except Exception as e:
+            pass
 
         # return axis if it was provided, otherwise return the figure
         if ax_provided:
@@ -227,7 +368,7 @@ class Result:
         else:
             return fig
 
-    def plot_igd(self, axis=None, c=None, label=None):
+    def plot_igd(self, axis=None, c=None, label=None, plot_kwargs={}):
         """
         plots the igd+ history, either on a new figure or adds to the
         axes provided
@@ -255,13 +396,15 @@ class Result:
         # plot hpv history on axes
         c = "C0" if c is None else c
         label = "igd+ score" if label is None else label
-        axis.plot(self.igd_hist_x, self.igd_history, c=c, label=label)
+        axis.plot(self.igd_hist_x, self.igd_history, c=c, label=label,
+                  **plot_kwargs)
 
         # return axis if it was provided, otherwise return the figure
         if ax_provided:
             return axis
         else:
             return fig
+
 
 if __name__ == "__main__":
     import copy
@@ -273,33 +416,32 @@ if __name__ == "__main__":
                     os.listdir(results_dir) if d[-11:] == "results.pkl"]
     result_insts = [Result(path) for path in result_paths]
 
-    # result_inst = result_insts[0]
-    #
-    #
-    # test_refpoint0 = np.linspace(0, 1.5, 50)
-    # test_refpoint1 = 1.5-np.linspace(0, 1.5, 50)
-    # test_refpoints = np.vstack((test_refpoint0, test_refpoint1)).T
-    #
-    # result_inst.compute_igd_history(reference_points=test_refpoints,
-    #                                 sample_freq=1)
-    #
-    # test_refpoint = (np.ones(result_inst.n_obj)*3.5).reshape(1, -1)
-    # result_inst.compute_hpv_history(reference_point=test_refpoint,
-    #                                 sample_freq=1)
-    #
-    # fig0 = result_inst.plot_hpv()
-    # fig0.gca().legend()
-    #
-    # fig1 = result_inst.plot_igd()
-    # fig1.gca().legend()
-    # plt.show()
+    result_inst = result_insts[0]
+
+
+    test_refpoint0 = np.linspace(0, 1.5, 50)
+    test_refpoint1 = 1.5-np.linspace(0, 1.5, 50)
+    test_refpoints = np.vstack((test_refpoint0, test_refpoint1)).T
+
+    result_inst.compute_igd_history(reference_points=test_refpoints,
+                                    sample_freq=1)
+
+    test_refpoint = (np.ones(result_inst.n_obj)*3.5).reshape(1, -1)
+    result_inst.compute_hpv_history(reference_point=test_refpoint,
+                                    sample_freq=1)
+
+    fig0 = result_inst.plot_hpv()
+    fig0.gca().legend()
+
+    fig1 = result_inst.plot_igd()
+    fig1.gca().legend()
+    plt.show()
 
     container_inst = ResultsContainer(results=result_insts)
-
-    # ans = container_inst[0]
-    # ans2 = np.argsort([c.seed for c in container_inst])
-    # ans3 = [container_inst[i] for i in ans2]
-    # ans4 = ResultsContainer(ans3)
+    container_inst.compute_igd_history(reference_points=test_refpoints,
+                                    sample_freq=1)
+    container_inst.compute_hpv_history(reference_point=test_refpoint,
+                                    sample_freq=1)
 
     prev = copy.deepcopy(container_inst)
     container_inst.sort("seed")
@@ -311,15 +453,14 @@ if __name__ == "__main__":
                 np.testing.assert_array_equal(p.y, c.y)
                 np.testing.assert_array_equal(p.x, c.x)
 
-    container_inst.sort("train_time")
+    container_inst.save("./test_save")
 
-    # check attributes are sorted accordingly
-    for i, p in enumerate(prev.results):
-        for j, c in enumerate(container_inst.results):
-            if p.seed == c.seed:
-                np.testing.assert_array_equal(p.y, c.y)
-                np.testing.assert_array_equal(p.x, c.x)
+    container_loaded = ResultsContainer("./test_save")
 
-    for i, result in enumerate(container_inst):
-        print(f"{i} \t {result.train_time}")
+    for method in dir(container_inst):
+        print(method)
 
+    fig_cont = container_inst.plot_hpv()
+    fig_cont = container_inst.plot_igd(c="C1")
+    plt.show()
+    pass
