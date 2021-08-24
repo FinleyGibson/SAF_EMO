@@ -186,6 +186,23 @@ class ResultsContainer:
         else:
             return fig
 
+    def get_intervals(self, measure: str, intervals: list):
+        """
+        calls get_intervals for all Results in self.results and returns
+        the median, and inter-quartile ranges of all results at the
+        intervals provided.
+        :param measure: str
+                string dictating which score to return, should be one of
+                'igd' or 'hpv'.
+        :param intervals: list(int)
+                which steps to return the measured score
+        :return: tuple(np.ndarray(float), np.ndarray(float))
+                (median of measure over all self.results at intervals,
+                IQR of measure over all self.results at intervalss)
+        """
+        scores = [r.get_intervals(measure, intervals) for r in self.results]
+        return np.median(scores, axis=0), np.percentile(scores, [0.25, 0.75], axis=0)
+
 
 class Result:
     """
@@ -405,6 +422,48 @@ class Result:
         else:
             return fig
 
+    def get_interval(self, measure: str, interval: int):
+        """
+        returns the scored defined by measure at the interval step of
+        the optimisation process.
+        :param measure: str
+                string dictating which score to return, should be one of
+                'igd' or 'hpv'.
+        :param interval: int
+                which step to return the measured score
+        :return: float
+                score defined by measure at the interval step of the
+                optimisation
+        """
+        if getattr(self, f"{measure}_history") is None:
+            raise AttributeError(f"{measure}_history not yet calculated. "
+                                 f"Run compute {measure}_history first.")
+
+        if measure not in ("igd", "hpv"):
+            raise ValueError("invlaid measure supplied. Measure should be one "
+                             "of 'igd+' or 'hpv'")
+        else:
+            measure_history = getattr(self, f"{measure}_history")
+            measure_steps = getattr(self, f"{measure}_hist_x")
+            index = np.argmin(abs(np.array(measure_steps)-interval))
+            return measure_history[index]
+
+    def get_intervals(self, measure: str, intervals: list):
+        """
+        returns the scored defined by measure at the intervals steps of
+        the optimisation process. Calls get_interval for each interval
+        in intervals.
+        :param measure: str
+                string dictating which score to return, should be one of
+                'igd' or 'hpv'.
+        :param intervals: list(int)
+                which steps to return the measured score
+        :return: np.ndarray(float)
+                score defined by measure at the interval step of the
+                optimisation
+        """
+        return np.array([self.get_interval(measure, i) for i in intervals])
+
 
 if __name__ == "__main__":
     # import copy
@@ -471,4 +530,7 @@ if __name__ == "__main__":
     result_paths = [os.path.join(results_dir, path) for path in
                     os.listdir(results_dir) if path[-11:] == "results.pkl"]
     results = ResultsContainer(result_paths)
+    results.sort("seed")
+    results.save("./test_save")
+    results_loaded = ResultsContainer("./test_save")
     pass

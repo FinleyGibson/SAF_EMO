@@ -4,9 +4,11 @@ import pickle
 import os
 from itertools import product
 from scipy.spatial import distance_matrix
+from scipy.spatial.distance import cdist
 import lhsmdu
 import wfg
 from tqdm import tqdm
+import matplotlib.pyplot as plt
 
 
 def get_target_igd_refpoints(target, ref_points):
@@ -173,9 +175,9 @@ def strip_problem_names(folder):
     :return:
     """
     (prob, obj, dim) = folder.split('_')
-    prob = int(prob.strip("wfg"))
-    obj = int(obj.strip("obj"))
-    dim = int(dim.strip("dim"))
+    prob = int(prob.lower().strip("wfg"))
+    obj = int(obj.lower().strip("obj"))
+    dim = int(dim.lower().strip("dim"))
     return prob, obj, dim
 
 
