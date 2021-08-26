@@ -21,6 +21,9 @@ def KDTree_distance(a, b):
 
 n_samples = 100000
 n_attainment = 10000
+
+# n_samples = 10000
+# n_attainment = 4000
 D = {}
 
 with open("./targets", "rb") as infile:
@@ -66,7 +69,7 @@ for name, targets in target_dict.items():
         target = np.array(target).reshape(1, -1)
         igd_points, other_points = get_target_igd_refpoints(target, ya)
         # add to target_dict
-        out_dict[str(target)] = igd_points
+        out_dict[str(target)] = igd_points.tolist()
 
     if obj == 2:
         fig, axes = plt.subplots(2, 3, figsize=[10, 10])
@@ -80,17 +83,18 @@ for name, targets in target_dict.items():
         ax5 = fig.add_subplot(236, projection="3d")
         axes = np.asarray(fig.axes)
     else:
-        continue
+        pass
     for ax, target in zip(axes.flatten(), targets):
         target = np.array(target).reshape(1, -1)
         ax.scatter(*ya[::10].T, s=5, c="C0", alpha=0.2)
         ax.scatter(*target.T, s=5, c="magenta", alpha=1.)
-        c = out_dict[str(target)]
+        c = np.asarray(out_dict[str(target)])
         ax.scatter(*c.T, s=5, c="C3", alpha=1.)
-    D[name] = target_dict
+    D[name] = out_dict
 
+print("saving")
 with open("./reference_points", "w") as outfile:
     json.dump(D, outfile)
-# print("Done")
+print("Done")
 plt.show()
-# print("Done")
+print("Done")

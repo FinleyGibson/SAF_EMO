@@ -13,11 +13,13 @@ from pymoo.factory import get_performance_indicator
 from testsuite.analysis import load_all
 from testsuite import optimisers
 
+
 def load_result(directory):
     result = load_all(directory, trailing_text = "_results.pkl")
     name = get_name_from_dir(directory)
     result['name'] = name
     return result
+
 
 def get_name_from_dir(dir_string):
     bits = dir_string.split('_')

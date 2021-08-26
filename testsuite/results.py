@@ -4,6 +4,7 @@ import os
 import numpy as np
 import matplotlib.pyplot as plt
 from testsuite.analysis_tools import strip_problem_names
+from testsuite.utilities import SingeTargetDominatedHypervolume
 from pymoo.factory import get_performance_indicator
 from testsuite.utilities import Pareto_split
 
@@ -17,7 +18,8 @@ class ResultsContainer:
             paths to results.pkl files from which Results objects can be
             formed.
         """
-        # handle either list of path strings or Result objects
+        # handle either list of path strings or Result objects creating
+        # a list of Results objects stored as self.results
         if isinstance(results, str):
             self.load(results)
         elif isinstance(results, list):
@@ -30,6 +32,7 @@ class ResultsContainer:
                 setattr(self, key, self._amalgamate(key, self.results))
         else:
             raise TypeError
+
 
     def compute_hpv_history(self, reference_point, sample_freq=1):
         for result in self.results:
@@ -51,6 +54,17 @@ class ResultsContainer:
     def __next__(self):
         self.iter_count +=1
         return self[self.iter_count-1]
+
+    def sorted(self, attribute: str, reverse=False):
+        """
+        calls self.sort, but returns self.
+        :param attribute:
+        :param reverse:
+        :return:
+        """
+        self.sort(attribute, reverse=reverse)
+        return self
+
 
     def sort(self, attribute: str, reverse=False):
         """
@@ -246,7 +260,12 @@ class Result:
         assert self.n_dim == self.x.shape[1]
         assert self.n_obj == self.y.shape[1]
 
-        self.targets = self.raw_result['targets']
+        try:
+            self.targets = self.raw_result['targets']
+        except KeyError:
+            # undirected case
+            self.targets = None
+
         try:
             self.target_history = self.raw_result['target_history']
         except KeyError:
@@ -310,7 +329,9 @@ class Result:
         self.hpv_refpoint = reference_point
 
         # generate measurement tool once for all stages.
-        hpv_measure = get_performance_indicator("hv", reference_point)
+        # hpv_measure = get_performance_indicator("hv", reference_point)
+        hpv_measure = SingeTargetDominatedHypervolume(reference_point)
+
         self.hpv_history, self.hpv_hist_x = self._compute_measure_history(
             measure=hpv_measure, sample_freq=sample_freq)
 
@@ -410,10 +431,35 @@ class Result:
         else:
             ax_provided = True
 
-        # plot hpv history on axes
+        # plot hpv history on ax
         c = "C0" if c is None else c
         label = "igd+ score" if label is None else label
         axis.plot(self.igd_hist_x, self.igd_history, c=c, label=label,
+                  **plot_kwargs)
+
+        # return axis if it was provided, otherwise return the figure
+        if ax_provided:
+            return axis
+        else:
+            return fig
+
+    def plot_front(self, axis=None, c=None, label=None, plot_kwargs={}):
+        # create axes if one is not provided
+        if axis is None:
+            ax_provided = False
+            fig = plt.figure(figsize=[10, 5])
+            axis = fig.gca()
+            axis.set_xlabel("Function evaluations")
+            axis.set_ylabel("igd+ score")
+        else:
+            ax_provided = True
+
+        # plot hpv history on ax
+        c = "C0" if c is None else c
+        label = "igd+ score" if label is None else label
+        axis.scatter(*self.d.T, c=c, label=label,
+                     **plot_kwargs, alpha=0.2)
+        axis.scatter(*self.p.T, c=c, label=label,
                   **plot_kwargs)
 
         # return axis if it was provided, otherwise return the figure

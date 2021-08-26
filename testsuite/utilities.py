@@ -1,6 +1,7 @@
 import os
 import pickle
 import numpy as np
+from pymoo.factory import get_performance_indicator
 
 def str_format(a):
     replacemen_pairs = {'.':'p',
@@ -92,8 +93,42 @@ def Pareto_split(x_in, maximize: bool = False, return_indices=False):
     if return_indices:
         return nondominated_mask, np.invert(nondominated_mask)
     else:
-        return x_orig[nondominated_mask], x_orig[np.invert(nondominated_mask)] 
+        return x_orig[nondominated_mask], x_orig[np.invert(nondominated_mask)]
 
+
+def single_target_dominated_hypervolume(p, target):
+    """
+    calculate the dominated hypervolume
+    :param p: np.ndarray(n_points, n_objectives)
+        non-dominated objective space points
+    :param target: np.ndarray(1, n_dim) OR np.ndarray(n_dim)
+        target point
+    :return:
+    """
+    # format target
+    if target.ndim > 1:
+        target = target.reshape(-1)
+
+    target_dominated =  np.logical_not(np.any([dominates(pi, target) for pi in p]))
+
+    if not target_dominated:
+        hv_measure = get_performance_indicator("hv", ref_point=target)
+        return hv_measure.calc(p)
+    else:
+        hv_measure = get_performance_indicator("hv", ref_point=target*-1)
+        return -hv_measure.calc(p*-1)
+
+
+class SingeTargetDominatedHypervolume:
+    """
+    class wrapper for single_target_dominated_hypervolume function to
+    be used as with pymoo indicators: using calc function.
+    """
+    def __init__(self, target):
+        self.target = target
+
+    def calc(self, p):
+        return single_target_dominated_hypervolume(p, self.target)
 
 
 if __name__ == "__main__":
