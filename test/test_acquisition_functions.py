@@ -4,6 +4,7 @@ from testsuite.acquisition_functions import saf_mu, saf_ei
 from testsuite.surrogates import GP, RF
 import numpy as np
 
+
 @parameterized_class([
     {"name": "GP", "surrogate": GP, "args": [],
      "kwargs": {"scaled": True}},

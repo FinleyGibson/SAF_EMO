@@ -7,32 +7,92 @@ from testsuite.analysis_tools import strip_problem_names
 from testsuite.utilities import SingeTargetDominatedHypervolume
 from pymoo.factory import get_performance_indicator
 from testsuite.utilities import Pareto_split
+from copy import deepcopy
 
 
 class ResultsContainer:
     def __init__(self, results):
         """
+        takes a "results" argument and creates a ResultsContainer object
+        based on this argument.
+        :param results: 1) str - "path/to/directory/"
+                        where directory contains results.pkl files
+                        2) str - "path/to/saved/ResultsContainer"
+                        where results is a path to a previous instance
+                        of ResultsContainer saved using save_container
+                        3) [str]
+                        list of strings to a sequence of results.pkl
+                        files
+                        4) [Result]
+                        list of instances of the Results class to be
+                        contained into a ResultsContainer
 
-        :param results: [Result] or [str]
-            list of either Result objects, or strings which provide
-            paths to results.pkl files from which Results objects can be
-            formed.
+        :raises
+            TypeError: results passed as neither str, [str] or [Results]
+
         """
-        # handle either list of path strings or Result objects creating
-        # a list of Results objects stored as self.results
         if isinstance(results, str):
-            self.load(results)
+            if os.path.isdir(results):
+                # results provided is a directory path- load all results
+                # files from within that dir
+                result_paths = [os.path.join(results, path) for path in
+                                os.listdir(results) if
+                                path[-11:] == "results.pkl"]
+                self.results = [Result(r) for r in result_paths]
+
+                self.iter_count = 0
+                for key in self.results[0].__dict__.keys():
+                    setattr(self, key, self._amalgamate(key, self.results))
+            else:
+                # results provided is a path to a saved instance of
+                # ResultsContainer
+                self.load_container(results)
+
         elif isinstance(results, list):
             if isinstance(results[0], str):
+                # results provided is a list of paths to results files
+                assert np.all([r[-11:] == "results.pkl" for r in results])
                 self.results = [Result(r) for r in results]
+
             elif isinstance(results[0], Result):
+                # results provided is a list of Results objects
                 self.results = results
+
             self.iter_count = 0
             for key in self.results[0].__dict__.keys():
                 setattr(self, key, self._amalgamate(key, self.results))
         else:
+            print("results provided to ResultsContainer are " \
+                             "not recognised.")
             raise TypeError
 
+        # no reference data included initially
+        self.reference = None
+
+    def add_reference_data(self, directory_path):
+        """
+        adds data from an alternative optimisation to use as reference
+        comparison.
+
+        :param directory_path: str
+            path to the directory containing the corresponding results
+            used as a reference for comparision.
+        """
+        reference_container = ResultsContainer(directory_path)
+
+        ref_results = reference_container.results
+        ref_seeds = reference_container.seed
+
+        # check all seeds are present
+        assert set(self.seed) == set(ref_seeds), \
+            "reference data does not contain all required random seeds " \
+            "and should not be used for reference."
+
+        # ensure reference results are in the same seed order as self.results
+        # (don't question this line of code, it came in a momentary state of
+        # enlightenment and it works)
+        self.reference = [[ref_results[j] for j in np.argsort(ref_seeds)][i]
+                          for i in np.argsort(self.seed).argsort()]
 
     def compute_hpv_history(self, reference_point, sample_freq=1):
         for result in self.results:
@@ -62,14 +122,16 @@ class ResultsContainer:
         :param reverse:
         :return:
         """
-        self.sort(attribute, reverse=reverse)
-        return self
-
+        duplicate_instance = deepcopy(self)
+        duplicate_instance.sort(attribute, reverse=reverse)
+        return duplicate_instance
 
     def sort(self, attribute: str, reverse=False):
         """
         replaces self.results with copy of itself sorted  by the
         attribute passed as attribute
+        :param reverse: bool
+            if True then reverse sorting otherwise sort normally
         :param attribute: str
             string containing the name of the attribute by which to sort
             self.results
@@ -88,12 +150,15 @@ class ResultsContainer:
             for key in self.results[0].__dict__.keys():
                 setattr(self, key, [getattr(self, key)[n] for n in order[::-1]])
 
+        # sort self.results
+        self.results = [self.results[i] for i in order]
+
     def save(self, path):
         with open(path, 'wb') as outfile:
             pickle.dump(self, outfile)
             print(f"Saved ResultsContainer to: ", path)
 
-    def load(self, path):
+    def load_container(self, path):
         with open(path, 'rb') as infile:
             replacement = pickle.load(infile)
         for key, value in replacement.__dict__.items():
@@ -573,10 +638,21 @@ if __name__ == "__main__":
     results_dir = os.path.join(rootpath.detect(), 'experiments/directed/data/wfg1_2obj_3dim/log_data/OF_objective_function__opt_DirectedSaf__ninit_10__surrogate_MultiSurrogateGP__ei_False__target_0p35_3p14__w_0p5')
     assert os.path.isdir(results_dir)
 
-    result_paths = [os.path.join(results_dir, path) for path in
-                    os.listdir(results_dir) if path[-11:] == "results.pkl"]
-    results = ResultsContainer(result_paths)
+    results = ResultsContainer(results_dir)
+
+
+    results_dir = os.path.join(rootpath.detect(), 'experiments/directed/data_undirected_comp/wfg1_2obj_3dim/log_data/OF_objective_function__opt_Saf__ninit_10__surrogate_MultiSurrogateGP__ei_False/')
+    assert os.path.isdir(results_dir)
+
+    results.add_reference_data(results_dir)
+
+    seed0 = [seed for seed in results.seed]
+    seed1 = [r.seed for r in results.reference]
+    assert seed0 == seed1
+
     results.sort("seed")
-    results.save("./test_save")
-    results_loaded = ResultsContainer("./test_save")
-    pass
+
+    seed0 = [seed for seed in results.seed]
+    seed1 = [r.seed for r in results.reference]
+    # assert seed0 == seed1
+    # pass
