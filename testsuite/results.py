@@ -1,9 +1,11 @@
+import json
 import pickle
 import rootpath
 import os
 import numpy as np
 import matplotlib.pyplot as plt
 from testsuite.analysis_tools import strip_problem_names
+from testsuite.analysis_tools import get_target_igd_refpoints
 from testsuite.utilities import SingeTargetDominatedHypervolume
 from pymoo.factory import get_performance_indicator
 from testsuite.utilities import Pareto_split
@@ -29,7 +31,6 @@ class ResultsContainer:
 
         :raises
             TypeError: results passed as neither str, [str] or [Results]
-
         """
         if isinstance(results, str):
             if os.path.isdir(results):
@@ -62,8 +63,7 @@ class ResultsContainer:
             for key in self.results[0].__dict__.keys():
                 setattr(self, key, self._amalgamate(key, self.results))
         else:
-            print("results provided to ResultsContainer are " \
-                             "not recognised.")
+            print("results provided to ResultsContainer are not recognised.")
             raise TypeError
 
         # no reference data included initially
@@ -76,7 +76,7 @@ class ResultsContainer:
 
         :param directory_path: str
             path to the directory containing the corresponding results
-            used as a reference for comparision.
+            used as a reference for comparison.
         """
         reference_container = ResultsContainer(directory_path)
 
@@ -94,18 +94,110 @@ class ResultsContainer:
         self.reference = [[ref_results[j] for j in np.argsort(ref_seeds)][i]
                           for i in np.argsort(self.seed).argsort()]
 
-    def compute_hpv_history(self, reference_point, sample_freq=1):
+    def get_hpv_refpoint(self, p=None):
+        """
+        computes an appropriate reference point for the dominated
+        hypervolume computation from the provided non-dominated points
+        p, or self.p if p is not provided. Reference point is computed
+        as the maximum observed in each objective, for the set of
+        non-dominated solutions.
+        :param p: np.ndarray, (n_points, n_objectives)
+            array of non-dominated points
+        :return: np.ndarray, (1, n_objectives)
+            single reference point form which to calculate dominated
+            hypervolume using
+        """
+        if p is None:
+            p = np.vstack(self.p)
+        else:
+            # check all p are truly non-dominated
+            p = Pareto_split(p)
+
+        try:
+            # include points from reference_points
+            p_ref = np.vstack([r.p for r in self.reference])
+            p = np.vstack((p, p_ref))
+        except TypeError:
+            pass
+        return np.max(p, axis=0).reshape(1, -1)
+
+    def get_igd_refpoints(self, file_path):
+        """
+        looks up the reference points for igd+ calculation from a json
+        file containing a dictionary of reference points with keys in
+        the form wfg{a}_{b}obj_{c}dim where a, b and c are the integers
+        stored in self.n_prob, self.n_obj and self.n_dim. If target is
+        present then the reference points are downscaled to those
+        dominated by the target.
+        :param file_path: str
+            path to stored json file with pre-calculated reference
+            points
+        :return: np.ndarray. (n_points, n_obj)
+            array of reference points for targeted optimisation
+        """
+        # ensure problem configurations are identical across all Results
+        for attribute in ['n_prob', 'n_obj', 'n_dim', 'targets']:
+            assert np.all([getattr(self.results[0], attribute)
+                           == getattr(r, attribute) for r in self.results])
+            # ensure problem configurations are identical across
+            # references Results, no targets in references
+            if self.reference is not None and attribute != 'targets':
+                try:
+                    assert np.all([getattr(self.results[0], attribute) ==
+                                   getattr(r, attribute) for r in self.reference])
+                except AssertionError:
+                    pass
+
+        prob_key = f'wfg{self.n_prob[0]}_{self.n_obj[0]}obj_{self.n_dim[0]}dim'
+        with open(file_path, 'r') as infile:
+            prob_dict = json.load(infile)
+        all_refpoints = np.asarray(prob_dict[prob_key])
+
+        # down-sample to targeted reference points if target is provided
+        if self.targets[0] is not None:
+            return get_target_igd_refpoints(self.targets[0], all_refpoints)
+        else:
+            return all_refpoints
+
+    def compute_hpv_history(self, reference_point=None, sample_freq=1):
+        if reference_point is None:
+            reference_point = self.get_hpv_refpoint()
+
         for result in self.results:
             result.compute_hpv_history(reference_point=reference_point,
                                        sample_freq=sample_freq)
+        try:
+            for result in self.reference:
+                result.compute_hpv_history(reference_point=reference_point,
+                                           sample_freq=sample_freq)
+        except AttributeError:
+            assert self.reference is None
+            # no reference points present
 
-    def compute_igd_history(self, reference_points, sample_freq=1):
+    def compute_igd_history(self, reference_points=None, sample_freq=1):
+        if reference_points is None:
+            reference_points = self.get_igd_refpoints()
+
         for result in self.results:
             result.compute_igd_history(reference_points=reference_points,
                                        sample_freq=sample_freq)
+        try:
+            for result in self.reference:
+                result.compute_igd_history(reference_points=reference_points,
+                                           sample_freq=sample_freq)
+        except AttributeError:
+            assert self.reference is None
+            # no reference points present
 
     @staticmethod
     def _amalgamate(name, results):
+        """
+        collects named attributes from all results, returning them as a
+        list.
+        :param name:
+        :param results:
+        :return:
+        """
         return [getattr(r, name) for r in results]
 
     def __getitem__(self, item):
@@ -142,16 +234,25 @@ class ResultsContainer:
             "from: {}".format(self.__dict__.keys())
 
         result_atts = [getattr(r, attribute) for r in self.results]
-        order = np.argsort(result_atts)
-        if not reverse:
-            for key in self.results[0].__dict__.keys():
-                setattr(self, key, [getattr(self, key)[n] for n in order])
+
+        if reverse is False:
+            order = np.argsort(result_atts)
+        elif reverse is True:
+            order = np.argsort(result_atts)[::-1]
         else:
-            for key in self.results[0].__dict__.keys():
-                setattr(self, key, [getattr(self, key)[n] for n in order[::-1]])
+            raise TypeError
+
+        for key in self.results[0].__dict__.keys():
+            setattr(self, key, [getattr(self, key)[n] for n in order])
 
         # sort self.results
         self.results = [self.results[i] for i in order]
+        try:
+            self.reference = [self.reference[i] for i in order]
+        except TypeError:
+            # self.reference not yet set, ignore
+            assert self.reference is None
+            pass
 
     def save(self, path):
         with open(path, 'wb') as outfile:
@@ -164,7 +265,11 @@ class ResultsContainer:
         for key, value in replacement.__dict__.items():
             setattr(self, key, value)
 
-    def plot_hpv(self, axis=None, c="C0"):
+    def plot_hpv(self, axis=None, c="C0", reference=False):
+        if reference:
+            results = self.reference
+        else:
+            results = self.results
         # create axes if one is not provided
         if axis is None:
             ax_provided = False
@@ -179,7 +284,7 @@ class ResultsContainer:
         if not isinstance(c, str):
             try:
                 # colour is iterable
-                for result, ci in zip(self.results, c):
+                for result, ci in zip(results, c):
                     axis = result.plot_hpv(axis, c=ci, label=result.seed,
                                            plot_kwargs={
                                                'alpha': 0.3,
@@ -187,7 +292,7 @@ class ResultsContainer:
                                            })
             except TypeError:
                 # colour is not iterable
-                for result in self.results:
+                for result in results:
                     axis = result.plot_hpv(axis, c=c, label=result.seed,
                                            plot_kwargs = {
                                                'alpha': 0.3,
@@ -195,7 +300,7 @@ class ResultsContainer:
                                            })
         else:
             # colour is string and thus should not be iterated
-            for result in self.results:
+            for result in results:
                 axis = result.plot_hpv(axis, c=c, label=result.seed,
                                        plot_kwargs = {
                                            'alpha': 0.3,
@@ -203,7 +308,7 @@ class ResultsContainer:
                                        })
                 pass
         axis.plot(result.hpv_hist_x,
-                  np.median([r.hpv_history for r in self.results], axis=0),
+                  np.median([r.hpv_history for r in results], axis=0),
                   c=c,
                   linewidth=2,
                   label="median")
@@ -214,7 +319,12 @@ class ResultsContainer:
         else:
             return fig
 
-    def plot_igd(self, axis=None, c="C0"):
+    def plot_igd(self, axis=None, c="C0", reference=False):
+        if reference:
+            results = self.reference
+        else:
+            results = self.results
+
         # create axes if one is not provided
         if axis is None:
             ax_provided = False
@@ -229,7 +339,7 @@ class ResultsContainer:
         if not isinstance(c, str):
             try:
                 # colour is iterable
-                for result, ci in zip(self.results, c):
+                for result, ci in zip(results, c):
                     axis = result.plot_igd(axis, c=ci, label=result.seed,
                                            plot_kwargs = {
                                                'alpha': 0.3,
@@ -237,7 +347,7 @@ class ResultsContainer:
                                            })
             except TypeError:
                 # colour is not iterable
-                for result in self.results:
+                for result in results:
                     axis = result.plot_igd(axis, c=c, label=result.seed,
                                            plot_kwargs = {
                                                'alpha': 0.3,
@@ -245,7 +355,7 @@ class ResultsContainer:
                                            })
         else:
             # colour is string and thus should not be iterated
-            for result in self.results:
+            for result in results:
                 axis = result.plot_igd(axis, c=c, label=result.seed,
                                        plot_kwargs = {
                                            'alpha': 0.3,
@@ -254,7 +364,7 @@ class ResultsContainer:
                 pass
 
         axis.plot(result.igd_hist_x,
-                  np.median([r.igd_history for r in self.results], axis=0),
+                  np.median([r.igd_history for r in results], axis=0),
                   c=c,
                   linewidth=2,
                   label="median")
@@ -265,7 +375,7 @@ class ResultsContainer:
         else:
             return fig
 
-    def get_intervals(self, measure: str, intervals: list):
+    def get_intervals(self, measure: str, intervals: list, reference=False):
         """
         calls get_intervals for all Results in self.results and returns
         the median, and inter-quartile ranges of all results at the
@@ -277,10 +387,18 @@ class ResultsContainer:
                 which steps to return the measured score
         :return: tuple(np.ndarray(float), np.ndarray(float))
                 (median of measure over all self.results at intervals,
-                IQR of measure over all self.results at intervalss)
+                IQR of measure over all self.results at intervals)
         """
-        scores = [r.get_intervals(measure, intervals) for r in self.results]
-        return np.median(scores, axis=0), np.percentile(scores, [0.25, 0.75], axis=0)
+        if not reference:
+            scores = [r.get_intervals(measure, intervals)
+                      for r in self.results]
+        else:
+            scores = [r.get_intervals(measure, intervals)
+                      for r in self.reference]
+
+        return np.median(scores, axis=0), np.percentile(scores,
+                                                        [0.25, 0.75],
+                                                        axis=0)
 
 
 class Result:
@@ -406,7 +524,7 @@ class Result:
         measure, over the course of the optimisation history, at
         intervals of sample_freq
         :param measure: pymoo.performance_indicator
-        :param sample_freq:
+        :param sample_freq: int
         :return: tuple (np.ndarray, np.ndarray)
             history of the measurement score over the optimisation, at
             the sample frequency specified, as well as the corresponding
@@ -509,7 +627,22 @@ class Result:
             return fig
 
     def plot_front(self, axis=None, c=None, label=None, plot_kwargs={}):
-        # create axes if one is not provided
+        """
+        plots the summary attainment front from points self.p
+        :param axis: matplotlib.pyplot.axis
+            axis object onto which to plot the front. If None then
+            matplotlib.pyplot.figure is created.
+        :param c: str
+            colour argument to plot points
+        :param label: str
+            string to label the plot
+        :param plot_kwargs: dict
+            dictionary of keyword arguments to pas to
+            matplotlib.pyplot.scatter
+        :return: matplotlib.pyplot.axis, matplotlib.pyplot.figure
+            either returns the supplied axis, or the new figure created
+            if no axis is supplied.
+        """
         if axis is None:
             ax_provided = False
             fig = plt.figure(figsize=[10, 5])
@@ -577,82 +710,29 @@ class Result:
 
 
 if __name__ == "__main__":
-    # import copy
-    # results_dir = os.path.join(rootpath.detect(),
-    #     'experiments/directed/data/wfg1_2obj_3dim/log_data/',
-    #     'OF_objective_function__opt_DirectedSaf__ninit_10__surrogate_MultiSurrogateGP__ei_False__target_1p68_1p09__w_0p5/')
-    # assert os.path.isdir(results_dir)
-    # result_paths = [os.path.join(results_dir, d) for d in
-    #                 os.listdir(results_dir) if d[-11:] == "results.pkl"]
-    # result_insts = [Result(path) for path in result_paths]
-    #
-    # result_inst = result_insts[0]
-    #
-    #
-    # test_refpoint0 = np.linspace(0, 1.5, 50)
-    # test_refpoint1 = 1.5-np.linspace(0, 1.5, 50)
-    # test_refpoints = np.vstack((test_refpoint0, test_refpoint1)).T
-    #
-    # result_inst.compute_igd_history(reference_points=test_refpoints,
-    #                                 sample_freq=1)
-    #
-    # test_refpoint = (np.ones(result_inst.n_obj)*3.5).reshape(1, -1)
-    # result_inst.compute_hpv_history(reference_point=test_refpoint,
-    #                                 sample_freq=1)
-    #
-    # fig0 = result_inst.plot_hpv()
-    # fig0.gca().legend()
-    #
-    # fig1 = result_inst.plot_igd()
-    # fig1.gca().legend()
-    # plt.show()
-    #
-    # container_inst = ResultsContainer(results=result_insts)
-    # container_inst.compute_igd_history(reference_points=test_refpoints,
-    #                                 sample_freq=1)
-    # container_inst.compute_hpv_history(reference_point=test_refpoint,
-    #                                 sample_freq=1)
-    #
-    # prev = copy.deepcopy(container_inst)
-    # container_inst.sort("seed")
-    #
-    # # check attributes are sorted accordingly
-    # for i, p in enumerate(prev.results):
-    #     for j, c in enumerate(container_inst.results):
-    #         if p.seed == c.seed:
-    #             np.testing.assert_array_equal(p.y, c.y)
-    #             np.testing.assert_array_equal(p.x, c.x)
-    #
-    # container_inst.save("./test_save")
-    #
-    # container_loaded = ResultsContainer("./test_save")
-    #
-    # for method in dir(container_inst):
-    #     print(method)
-    #
-    # fig_cont = container_inst.plot_hpv()
-    # fig_cont = container_inst.plot_igd(c="C1")
-    # plt.show()
-    # pass
-
-    results_dir = os.path.join(rootpath.detect(), 'experiments/directed/data/wfg1_2obj_3dim/log_data/OF_objective_function__opt_DirectedSaf__ninit_10__surrogate_MultiSurrogateGP__ei_False__target_0p35_3p14__w_0p5')
+    results_dir = os.path.join(
+        rootpath.detect(),
+        'experiments/directed/data/wfg1_2obj_3dim/log_data/OF_objective_'
+        'function__opt_DirectedSaf__ninit_10__surrogate_MultiSurrogateGP__'
+        'ei_False__target_0p35_3p14__w_0p5')
     assert os.path.isdir(results_dir)
 
-    results = ResultsContainer(results_dir)
+    reference_dir = os.path.join(
+        rootpath.detect(),
+        'experiments/directed/data_undirected_comp/wfg1_2obj_3dim/log_data/'
+        'OF_objective_function__opt_Saf__ninit_10__surrogate_'
+        'MultiSurrogateGP__ei_False')
+    assert os.path.isdir(reference_dir)
 
+    results_container = ResultsContainer(results_dir)
+    results_container.add_reference_data(reference_dir)
 
-    results_dir = os.path.join(rootpath.detect(), 'experiments/directed/data_undirected_comp/wfg1_2obj_3dim/log_data/OF_objective_function__opt_Saf__ninit_10__surrogate_MultiSurrogateGP__ei_False/')
-    assert os.path.isdir(results_dir)
+    results_container.compute_igd_history(reference_points=np.random.randn(10, 2))
 
-    results.add_reference_data(results_dir)
+    fig = results_container.plot_igd()
+    ax = fig.gca()
+    results_container.plot_igd(axis=ax, reference=True, c="C2")
+    fig.show()
 
-    seed0 = [seed for seed in results.seed]
-    seed1 = [r.seed for r in results.reference]
-    assert seed0 == seed1
+    pass
 
-    results.sort("seed")
-
-    seed0 = [seed for seed in results.seed]
-    seed1 = [r.seed for r in results.reference]
-    # assert seed0 == seed1
-    # pass

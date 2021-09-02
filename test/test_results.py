@@ -1,10 +1,13 @@
+import json
 import unittest
+from parameterized import parameterized
 import rootpath
 import os
 from copy import deepcopy
 from random import choice
+import numpy as np
 
-from testsuite.results import *
+from testsuite.results import Result, ResultsContainer
 from testsuite.utilities import Pareto_split
 
 
@@ -69,14 +72,24 @@ class TestResultsContainerClass(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls) -> None:
-        # instantiate ResultsContainer object for testing
         cls.results_dir = os.path.join(
             rootpath.detect(),
             'experiments/directed/data/wfg1_2obj_3dim/log_data'
             '/OF_objective_function__opt_DirectedSaf__ninit_10__surrogate_'
             'MultiSurrogateGP__ei_False__target_0p35_3p14__w_0p5')
         assert os.path.isdir(cls.results_dir)
-        cls.container = ResultsContainer(cls.results_dir)
+
+        cls.reference_dir = os.path.join(
+            rootpath.detect(),
+            'experiments/directed/data_undirected_comp/wfg1_2obj_3dim/log_data'
+            '/OF_objective_function__opt_Saf__ninit_10__surrogate_'
+            'MultiSurrogateGP__ei_False/')
+        assert os.path.isdir(cls.reference_dir)
+
+    def setUp(self) -> None:
+        # instantiate ResultsContainer object for testing
+        self.container = ResultsContainer(self.results_dir)
+        self.container.add_reference_data(self.reference_dir)
 
     def test_isntantiation_methods(self):
         """
@@ -109,9 +122,13 @@ class TestResultsContainerClass(unittest.TestCase):
         # comparision
         comp_dict = deepcopy(self.container)
         comp_dict.__dict__.pop('results')
+        comp_dict.__dict__.pop('reference')
         rc0.__dict__.pop('results')
         rc1.__dict__.pop('results')
         rc2.__dict__.pop('results')
+        rc0.__dict__.pop('reference')
+        rc1.__dict__.pop('reference')
+        rc2.__dict__.pop('reference')
 
         np.testing.assert_equal(rc0.__dict__, comp_dict.__dict__)
         np.testing.assert_equal(rc1.__dict__, comp_dict.__dict__)
@@ -125,26 +142,35 @@ class TestResultsContainerClass(unittest.TestCase):
                                     rc3.results[i].__dict__)
 
         rc3.__dict__.pop('results')
+        rc3.__dict__.pop('reference')
         np.testing.assert_equal(rc3.__dict__, comp_dict.__dict__)
 
-    def test_sort(self):
+    @parameterized.expand([
+        [False],
+        [True]
+    ])
+    def test_sort(self, reverse):
         """
         test result sorting
         """
-        inital_container = deepcopy(self.container)
-        self.container.sort('seed')
+        initial_container = deepcopy(self.container)
+        self.container.sort('seed', reverse=reverse)
 
         # test sorting reorders ResultContainer attributes
         sorted_seeds = self.container.seed
-        self.assertListEqual(sorted(inital_container.seed), sorted_seeds)
+        if not reverse:
+            self.assertListEqual(sorted(initial_container.seed), sorted_seeds)
+        else:
+            self.assertListEqual(sorted(initial_container.seed)[::-1],
+                                 sorted_seeds)
 
-        # test sorting also reorders list of results in ResultsContainer
+        # test sorting also reorders Results in ResultsContainer.results
         result_seeds = [r.seed for r in self.container.results]
         self.assertListEqual(sorted_seeds, result_seeds)
 
         # ensure random Result objects attributes are maintained
         # following sort
-        random_result = choice(inital_container.results)
+        random_result = choice(initial_container.results)
         for result in self.container.results:
             if result.seed == random_result.seed:
                 # compare results matched by seed
@@ -158,11 +184,55 @@ class TestResultsContainerClass(unittest.TestCase):
 
         # avoid comparing results lists as instance ids of Result differ
         # due to copy process
-        D_a = sorted_inst.__dict__.pop("results")
-        D_b = sort_inst.__dict__.pop("results")
+        Da_res = sorted_inst.__dict__.pop("results")
+        Db_res = sort_inst.__dict__.pop("results")
+        Da_ref = sorted_inst.__dict__.pop("reference")
+        Db_ref = sort_inst.__dict__.pop("reference")
+
         np.testing.assert_equal(sorted_inst.__dict__, sort_inst.__dict__)
-        for D_ai, D_bi in zip(D_a, D_b):
-            np.testing.assert_equal(D_ai.__dict__, D_bi.__dict__)
+        for Da_rs, Db_rs, Da_rf, Db_rf in zip(Da_res, Db_res, Da_ref, Db_ref):
+            np.testing.assert_equal(Da_rs.__dict__, Db_rs.__dict__)
+            np.testing.assert_equal(Da_rf.__dict__, Db_rf.__dict__)
+
+    @parameterized.expand([
+        [False],
+        [True]
+    ])
+    def test_sort_reference(self, reverse):
+        """
+        test result sorting also sorts references and keeps them paired
+        """
+        initial_container = deepcopy(self.container)
+        self.container.sort('seed', reverse=reverse)
+
+        initial_seeds = [r.seed for r in initial_container.reference]
+        sorted_seeds = [r.seed for r in self.container.reference]
+        if not reverse:
+            self.assertListEqual(sorted(initial_seeds), sorted_seeds)
+        else:
+            self.assertListEqual(sorted(initial_seeds)[::-1], sorted_seeds)
+
+        # ensure reference Result objects attributes are maintained
+        # following sort
+        random_result = choice(initial_container.reference)
+        for result in self.container.reference:
+            if result.seed == random_result.seed:
+                # compare results matched by seed
+                np.testing.assert_equal(result.__dict__,
+                                        random_result.__dict__)
+
+    def test_get_hpv_refpoint(self):
+        rp = self.container.get_hpv_refpoint()
+        self.assertEqual(rp.shape, (1, self.container.n_obj[0]))
+
+    def test_get_igd_refpoints(self):
+        ex_points = Pareto_split(np.random.randn(50,self.container.n_obj[0]))[0]
+        ex_dict = {"wfg1_2obj_3dim": ex_points.tolist()}
+        with open("./example_refpoints", 'w') as outfile:
+            json.dump(ex_dict, outfile)
+
+        rp = self.container.get_igd_refpoints(file_path='./example_refpoints')[0]
+        self.assertEqual(rp.shape[1], self.container.n_obj[0])
 
 
 if __name__ == '__main__':
