@@ -227,11 +227,7 @@ class TestResultsContainerClass(unittest.TestCase):
 
     def test_get_igd_refpoints(self):
         ex_points = Pareto_split(np.random.randn(50,self.container.n_obj[0]))[0]
-        ex_dict = {"wfg1_2obj_3dim": ex_points.tolist()}
-        with open("./example_refpoints", 'w') as outfile:
-            json.dump(ex_dict, outfile)
-
-        rp = self.container.get_igd_refpoints(file_path='./example_refpoints')[0]
+        rp = self.container.get_igd_refpoints(all_refpoints=ex_points)
         self.assertEqual(rp.shape[1], self.container.n_obj[0])
 
 

@@ -2,6 +2,7 @@ import os
 import pickle
 import numpy as np
 from pymoo.factory import get_performance_indicator
+from scipy.spatial import KDTree
 
 def str_format(a):
     replacemen_pairs = {'.':'p',
@@ -129,6 +130,19 @@ class SingeTargetDominatedHypervolume:
 
     def calc(self, p):
         return single_target_dominated_hypervolume(p, self.target)
+
+
+def KDTree_distance(a, b):
+    """
+    quick method to find the neerest neighbours for all items of array a
+    in array b
+    :param a: np.array()
+    :param b: np.array()
+    :return: np.array()
+        array of minimum distances of array a from b
+    """
+    tree = KDTree(a)
+    return tree.query(b)[0]
 
 
 if __name__ == "__main__":

@@ -191,16 +191,19 @@ def draw_samples(func, n_obj, n_dim, n_samples, random=False):
     :param random:
     :return:
     """
+    assert callable(func)
     kfactor, lfactor = get_factors(n_obj, n_dim)
     k = kfactor * (n_obj - 1)  # position related params
     l = lfactor * 2  # distance related params
     if random:
         x = np.array(lhsmdu.sample(numDimensions=n_dim, numSamples=n_samples)).T
-        y = np.array([func(xi, k, n_obj) for xi in x])
+        y = np.zeros(x.shape[0], n_dim)
+        for i, xi in tqdm(enumerate(x)):
+            y[i] = func(xi, k, n_obj)
     else:
         x = np.zeros((n_samples, n_dim))
         y = np.zeros((n_samples, n_obj))
-        for n in range(n_samples):
+        for n in tqdm(range(n_samples)):
             z = wfg.random_soln(k, l, func.__name__)
             x[n, :] = z
             y[n, :] = func(z, k, n_obj)

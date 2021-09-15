@@ -6,7 +6,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from testsuite.analysis_tools import strip_problem_names
 from testsuite.analysis_tools import get_target_igd_refpoints
-from testsuite.utilities import SingeTargetDominatedHypervolume
+from testsuite.utilities import dominates
 from pymoo.factory import get_performance_indicator
 from testsuite.utilities import Pareto_split
 from copy import deepcopy
@@ -32,6 +32,7 @@ class ResultsContainer:
         :raises
             TypeError: results passed as neither str, [str] or [Results]
         """
+        self.reference = None
         if isinstance(results, str):
             if os.path.isdir(results):
                 # results provided is a directory path- load all results
@@ -66,9 +67,6 @@ class ResultsContainer:
             print("results provided to ResultsContainer are not recognised.")
             raise TypeError
 
-        # no reference data included initially
-        self.reference = None
-
     def add_reference_data(self, directory_path):
         """
         adds data from an alternative optimisation to use as reference
@@ -84,9 +82,14 @@ class ResultsContainer:
         ref_seeds = reference_container.seed
 
         # check all seeds are present
-        assert set(self.seed) == set(ref_seeds), \
-            "reference data does not contain all required random seeds " \
-            "and should not be used for reference."
+        try:
+            assert set(self.seed) == set(ref_seeds), \
+                "reference data does not contain all required random seeds " \
+                "and should not be used for reference."
+        except AssertionError:
+            a = set(self.seed)
+            b = set(ref_seeds)
+            pass
 
         # ensure reference results are in the same seed order as self.results
         # (don't question this line of code, it came in a momentary state of
@@ -94,7 +97,7 @@ class ResultsContainer:
         self.reference = [[ref_results[j] for j in np.argsort(ref_seeds)][i]
                           for i in np.argsort(self.seed).argsort()]
 
-    def get_hpv_refpoint(self, p=None):
+    def get_hpv_refpoint(self, p=None, targetted=False):
         """
         computes an appropriate reference point for the dominated
         hypervolume computation from the provided non-dominated points
@@ -107,21 +110,27 @@ class ResultsContainer:
             single reference point form which to calculate dominated
             hypervolume using
         """
-        if p is None:
-            p = np.vstack(self.p)
+        if targetted:
+            # use target as reference points for directed optimisation
+            assert all([np.array_equal(self.targets[0], t)
+                        for t in self.targets])
+            return self.results[0].targets.reshape(-1)
         else:
-            # check all p are truly non-dominated
-            p = Pareto_split(p)
+            if p is None:
+                p = np.vstack(self.p)
+            else:
+                # check all p are truly non-dominated
+                p = Pareto_split(p)
 
-        try:
-            # include points from reference_points
-            p_ref = np.vstack([r.p for r in self.reference])
-            p = np.vstack((p, p_ref))
-        except TypeError:
-            pass
-        return np.max(p, axis=0).reshape(1, -1)
+            try:
+                # include points from reference_points
+                p_ref = np.vstack([r.p for r in self.reference])
+                p = np.vstack((p, p_ref))
+            except TypeError:
+                pass
+            return np.max(p, axis=0).reshape(1, -1)
 
-    def get_igd_refpoints(self, file_path):
+    def get_igd_refpoints(self, all_refpoints):
         """
         looks up the reference points for igd+ calculation from a json
         file containing a dictionary of reference points with keys in
@@ -129,9 +138,9 @@ class ResultsContainer:
         stored in self.n_prob, self.n_obj and self.n_dim. If target is
         present then the reference points are downscaled to those
         dominated by the target.
-        :param file_path: str
-            path to stored json file with pre-calculated reference
-            points
+        :param all_refpoints: np.ndarray
+            array of evenly distributed reference points on the Pareto
+            front of the objective fucntion
         :return: np.ndarray. (n_points, n_obj)
             array of reference points for targeted optimisation
         """
@@ -148,20 +157,18 @@ class ResultsContainer:
                 except AssertionError:
                     pass
 
-        prob_key = f'wfg{self.n_prob[0]}_{self.n_obj[0]}obj_{self.n_dim[0]}dim'
-        with open(file_path, 'r') as infile:
-            prob_dict = json.load(infile)
-        all_refpoints = np.asarray(prob_dict[prob_key])
+        # ensure correct formatting
+        all_refpoints = np.asarray(all_refpoints)
 
         # down-sample to targeted reference points if target is provided
         if self.targets[0] is not None:
-            return get_target_igd_refpoints(self.targets[0], all_refpoints)
+            return get_target_igd_refpoints(self.targets[0], all_refpoints)[0]
         else:
             return all_refpoints
 
     def compute_hpv_history(self, reference_point=None, sample_freq=1):
         if reference_point is None:
-            reference_point = self.get_hpv_refpoint()
+            reference_point = self.get_hpv_refpoint(targetted=True)
 
         for result in self.results:
             result.compute_hpv_history(reference_point=reference_point,
@@ -170,13 +177,17 @@ class ResultsContainer:
             for result in self.reference:
                 result.compute_hpv_history(reference_point=reference_point,
                                            sample_freq=sample_freq)
-        except AttributeError:
+        except TypeError:
             assert self.reference is None
             # no reference points present
 
-    def compute_igd_history(self, reference_points=None, sample_freq=1):
-        if reference_points is None:
-            reference_points = self.get_igd_refpoints()
+        self.hpv_history = np.vstack([r.hpv_history for r in self.results]).T
+        self.hpv_hist_x = self.results[0].hpv_hist_x
+
+    def compute_igd_history(self, reference_points, sample_freq=1):
+
+        reference_points = self.get_igd_refpoints(
+            all_refpoints=reference_points)
 
         for result in self.results:
             result.compute_igd_history(reference_points=reference_points,
@@ -188,6 +199,9 @@ class ResultsContainer:
         except AttributeError:
             assert self.reference is None
             # no reference points present
+
+        self.igd_history = np.vstack([r.igd_history for r in self.results]).T
+        self.igd_hist_x = self.results[0].igd_hist_x
 
     @staticmethod
     def _amalgamate(name, results):
@@ -425,7 +439,7 @@ class Result:
             os.path.join(rootpath.detect(), self.raw_path))
 
         # extract information regarding state of optimisation
-        self.seed = self.raw_result['seed']
+        self.seed = int(self.raw_result['seed'])
         self.n_initial = self.raw_result['n_initial']
         self.budget = self.raw_result['budget']
         self.n_evaluations = self.raw_result['n_evaluations']
@@ -507,18 +521,28 @@ class Result:
                 frequency at which to sample the igd+ score. defaults to
                 1 to sample for every stage.
         """
+
+        # format target
+        if reference_point.ndim > 1:
+            reference_point = reference_point.reshape(-1)
+
         # record reference points used
-        assert reference_point.ndim == 2
         self.hpv_refpoint = reference_point
 
-        # generate measurement tool once for all stages.
-        # hpv_measure = get_performance_indicator("hv", reference_point)
-        hpv_measure = SingeTargetDominatedHypervolume(reference_point)
+        target_dominated = np.logical_not(
+            np.any([dominates(pi, reference_point) for pi in self.p]))
 
-        self.hpv_history, self.hpv_hist_x = self._compute_measure_history(
-            measure=hpv_measure, sample_freq=sample_freq)
+        if not target_dominated:
+            hv_measure = get_performance_indicator("hv", ref_point=reference_point)
+            self.hpv_history, self.hpv_hist_x = self._compute_measure_history(
+                measure=hv_measure, sample_freq=sample_freq, invert=False)
+        else:
+            hv_measure = get_performance_indicator("hv", ref_point=reference_point*-1)
+            self.hpv_history, self.hpv_hist_x = self._compute_measure_history(
+                measure=hv_measure, sample_freq=sample_freq, invert=True)
 
-    def _compute_measure_history(self, measure, sample_freq: int = 1):
+    def _compute_measure_history(self, measure, sample_freq: int = 1,
+                                 invert: bool = False):
         """
         generic utility function to compute the measurement provided by
         measure, over the course of the optimisation history, at
@@ -536,14 +560,19 @@ class Result:
                       sample_freq)
         history = np.zeros(len(steps)+2)
 
+        if invert:
+            y = self.y*-1
+        else:
+            y = self.y
+
         # initial state
-        history[0] = measure.calc(self.y[:self.n_initial])
+        history[0] = measure.calc(y[:self.n_initial])
         # final state
-        history[-1] = measure.calc(self.y)
+        history[-1] = measure.calc(y)
         # step states
         for i, step in enumerate(steps):
             # check all points are Pareto optimal. May not be required
-            yi = Pareto_split(self.y[:step])[0]
+            yi = Pareto_split(y[:step])[0]
             history[i+1] = measure.calc(yi)
 
         hist_x = np.asarray([self.n_initial]+list(steps)+[self.n_evaluations])
@@ -626,7 +655,7 @@ class Result:
         else:
             return fig
 
-    def plot_front(self, axis=None, c=None, label=None, plot_kwargs={}):
+    def plot_front(self, axis=None, c=None, label=None, **kwargs):
         """
         plots the summary attainment front from points self.p
         :param axis: matplotlib.pyplot.axis
@@ -656,9 +685,9 @@ class Result:
         c = "C0" if c is None else c
         label = "igd+ score" if label is None else label
         axis.scatter(*self.d.T, c=c, label=label,
-                     **plot_kwargs, alpha=0.2)
+                     **kwargs, alpha=0.2)
         axis.scatter(*self.p.T, c=c, label=label,
-                  **plot_kwargs)
+                  **kwargs)
 
         # return axis if it was provided, otherwise return the figure
         if ax_provided:
@@ -709,30 +738,74 @@ class Result:
         return np.array([self.get_interval(measure, i) for i in intervals])
 
 
-if __name__ == "__main__":
-    results_dir = os.path.join(
-        rootpath.detect(),
-        'experiments/directed/data/wfg1_2obj_3dim/log_data/OF_objective_'
-        'function__opt_DirectedSaf__ninit_10__surrogate_MultiSurrogateGP__'
-        'ei_False__target_0p35_3p14__w_0p5')
-    assert os.path.isdir(results_dir)
+# if __name__ == "__main__":
+#     results_dir = os.path.join(
+#         rootpath.detect(),
+#         'experiments/directed/data/wfg1_2obj_3dim/log_data/OF_objective_'
+#         'function__opt_DirectedSaf__ninit_10__surrogate_MultiSurrogateGP__'
+#         'ei_False__target_0p35_3p14__w_0p5')
+#     assert os.path.isdir(results_dir)
+#
+#     reference_dir = os.path.join(
+#         rootpath.detect(),
+#         'experiments/directed/data_undirected_comp/wfg1_2obj_3dim/log_data/'
+#         'OF_objective_function__opt_Saf__ninit_10__surrogate_'
+#         'MultiSurrogateGP__ei_False')
+#     assert os.path.isdir(reference_dir)
+#
+#     results_container = ResultsContainer(results_dir)
+#     results_container.add_reference_data(reference_dir)
+#
+#     results_container.compute_igd_history(reference_points=np.random.randn(10, 2))
+#     results_container.compute_hpv_history()
+#
+#     fig = results_container.plot_igd()
+#     ax = fig.gca()
+#     results_container.plot_igd(axis=ax, reference=True, c="C2")
+#     fig.show()
+#
+#     results_container.save("./test_save")
+#     rc_restore = ResultsContainer("./test_save")
+#     pass
 
-    reference_dir = os.path.join(
-        rootpath.detect(),
-        'experiments/directed/data_undirected_comp/wfg1_2obj_3dim/log_data/'
-        'OF_objective_function__opt_Saf__ninit_10__surrogate_'
-        'MultiSurrogateGP__ei_False')
-    assert os.path.isdir(reference_dir)
-
-    results_container = ResultsContainer(results_dir)
-    results_container.add_reference_data(reference_dir)
-
-    results_container.compute_igd_history(reference_points=np.random.randn(10, 2))
-
-    fig = results_container.plot_igd()
-    ax = fig.gca()
-    results_container.plot_igd(axis=ax, reference=True, c="C2")
-    fig.show()
-
-    pass
-
+    # target_file = os.path.join(rootpath.detect(),
+    #                            "experiments/directed/template/targets/targets")
+    # with open(target_file, 'r') as infile:
+    #     targets = json.load(infile)
+    #
+    # igdref_file = os.path.join(rootpath.detect(),
+    #                            "experiments/directed/template/targets/reference_points")
+    # with open(igdref_file, 'r') as infile:
+    #     IGD_REFPOINTS = json.load(infile)
+    #
+    # functions = sorted(os.listdir(
+    #     os.path.join(rootpath.detect(), 'experiments/directed/data/')))
+    # function_paths = {prob: [
+    #     os.path.join(rootpath.detect(), 'experiments/directed/data/', prob,
+    #                  'log_data/'),
+    #     os.path.join(rootpath.detect(),
+    #                  'experiments/directed/data_undirected_comp/', prob,
+    #                  'log_data/', os.listdir(os.path.join(rootpath.detect(),
+    #                                                       'experiments/directed/data_undirected_comp/',
+    #                                                       prob, 'log_data/'))[
+    #                      0])] for prob in functions}
+    #
+    # problem = "wfg2_2obj_6dim"
+    # wfg2_2obj_6dim_r = {}
+    # for i, path in enumerate(os.listdir(function_paths[problem][0])):
+    #     wfg2_2obj_6dim_r[i] = ResultsContainer(
+    #         os.path.join(function_paths[problem][0], path))
+    #     wfg2_2obj_6dim_r[i].add_reference_data(function_paths[problem][1])
+    #
+    #
+    # problem = "wfg2_2obj_6dim"
+    # wfg2_2obj_6dim_r = {}
+    # for i, path in enumerate(os.listdir(function_paths[problem][0])):
+    #     wfg2_2obj_6dim_r[i] = ResultsContainer(os.path.join(function_paths[problem][0], path))
+    #     wfg2_2obj_6dim_r[i].add_reference_data(function_paths[problem][1])
+    #
+    # for i, rs in wfg2_2obj_6dim_r.items():
+    #     print(i)
+    #     rs.compute_hpv_history()
+    #     rs.compute_igd_history(
+    #         reference_points=np.asarray(IGD_REFPOINTS[problem]))
