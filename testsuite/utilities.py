@@ -1,6 +1,9 @@
 import os
 import pickle
+
+import matplotlib.pyplot as plt
 import numpy as np
+import pymoo.model.indicator
 from pymoo.factory import get_performance_indicator
 from scipy.spatial import KDTree
 
@@ -36,14 +39,25 @@ def optional_inversion(f):
     return wrapper
 
 
-def dominates(a: np.ndarray, b: np.ndarray, maximize: bool = False):
+def dominates(a: np.ndarray, b: np.ndarray,
+              maximize: bool = False,
+              strict: bool =True):
     """
     returns True if a dominates b, else returns False
 
-    :param np.ndarray a: dominating query point
-    :param np.ndarray b: dominated query points (n_points, point_dims)
-    :param bool maximize: True for finding domination relation in a
-    maximisation problem, False for minimisaiton problem.
+    :param a: np.ndarray (n_points, point_dims)
+        dominating query point
+    :param b: np.ndarray
+        dominated query points (n_points, point_dims)
+    :param maximize: bool
+        True for finding domination relation in a
+        maximisation problem, False for minimisaiton problem.
+    :param strict: bool
+        if True then computes strict dominance, otherwise allows equal
+        value in a given dimension to count as non-dominated
+            - swaps < for <=
+            - swaps > for >=
+
     :return bool: True if a dominate b, else returns False"
     """
     if len(a) < 2:
@@ -51,12 +65,20 @@ def dominates(a: np.ndarray, b: np.ndarray, maximize: bool = False):
             return np.all(a > b)
         else:
             return np.all(a < b)
+    if a.ndim > 1:
+        return np.any([dominates(ai, b, maximize, strict) for ai in a])
     else:
-        # allows
-        if maximize:
+        if maximize and strict:
             return np.any(np.all(a > b))
-        else:
+        elif not maximize and strict:
             return np.any(np.all(a < b))
+        elif maximize and not strict:
+            return np.any(np.all(a >= b))
+        elif not maximize and not strict:
+            return np.any(np.all(a <= b))
+        else:
+            raise
+
 
 
 def Pareto_split(x_in, maximize: bool = False, return_indices=False):
@@ -97,39 +119,55 @@ def Pareto_split(x_in, maximize: bool = False, return_indices=False):
         return x_orig[nondominated_mask], x_orig[np.invert(nondominated_mask)]
 
 
-def single_target_dominated_hypervolume(p, target):
+def difference_of_hypervolumes(p, target, hpv_measure):
     """
-    calculate the dominated hypervolume
-    :param p: np.ndarray(n_points, n_objectives)
-        non-dominated objective space points
-    :param target: np.ndarray(1, n_dim) OR np.ndarray(n_dim)
-        target point
-    :return:
+    computes the difference of the dominated hypervolume metric, using a pymoo.
+    1) First determines whether the target point is dominated by any p
+    2) -If target is dominated then compute:
+        dominated_hypervolume(P)-dominated_hypervolume(P U T)
+       - If target is not dominated then compute:
+        dominated_hypervolume_T(P U T) where dominated_hypervolume_T is the
+        dominated hypervolume calculated using the target point as the
+        reference point.
+
+    :param p: np.ndarray, shape: (n_points, n_obj)
+        non-dominated points forming an approximation to the Pareto front
+    :param target: np.ndarray, shape: (1, n_obj) OR (n_obj,)
+        single target point
+    :param hpv_measure: pymoo.performance_indicator.hv.Hypervolume
+        hypervolume measure from pymoo, with reference point already set.
+    :return: float
+        value of difference of dominated hypervolumes
+    :raises: AssertionError
+        if ref_point does not confirm to the requirements specified.
+
     """
-    # format target
-    if target.ndim > 1:
-        target = target.reshape(-1)
+    # check target is valid for hpv_measure reference point
+    assert not np.any(target>hpv_measure.ref_point)
 
-    target_dominated =  np.logical_not(np.any([dominates(pi, target) for pi in p]))
+    # get dominated state of target and determine inversion
+    target_dominated = np.any([dominates(pi, target) for pi in p])
 
+    # compute difference of hypervolumes
     if not target_dominated:
-        hv_measure = get_performance_indicator("hv", ref_point=target)
-        return hv_measure.calc(p)
+        doh = hpv_measure.calc(np.vstack((p, target)))-hpv_measure.calc(p)
     else:
-        hv_measure = get_performance_indicator("hv", ref_point=target*-1)
-        return -hv_measure.calc(p*-1)
+        hpv_measure_t = get_performance_indicator("hv", ref_point = target)
+        doh = -hpv_measure_t.calc(np.vstack((p, target)))
+    return doh
 
 
-class SingeTargetDominatedHypervolume:
+class DifferenceOfHypervolumes:
     """
-    class wrapper for single_target_dominated_hypervolume function to
+    class wrapper for difference_of_hypervolumes function to
     be used as with pymoo indicators: using calc function.
     """
-    def __init__(self, target):
+    def __init__(self, target, reference):
         self.target = target
+        self.reference = reference
 
     def calc(self, p):
-        return single_target_dominated_hypervolume(p, self.target)
+        return difference_of_hypervolumes(p, self.target, self.reference)
 
 
 def KDTree_distance(a, b):
@@ -146,11 +184,55 @@ def KDTree_distance(a, b):
 
 
 if __name__ == "__main__":
+    import matplotlib.pyplot as plt
+    np.random.seed(0)
     # test_ref = '/home/finley/phd/code/testsuite/experiments/directed/data/wfg1_2obj_3dim/log_data/OF_objective_function__opt_DirectedSaf__ninit_10__surrogate_MultiSurrogateGP__ei_False__target_1p68_1p09__w_0p5'
     # test_ref = '/home/finley/phd/code/testsuite/experiments/directed/data/wfg2_4obj_5dim/'
-    test_ref = '/home/finley/phd/code/testsuite/experiments/directed/data/'
-    ans = get_filenames_of_incompletes_within_tree(test_ref)
+    # test_ref = '/home/finley/phd/code/testsuite/experiments/directed/data/'
+    # ans = get_filenames_of_incompletes_within_tree(test_ref)
+    #
+    # print(ans)
+    x = np.random.uniform(0.5, 1, (10, 2))
+    p, d = Pareto_split(x)
+    print(x.shape)
+    rp = np.ones(2)*1.2
+    t = np.ones(2)*0.4
 
+
+    # def difference_of_hypervolumes(p, target, ref_point):
+    a = np.vstack((p, t))
+    rp = np.vstack((p, t)).max(axis=0)
+    hv_measure = get_performance_indicator("hv", ref_point=rp)
+    ans = difference_of_hypervolumes(p, t, hv_measure)
     print(ans)
+    pass
 
+    fig = plt.figure()
+    ax = fig.gca()
+    ax.scatter(*p.T, c="C3", label="non-dominated evaluations")
+    ax.scatter(*d.T, c="C0", label="dominated evaluations")
+    ax.scatter(*t, c="magenta", label="target")
+    ax.scatter(*rp, c="cyan", label="referencepoint")
+    ax.legend(loc="lower right")
+    ax.set_xlim([0, 1.3])
+    ax.set_ylim([0, 1.3])
+    fig.show()
+    pass
 
+    t2 = np.ones(2)
+    rp = np.vstack((p, t2)).max(axis=0)
+    hv_measure = get_performance_indicator("hv", ref_point=rp)
+    ans2 = difference_of_hypervolumes(p, t2, hv_measure)
+    print(ans2)
+
+    fig = plt.figure()
+    ax = fig.gca()
+    ax.scatter(*p.T, c="C3", label="non-dominated evaluations")
+    ax.scatter(*d.T, c="C0", label="dominated evaluations")
+    ax.scatter(*t2, c="magenta", label="target")
+    ax.scatter(*rp, c="cyan", label="referencepoint")
+    ax.legend(loc="lower right")
+    ax.set_xlim([0, 1.3])
+    ax.set_ylim([0, 1.3])
+    fig.show()
+    pass

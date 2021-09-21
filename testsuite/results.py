@@ -6,7 +6,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from testsuite.analysis_tools import strip_problem_names
 from testsuite.analysis_tools import get_target_igd_refpoints
-from testsuite.utilities import dominates
+from testsuite.utilities import single_target_dominated_hypervolume
 from pymoo.factory import get_performance_indicator
 from testsuite.utilities import Pareto_split
 from copy import deepcopy
@@ -114,7 +114,7 @@ class ResultsContainer:
             # use target as reference points for directed optimisation
             assert all([np.array_equal(self.targets[0], t)
                         for t in self.targets])
-            return self.results[0].targets.reshape(-1)
+            rp = self.results[0].targets.reshape(-1)
         else:
             if p is None:
                 p = np.vstack(self.p)
@@ -128,7 +128,11 @@ class ResultsContainer:
                 p = np.vstack((p, p_ref))
             except TypeError:
                 pass
-            return np.max(p, axis=0).reshape(1, -1)
+
+            rp =  np.max(p, axis=0).reshape(1, -1)
+
+        self.hpv_refpoint = rp
+        return rp
 
     def get_igd_refpoints(self, all_refpoints):
         """
@@ -181,8 +185,13 @@ class ResultsContainer:
             assert self.reference is None
             # no reference points present
 
-        self.hpv_history = np.vstack([r.hpv_history for r in self.results]).T
+        self.hpv_history = np.vstack([r.hpv_history for r in self.results])
         self.hpv_hist_x = self.results[0].hpv_hist_x
+
+        # TODO: this crashes if no reference data present: fix.
+        self.hpvref_history = np.vstack([r.hpv_history
+                                         for r in self.reference])
+        self.hpvref_hist_x = self.reference[0].hpv_hist_x
 
     def compute_igd_history(self, reference_points, sample_freq=1):
 
@@ -200,8 +209,13 @@ class ResultsContainer:
             assert self.reference is None
             # no reference points present
 
-        self.igd_history = np.vstack([r.igd_history for r in self.results]).T
+        self.igd_history = np.vstack([r.igd_history for r in self.results])
         self.igd_hist_x = self.results[0].igd_hist_x
+
+        # TODO: this crashes if no reference data present: fix.
+        self.igdref_history = np.vstack([r.igd_history
+                                         for r in self.reference])
+        self.igdref_hist_x = self.reference[0].igd_hist_x
 
     @staticmethod
     def _amalgamate(name, results):
@@ -279,53 +293,95 @@ class ResultsContainer:
         for key, value in replacement.__dict__.items():
             setattr(self, key, value)
 
-    def plot_hpv(self, axis=None, c="C0", reference=False):
+    def plot_igd(self, axis=None, c="C0", reference=False,
+                 show_individuals=False):
         if reference:
-            results = self.reference
+            attribute = self.igdref_history
+            attribute_x = self.igdref_hist_x
         else:
-            results = self.results
+            attribute = self.igd_history
+            attribute_x = self.igd_hist_x
+
+        return self._utility_plotter(axis=axis,
+                                     attribute=attribute,
+                                     attribute_x=attribute_x,
+                                     show_individuals=show_individuals,
+                                     ylabel='igd+',
+                                     c=c)
+
+    def plot_hpv(self, axis=None, c="C0", reference=False,
+                 show_individuals=False):
+        if reference:
+            attribute = self.hpvref_history
+            attribute_x = self.hpvref_hist_x
+        else:
+            attribute = self.hpv_history
+            attribute_x = self.hpv_hist_x
+
+        return self._utility_plotter(axis=axis,
+                                     attribute=attribute,
+                                     attribute_x=attribute_x,
+                                     show_individuals=show_individuals,
+                                     ylabel='Dominated Hypervolume',
+                                     c=c)
+
+    def _utility_plotter(self, attribute, attribute_x, axis, show_individuals,
+                         c, ylabel):
+        """
+        shared plot utility for plotting perofmance measures for both
+        dominated hypervolume and igd+.
+        :param attribute:
+        :param attribute_x:
+        :param axis:
+        :param show_individuals:
+        :param c:
+        :return:
+        """
+
         # create axes if one is not provided
         if axis is None:
             ax_provided = False
-            fig = plt.figure(figsize=[10,5])
+            fig = plt.figure(figsize=[10, 5])
             axis = fig.gca()
-            axis.set_xlabel("Function evaluations")
-            axis.set_ylabel("Dominated Hypervolume")
         else:
             ax_provided = True
 
+        axis.set_xlabel("Function evaluations")
+        axis.set_ylabel(ylabel)
+
         # handles different colours provided
-        if not isinstance(c, str):
-            try:
-                # colour is iterable
-                for result, ci in zip(results, c):
-                    axis = result.plot_hpv(axis, c=ci, label=result.seed,
-                                           plot_kwargs={
-                                               'alpha': 0.3,
-                                               'linestyle': ':'
-                                           })
-            except TypeError:
-                # colour is not iterable
-                for result in results:
-                    axis = result.plot_hpv(axis, c=c, label=result.seed,
-                                           plot_kwargs = {
-                                               'alpha': 0.3,
-                                               'linestyle': ':'
-                                           })
-        else:
-            # colour is string and thus should not be iterated
-            for result in results:
-                axis = result.plot_hpv(axis, c=c, label=result.seed,
-                                       plot_kwargs = {
-                                           'alpha': 0.3,
-                                           'linestyle': ':'
-                                       })
-                pass
-        axis.plot(result.hpv_hist_x,
-                  np.median([r.hpv_history for r in results], axis=0),
+        if show_individuals:
+            if not isinstance(c, str):
+                try:
+                    # colour is iterable
+                    for result, ci in zip(attribute, c):
+                        axis.plot(attribute_x, result, c=ci, alpha=0.3,
+                                  linestyle=':')
+
+                except TypeError:
+                    # colour is not iterable
+                    for result in attribute:
+                        axis.plot(attribute_x, result, c=c, alpha=0.3,
+                                  linestyle=':')
+            else:
+                # colour is string and thus should not be iterated
+                for result in attribute:
+                    axis.plot(attribute_x, result, c=c, alpha=0.3,
+                              linestyle=':')
+
+        axis.plot(attribute_x, np.median(attribute, axis=0),
                   c=c,
                   linewidth=2,
                   label="median")
+
+        q3, q1 = np.percentile(attribute, [75, 25], axis=0)
+        axis.fill_between(attribute_x,
+                          q1,
+                          q3,
+                          color=c,
+                          alpha=0.25,
+                          linewidth=2,
+                          label="iqr")
         axis.legend()
 
         if ax_provided:
@@ -333,63 +389,63 @@ class ResultsContainer:
         else:
             return fig
 
-    def plot_igd(self, axis=None, c="C0", reference=False):
-        if reference:
-            results = self.reference
-        else:
-            results = self.results
+    # def plot_igd(self, axis=None, c="C0", reference=False):
+    #     if reference:
+    #         results = self.reference
+    #     else:
+    #         results = self.results
+    #
+    #     # create axes if one is not provided
+    #     if axis is None:
+    #         ax_provided = False
+    #         fig = plt.figure(figsize=[10,5])
+    #         axis = fig.gca()
+    #         axis.set_xlabel("Function evaluations")
+    #         axis.set_ylabel("igd+")
+    #     else:
+    #         ax_provided = True
+    #
+    #     # handles different colours provided
+    #     if not isinstance(c, str):
+    #         try:
+    #             # colour is iterable
+    #             for result, ci in zip(results, c):
+    #                 axis = result.plot_igd(axis, c=ci, label=result.seed,
+    #                                        plot_kwargs = {
+    #                                            'alpha': 0.3,
+    #                                            'linestyle': ':'
+    #                                        })
+    #         except TypeError:
+    #             # colour is not iterable
+    #             for result in results:
+    #                 axis = result.plot_igd(axis, c=c, label=result.seed,
+    #                                        plot_kwargs = {
+    #                                            'alpha': 0.3,
+    #                                            'linestyle': ':'
+    #                                        })
+    #     else:
+    #         # colour is string and thus should not be iterated
+    #         for result in results:
+    #             axis = result.plot_igd(axis, c=c, label=result.seed,
+    #                                    plot_kwargs = {
+    #                                        'alpha': 0.3,
+    #                                        'linestyle': ':'
+    #                                    })
+    #             pass
+    #
+    #     axis.plot(result.igd_hist_x,
+    #               np.median([r.igd_history for r in results], axis=0),
+    #               c=c,
+    #               linewidth=2,
+    #               label="median")
+    #     axis.legend()
+    #
+    #     if ax_provided:
+    #         return axis
+    #     else:
+    #         return fig
 
-        # create axes if one is not provided
-        if axis is None:
-            ax_provided = False
-            fig = plt.figure(figsize=[10,5])
-            axis = fig.gca()
-            axis.set_xlabel("Function evaluations")
-            axis.set_ylabel("Dominated Hypervolume")
-        else:
-            ax_provided = True
-
-        # handles different colours provided
-        if not isinstance(c, str):
-            try:
-                # colour is iterable
-                for result, ci in zip(results, c):
-                    axis = result.plot_igd(axis, c=ci, label=result.seed,
-                                           plot_kwargs = {
-                                               'alpha': 0.3,
-                                               'linestyle': ':'
-                                           })
-            except TypeError:
-                # colour is not iterable
-                for result in results:
-                    axis = result.plot_igd(axis, c=c, label=result.seed,
-                                           plot_kwargs = {
-                                               'alpha': 0.3,
-                                               'linestyle': ':'
-                                           })
-        else:
-            # colour is string and thus should not be iterated
-            for result in results:
-                axis = result.plot_igd(axis, c=c, label=result.seed,
-                                       plot_kwargs = {
-                                           'alpha': 0.3,
-                                           'linestyle': ':'
-                                       })
-                pass
-
-        axis.plot(result.igd_hist_x,
-                  np.median([r.igd_history for r in results], axis=0),
-                  c=c,
-                  linewidth=2,
-                  label="median")
-        axis.legend()
-
-        if ax_provided:
-            return axis
-        else:
-            return fig
-
-    def get_intervals(self, measure: str, intervals: list, reference=False):
+    def get_intervals(self, measure: str, intervals: list, reference: bool=False):
         """
         calls get_intervals for all Results in self.results and returns
         the median, and inter-quartile ranges of all results at the
@@ -468,13 +524,19 @@ class Result:
         except KeyError:
             self.target_history = {self.n_initial: self.targets}
 
-        # initially not computed
+        # initially not computed history of assessment measures over
+        # course of optimisation
+        # inverted generational distance plus
         self.igd_history = None     # set by calling self.compute_igd_history()
         self.igd_hist_x = None      # set by calling self.compute_igd_history()
         self.igd_refpoints = None   # set by calling self.compute_igd_history()
+        # dominated hypervolume
         self.hpv_history = None     # set by calling self.compute_hpv_history()
         self.hpv_hist_x = None      # set by calling self.compute_hpv_history()
         self.hpv_refpoint = None    # set by calling self.compute_hpv_history()
+        # difference of hypervolumes
+        self.doh_hist_x = None      # set by calling self.compute_doh_history()
+        self.doh_refpoint = None    # set by calling self.compute_doh_history()
 
     @staticmethod
     def load_result_from_path(path):
@@ -521,25 +583,16 @@ class Result:
                 frequency at which to sample the igd+ score. defaults to
                 1 to sample for every stage.
         """
-
-        # format target
-        if reference_point.ndim > 1:
+        # configure and save reference points
+        if reference_point.ndim == 2:
             reference_point = reference_point.reshape(-1)
+        assert reference_point.shape[0] == self.n_obj
+        self.hpv_refpoints = reference_point
 
-        # record reference points used
-        self.hpv_refpoint = reference_point
-
-        target_dominated = np.logical_not(
-            np.any([dominates(pi, reference_point) for pi in self.p]))
-
-        if not target_dominated:
-            hv_measure = get_performance_indicator("hv", ref_point=reference_point)
-            self.hpv_history, self.hpv_hist_x = self._compute_measure_history(
-                measure=hv_measure, sample_freq=sample_freq, invert=False)
-        else:
-            hv_measure = get_performance_indicator("hv", ref_point=reference_point*-1)
-            self.hpv_history, self.hpv_hist_x = self._compute_measure_history(
-                measure=hv_measure, sample_freq=sample_freq, invert=True)
+        # generate measurement tool once for all stages.
+        hpv_measure = get_performance_indicator("hv", reference_point)
+        self.igd_history, self.igd_hist_x = self._compute_measure_history(
+            measure=hpv_measure, sample_freq=sample_freq)
 
     def _compute_measure_history(self, measure, sample_freq: int = 1,
                                  invert: bool = False):
@@ -738,35 +791,39 @@ class Result:
         return np.array([self.get_interval(measure, i) for i in intervals])
 
 
-# if __name__ == "__main__":
-#     results_dir = os.path.join(
-#         rootpath.detect(),
-#         'experiments/directed/data/wfg1_2obj_3dim/log_data/OF_objective_'
-#         'function__opt_DirectedSaf__ninit_10__surrogate_MultiSurrogateGP__'
-#         'ei_False__target_0p35_3p14__w_0p5')
-#     assert os.path.isdir(results_dir)
-#
-#     reference_dir = os.path.join(
-#         rootpath.detect(),
-#         'experiments/directed/data_undirected_comp/wfg1_2obj_3dim/log_data/'
-#         'OF_objective_function__opt_Saf__ninit_10__surrogate_'
-#         'MultiSurrogateGP__ei_False')
-#     assert os.path.isdir(reference_dir)
-#
-#     results_container = ResultsContainer(results_dir)
-#     results_container.add_reference_data(reference_dir)
-#
-#     results_container.compute_igd_history(reference_points=np.random.randn(10, 2))
-#     results_container.compute_hpv_history()
-#
-#     fig = results_container.plot_igd()
-#     ax = fig.gca()
-#     results_container.plot_igd(axis=ax, reference=True, c="C2")
-#     fig.show()
-#
-#     results_container.save("./test_save")
-#     rc_restore = ResultsContainer("./test_save")
-#     pass
+if __name__ == "__main__":
+    results_dir = os.path.join(
+        rootpath.detect(),
+        'experiments/directed/data/wfg1_2obj_3dim/log_data/OF_objective_'
+        'function__opt_DirectedSaf__ninit_10__surrogate_MultiSurrogateGP__'
+        'ei_False__target_0p35_3p14__w_0p5')
+    assert os.path.isdir(results_dir)
+
+    reference_dir = os.path.join(
+        rootpath.detect(),
+        'experiments/directed/data_undirected_comp/wfg1_2obj_3dim/log_data/'
+        'OF_objective_function__opt_Saf__ninit_10__surrogate_'
+        'MultiSurrogateGP__ei_False')
+    assert os.path.isdir(reference_dir)
+
+    results_container = ResultsContainer(results_dir)
+    results_container.add_reference_data(reference_dir)
+
+    # results_container.compute_igd_history(reference_points=np.random.randn(10, 2))
+    results_container.compute_hpv_history()
+
+    fig = results_container.plot_hpv()
+    ax = fig.gca()
+    results_container.plot_hpv(axis=ax, reference=True, c="C3")
+    fig1 = results_container.plot_igd()
+    ax1 = fig1.gca()
+    results_container.plot_igd(axis=ax1, reference=True, c="C3")
+    plt.show()
+    pass
+
+    # results_container.save("./test_save")
+    # rc_restore = ResultsContainer("./test_save")
+    # pass
 
     # target_file = os.path.join(rootpath.detect(),
     #                            "experiments/directed/template/targets/targets")

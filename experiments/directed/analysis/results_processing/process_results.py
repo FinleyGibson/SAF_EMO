@@ -44,7 +44,7 @@ ref_path = get_result_leaves_from_tree_parent(REFERENCE_DIR)[0]
 filename_dict = {t: t.split('/')[-3]+"_"+t.split('/')[-1].split("target")[-1]
                     +'_processed.pkl'
                  for t in t_result_paths}
-for result_path, file_name in tqdm(filename_dict.items()):
+for result_path, file_name in tqdm(filename_dict.items(), leave=False):
     file_path = os.path.join(PROCESSED_RESULTS_DIR, file_name)
     problem_name = result_path.split("/")[-3]
     ref_points = np.asarray(IGD_REFPOINTS[problem_name])
@@ -55,16 +55,16 @@ for result_path, file_name in tqdm(filename_dict.items()):
     rc.compute_hpv_history(sample_freq=10)
     rc.compute_igd_history(reference_points=ref_points, sample_freq=10)
 
-    # rc.save(path=file_path)
+    rc.save(path=file_path)
 
-# if __name__ == "__main__":
-#     os.path.isdir(RESULTS_DIR)
-#     os.path.isdir(REFERENCE_DIR)
-#     os.path.isdir(PROCESSED_RESULTS_DIR)
-#
-#     ans = []
-#     for file_name in os.listdir(PROCESSED_RESULTS_DIR):
-#         file_path = os.path.join(PROCESSED_RESULTS_DIR, file_name)
-#         ans.append(ResultsContainer(file_path))
-#
-#     pass
+if __name__ == "__main__":
+    os.path.isdir(RESULTS_DIR)
+    os.path.isdir(REFERENCE_DIR)
+    os.path.isdir(PROCESSED_RESULTS_DIR)
+
+    ans = []
+    for file_name in os.listdir(PROCESSED_RESULTS_DIR):
+        file_path = os.path.join(PROCESSED_RESULTS_DIR, file_name)
+        ans.append(ResultsContainer(file_path))
+
+    pass

@@ -1,4 +1,3 @@
-import json
 import unittest
 from parameterized import parameterized
 import rootpath
@@ -65,6 +64,32 @@ class TestResultsClass(unittest.TestCase):
         self.assertEqual(self.result.n_evaluations - self.result.n_initial + 1,
                          self.result.hpv_history.shape[0])
 
+        # calculate hypervolume for known configurations
+        # case 1 - target dominated
+        self.result.y = np.ones((self.n_evals, self.n_obj))
+        self.result.p = Pareto_split(self.result.y)[0]
+        self.result.compute_hpv_history(
+            reference_point=np.ones((1, self.n_obj))*2)
+        self.assertTrue(np.all(self.result.hpv_history == 1.))
+        # case 2 - target dominated
+        self.result.y = np.ones((self.n_evals, self.n_obj))/2
+        self.result.p = Pareto_split(self.result.y)[0]
+        self.result.compute_hpv_history(
+            reference_point=np.ones((1, self.n_obj)))
+        self.assertTrue(np.all(self.result.hpv_history == .5**2))
+
+        # case 1 - target non-dominated
+        self.result.y = np.ones((self.n_evals, self.n_obj))*2
+        self.result.p = Pareto_split(self.result.y)[0]
+        self.result.compute_hpv_history(
+            reference_point=np.ones((1, self.n_obj)))
+        self.assertTrue(np.all(self.result.hpv_history == 1.))
+        # case 2 - target non-dominated
+        self.result.y = np.ones((self.n_evals, self.n_obj))/2
+        self.result.p = Pareto_split(self.result.y)[0]
+        self.result.compute_hpv_history(
+            reference_point=np.zeros((1, self.n_obj)))
+        self.assertTrue(np.all(self.result.hpv_history == .5**2))
 
 class TestResultsContainerClass(unittest.TestCase):
 
