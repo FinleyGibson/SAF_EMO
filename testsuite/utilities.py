@@ -79,8 +79,6 @@ def dominates(a: np.ndarray, b: np.ndarray,
         else:
             raise
 
-
-
 def Pareto_split(x_in, maximize: bool = False, return_indices=False):
     """
     separates the data points in data into non-dominated and dominated.
@@ -162,12 +160,102 @@ class DifferenceOfHypervolumes:
     class wrapper for difference_of_hypervolumes function to
     be used as with pymoo indicators: using calc function.
     """
-    def __init__(self, target, reference):
+    def __init__(self, target, ref_point):
         self.target = target
-        self.reference = reference
+        self.measure = get_performance_indicator("hv", ref_point = ref_point)
 
     def calc(self, p):
-        return difference_of_hypervolumes(p, self.target, self.reference)
+        return difference_of_hypervolumes(p, self.target, self.measure)
+
+
+def targetted_hypervolumes_single_target(p, target, ref_point):
+    """
+
+    :param p: np.ndarray, shape: (n_points, n_obj)
+        non-dominated points forming an approximation to the Pareto front
+    :param target: np.ndarray, shape: (1, n_obj) OR (n_obj,)
+        single target point
+    :param ref_point: np.ndarray, shape: (1, n_obj) OR (n_obj,)
+        single reference point
+    :return: tuple, (float, float)
+
+    """
+    if target.ndim == 1:
+        target = target.reshape(1, -1)
+    if ref_point.ndim >1:
+        ref_point = ref_point.reshape(-1)
+
+    # only tested for 2 objective problems
+    # TODO: test/add functionality for higher dimensions - with tests
+    assert ref_point.shape[0] == 2
+
+    assert target.shape[0] == 1
+    assert ref_point.shape[0] == target.shape[1]
+
+    return targetted_hypervolume_a_single_target(p, target, ref_point),\
+           targetted_hypervolume_b_single_target(p, target, ref_point)
+
+
+def targetted_hypervolume_a_single_target(p, target, ref_point):
+    """
+
+    :param p: np.ndarray, shape: (n_points, n_obj)
+        non-dominated points forming an approximation to the Pareto front
+    :param target: np.ndarray, shape: (1, n_obj) OR (n_obj,)
+        single target point
+    :param ref_point: np.ndarray, shape: (1, n_obj) OR (n_obj,)
+        single reference point
+    :return: tuple, (float, float)
+
+    """
+    p = p[np.argsort(p[:, 0])]
+
+    # add points to p at limit of reference point
+    pa = np.array([p[0][0], ref_point[1]]).reshape(1, -1)
+    pb = np.array([ref_point[0], p[-1][1]]).reshape(1, -1)
+    p = np.vstack((pa, p, pb))
+
+    # modify p to limit at the edges of the bounding box.
+    t_max = target.max(axis=0)
+    p_ = np.vstack([pi if pi[0] > t_max[0] else [t_max[0], pi[1]] for pi in p])
+    p_ = np.vstack(
+        [pi if pi[1] > t_max[1] else [pi[0], t_max[1]] for pi in p_])
+
+    t_attained = not np.any([dominates(target, pi) for pi in p])
+
+    if t_attained:
+        measure = get_performance_indicator("hv", ref_point=ref_point)
+        hpv = measure.calc(target)
+    else:
+        measure = get_performance_indicator("hv", ref_point=ref_point)
+        hpv = measure.calc(p_)
+    return hpv
+
+
+def targetted_hypervolume_b_single_target(p, target, ref_point):
+    """
+
+    :param p: np.ndarray, shape: (n_points, n_obj)
+        non-dominated points forming an approximation to the Pareto front
+    :param target: np.ndarray, shape: (1, n_obj) OR (n_obj,)
+        single target point
+    :param ref_point: np.ndarray, shape: (1, n_obj) OR (n_obj,)
+        single reference point
+    :return: tuple, (float, float)
+    :raises: AssertionError
+        if target is outside span of ref_point
+
+    """
+    assert not dominates(ref_point, target)
+    p = p[np.argsort(p[:, 0])]
+
+    t_attained = not np.any([dominates(target, pi) for pi in p])
+    if t_attained:
+        measure = get_performance_indicator("hv", ref_point=target.reshape(-1))
+        hpv = measure.calc(p)
+    else:
+        hpv = 0.
+    return hpv
 
 
 def KDTree_distance(a, b):
@@ -184,55 +272,54 @@ def KDTree_distance(a, b):
 
 
 if __name__ == "__main__":
+    import numpy as np
     import matplotlib.pyplot as plt
-    np.random.seed(0)
-    # test_ref = '/home/finley/phd/code/testsuite/experiments/directed/data/wfg1_2obj_3dim/log_data/OF_objective_function__opt_DirectedSaf__ninit_10__surrogate_MultiSurrogateGP__ei_False__target_1p68_1p09__w_0p5'
-    # test_ref = '/home/finley/phd/code/testsuite/experiments/directed/data/wfg2_4obj_5dim/'
-    # test_ref = '/home/finley/phd/code/testsuite/experiments/directed/data/'
-    # ans = get_filenames_of_incompletes_within_tree(test_ref)
-    #
-    # print(ans)
-    x = np.random.uniform(0.5, 1, (10, 2))
-    p, d = Pareto_split(x)
-    print(x.shape)
-    rp = np.ones(2)*1.2
-    t = np.ones(2)*0.4
+    from pymoo.factory import get_performance_indicator
+    from testsuite.utilities import dominates
 
 
-    # def difference_of_hypervolumes(p, target, ref_point):
-    a = np.vstack((p, t))
-    rp = np.vstack((p, t)).max(axis=0)
-    hv_measure = get_performance_indicator("hv", ref_point=rp)
-    ans = difference_of_hypervolumes(p, t, hv_measure)
-    print(ans)
-    pass
+    def image_case(case):
+        rp = case['ref_point']
+        t = case['target']
+        p = case['p']
 
-    fig = plt.figure()
-    ax = fig.gca()
-    ax.scatter(*p.T, c="C3", label="non-dominated evaluations")
-    ax.scatter(*d.T, c="C0", label="dominated evaluations")
-    ax.scatter(*t, c="magenta", label="target")
-    ax.scatter(*rp, c="cyan", label="referencepoint")
-    ax.legend(loc="lower right")
-    ax.set_xlim([0, 1.3])
-    ax.set_ylim([0, 1.3])
-    fig.show()
-    pass
+        fig = plt.figure(figsize=[6, 6])
+        ax = fig.gca()
+        ax.scatter(*case['p'].T, c="C0", label="p")
+        ax.scatter(*case['target'].T, c="magenta", label="target")
+        ax.scatter(*case['ref_point'], c="C2", label="reference")
+        ax.set_title(
+            f" a expected: {case['doh'][0]} computed: {targetted_hypervolumes_single_target(p, t, rp)[0]} "
+            f"\n b expected: {case['doh'][1]} computed: {targetted_hypervolumes_single_target(p, t, rp)[1]}")
+        ax.grid('on')
+        ax.axis("scaled")
+        ax.set_xticks(range(0, 12))
+        ax.set_yticks(range(0, 12))
+        ax.legend(loc="lower left")
+        return fig
 
-    t2 = np.ones(2)
-    rp = np.vstack((p, t2)).max(axis=0)
-    hv_measure = get_performance_indicator("hv", ref_point=rp)
-    ans2 = difference_of_hypervolumes(p, t2, hv_measure)
-    print(ans2)
+    # target attained
+    case_00 = {'ref_point': np.array([10., 10.]),
+               'target': np.array([[6., 7.]]),
+               'p': np.array([[1., 7.],
+                              [3., 6.],
+                              [5., 5.],
+                              [7., 4.]]),
+               'doh': (12., 4.)
+               }
 
-    fig = plt.figure()
-    ax = fig.gca()
-    ax.scatter(*p.T, c="C3", label="non-dominated evaluations")
-    ax.scatter(*d.T, c="C0", label="dominated evaluations")
-    ax.scatter(*t2, c="magenta", label="target")
-    ax.scatter(*rp, c="cyan", label="referencepoint")
-    ax.legend(loc="lower right")
-    ax.set_xlim([0, 1.3])
-    ax.set_ylim([0, 1.3])
+    # target unattained
+    case_01 = {'ref_point': np.array([10., 10.]),
+               'target': np.array([[2., 3.]]),
+               'p': np.array([[1., 7.],
+                              [3., 6.],
+                              [5., 5.],
+                              [7., 4.]]),
+               'doh': (39., 0.)
+               }
+
+
+    case = case_00
+    fig = image_case(case)
     fig.show()
     pass

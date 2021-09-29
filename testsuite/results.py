@@ -6,9 +6,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 from testsuite.analysis_tools import strip_problem_names
 from testsuite.analysis_tools import get_target_igd_refpoints
-from testsuite.utilities import single_target_dominated_hypervolume
 from pymoo.factory import get_performance_indicator
-from testsuite.utilities import Pareto_split
+from testsuite.utilities import Pareto_split, DifferenceOfHypervolumes
 from copy import deepcopy
 
 
@@ -217,6 +216,31 @@ class ResultsContainer:
                                          for r in self.reference])
         self.igdref_hist_x = self.reference[0].igd_hist_x
 
+    def compute_doh_history(self, reference_point=None, sample_freq=1):
+        if reference_point is None:
+            reference_point = self.get_hpv_refpoint(targetted=True)
+
+        for result in self.results:
+            result.compute_doh_history(reference_point=reference_point,
+                                       target=self.targets[0].reshape(-1),
+                                       sample_freq=sample_freq)
+        try:
+            for result in self.reference:
+                result.compute_doh_history(reference_point=reference_point,
+                                           target=self.targets[0].reshape(-1),
+                                           sample_freq=sample_freq)
+        except TypeError:
+            assert self.reference is None
+            # no reference points present
+
+        self.doh_history = np.vstack([r.doh_history for r in self.results])
+        self.doh_hist_x = self.results[0].doh_hist_x
+
+        # TODO: this crashes if no reference data present: fix.
+        self.dohref_history = np.vstack([r.doh_history
+                                         for r in self.reference])
+        self.dohref_hist_x = self.reference[0].doh_hist_x
+
     @staticmethod
     def _amalgamate(name, results):
         """
@@ -309,6 +333,22 @@ class ResultsContainer:
                                      ylabel='igd+',
                                      c=c)
 
+    def plot_doh(self, axis=None, c="C0", reference=False,
+                 show_individuals=False):
+        if reference:
+            attribute = self.dohref_history
+            attribute_x = self.dohref_hist_x
+        else:
+            attribute = self.doh_history
+            attribute_x = self.doh_hist_x
+
+        return self._utility_plotter(axis=axis,
+                                     attribute=attribute,
+                                     attribute_x=attribute_x,
+                                     show_individuals=show_individuals,
+                                     ylabel='doh',
+                                     c=c)
+
     def plot_hpv(self, axis=None, c="C0", reference=False,
                  show_individuals=False):
         if reference:
@@ -389,61 +429,6 @@ class ResultsContainer:
         else:
             return fig
 
-    # def plot_igd(self, axis=None, c="C0", reference=False):
-    #     if reference:
-    #         results = self.reference
-    #     else:
-    #         results = self.results
-    #
-    #     # create axes if one is not provided
-    #     if axis is None:
-    #         ax_provided = False
-    #         fig = plt.figure(figsize=[10,5])
-    #         axis = fig.gca()
-    #         axis.set_xlabel("Function evaluations")
-    #         axis.set_ylabel("igd+")
-    #     else:
-    #         ax_provided = True
-    #
-    #     # handles different colours provided
-    #     if not isinstance(c, str):
-    #         try:
-    #             # colour is iterable
-    #             for result, ci in zip(results, c):
-    #                 axis = result.plot_igd(axis, c=ci, label=result.seed,
-    #                                        plot_kwargs = {
-    #                                            'alpha': 0.3,
-    #                                            'linestyle': ':'
-    #                                        })
-    #         except TypeError:
-    #             # colour is not iterable
-    #             for result in results:
-    #                 axis = result.plot_igd(axis, c=c, label=result.seed,
-    #                                        plot_kwargs = {
-    #                                            'alpha': 0.3,
-    #                                            'linestyle': ':'
-    #                                        })
-    #     else:
-    #         # colour is string and thus should not be iterated
-    #         for result in results:
-    #             axis = result.plot_igd(axis, c=c, label=result.seed,
-    #                                    plot_kwargs = {
-    #                                        'alpha': 0.3,
-    #                                        'linestyle': ':'
-    #                                    })
-    #             pass
-    #
-    #     axis.plot(result.igd_hist_x,
-    #               np.median([r.igd_history for r in results], axis=0),
-    #               c=c,
-    #               linewidth=2,
-    #               label="median")
-    #     axis.legend()
-    #
-    #     if ax_provided:
-    #         return axis
-    #     else:
-    #         return fig
 
     def get_intervals(self, measure: str, intervals: list, reference: bool=False):
         """
@@ -535,6 +520,7 @@ class Result:
         self.hpv_hist_x = None      # set by calling self.compute_hpv_history()
         self.hpv_refpoint = None    # set by calling self.compute_hpv_history()
         # difference of hypervolumes
+        self.doh_hist = None      # set by calling self.compute_doh_history()
         self.doh_hist_x = None      # set by calling self.compute_doh_history()
         self.doh_refpoint = None    # set by calling self.compute_doh_history()
 
@@ -590,9 +576,32 @@ class Result:
         self.hpv_refpoints = reference_point
 
         # generate measurement tool once for all stages.
-        hpv_measure = get_performance_indicator("hv", reference_point)
-        self.igd_history, self.igd_hist_x = self._compute_measure_history(
-            measure=hpv_measure, sample_freq=sample_freq)
+        hpv_measure = get_performance_indicator("hv",
+                                                ref_point=reference_point)
+        self.hpv_history, self.hpv_hist_x = self._compute_measure_history(
+            measure=hpv_measure, sample_freq=sample_freq, invert=True)
+
+    def compute_doh_history(self, reference_point, target, sample_freq=1):
+        """
+        computes the history of the difference of hypervolume score over the
+        course of the optimisation, sampled at the frequency dictated by
+        sample_freq
+        :param reference_point: np.ndarray shape(1, n_obj)
+            reference point for the dominated hypervolume computation
+        :param sample_freq: int
+                frequency at which to sample the igd+ score. defaults to
+                1 to sample for every stage.
+        """
+        # configure and save reference points
+        if reference_point.ndim == 2:
+            reference_point = reference_point.reshape(-1)
+        assert reference_point.shape[0] == self.n_obj
+        self.doh_refpoints = reference_point
+
+        # generate measurement tool once for all stages.
+        doh_measure = DifferenceOfHypervolumes(target, reference_point)
+        self.doh_history, self.doh_hist_x = self._compute_measure_history(
+            measure=doh_measure, sample_freq=sample_freq, invert=True)
 
     def _compute_measure_history(self, measure, sample_freq: int = 1,
                                  invert: bool = False):
@@ -630,6 +639,46 @@ class Result:
 
         hist_x = np.asarray([self.n_initial]+list(steps)+[self.n_evaluations])
         return history, hist_x
+
+    def plot_doh(self, axis=None, c=None, label=None, plot_kwargs={}):
+        """
+        plots the dominated hypervolume history, either on a new figure
+        or adds to the axes provided
+        :param axis: matplotlib.pyplot.axes
+            axis object onto which to add the plot of the hpv.
+        :param c: str
+            string containing the colour to be plotted. Defaults to "C0"
+        :param label: str
+            string containing the label to be added to the axis for the
+            plotted hypervolume
+        :return: matplotlib.pyplot.axes OR matplotlib.pyplot.figure
+            returns either the provided axis, or a new figure
+        """
+
+        # create axes if one is not provided
+        if axis is None:
+            ax_provided = False
+            fig = plt.figure(figsize=[10, 5])
+            axis = fig.gca()
+            axis.set_xlabel("Function evaluations")
+            axis.set_ylabel("Difference of Hypervolumes")
+        else:
+            ax_provided = True
+
+        # plot hpv history on axes
+        c = "C0" if c is None else c
+        label = "dominated hypervolume" if label is None else label
+        try:
+            axis.plot(self.doh_hist_x, self.doh_history, c=c, label=label,
+                      **plot_kwargs)
+        except Exception as e:
+            pass
+
+        # return axis if it was provided, otherwise return the figure
+        if ax_provided:
+            return axis
+        else:
+            return fig
 
     def plot_hpv(self, axis=None, c=None, label=None, plot_kwargs={}):
         """
@@ -765,9 +814,9 @@ class Result:
             raise AttributeError(f"{measure}_history not yet calculated. "
                                  f"Run compute {measure}_history first.")
 
-        if measure not in ("igd", "hpv"):
+        if measure not in ("igd", "hpv", "doh"):
             raise ValueError("invlaid measure supplied. Measure should be one "
-                             "of 'igd+' or 'hpv'")
+                             "of 'igd+', 'doh' or 'hpv'")
         else:
             measure_history = getattr(self, f"{measure}_history")
             measure_steps = getattr(self, f"{measure}_hist_x")
@@ -809,16 +858,30 @@ if __name__ == "__main__":
     results_container = ResultsContainer(results_dir)
     results_container.add_reference_data(reference_dir)
 
-    # results_container.compute_igd_history(reference_points=np.random.randn(10, 2))
+    rp_path = os.path.join(rootpath.detect(),
+                           'experiments/directed/template/targets/reference_points')
+    with open(rp_path, "r") as infile:
+        rp_D = json.load(infile)
+    rp = rp_D['wfg1_2obj_3dim']
+    results_container.compute_igd_history(reference_points=rp)
     results_container.compute_hpv_history()
+    results_container.compute_doh_history()
+
 
     fig = results_container.plot_hpv()
     ax = fig.gca()
     results_container.plot_hpv(axis=ax, reference=True, c="C3")
+
     fig1 = results_container.plot_igd()
     ax1 = fig1.gca()
     results_container.plot_igd(axis=ax1, reference=True, c="C3")
+
+    fig2 = results_container.plot_doh()
+    ax = fig2.gca()
+    results_container.plot_doh(axis=ax, reference=True, c="C3")
+
     plt.show()
+    print("hello")
     pass
 
     # results_container.save("./test_save")

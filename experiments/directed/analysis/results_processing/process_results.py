@@ -52,8 +52,9 @@ for result_path, file_name in tqdm(filename_dict.items(), leave=False):
     rc = ResultsContainer(result_path)
     rc.add_reference_data(ref_path)
 
-    rc.compute_hpv_history(sample_freq=10)
-    rc.compute_igd_history(reference_points=ref_points, sample_freq=10)
+    rc.compute_hpv_history(sample_freq=1)
+    rc.compute_doh_history(sample_freq=1)
+    rc.compute_igd_history(reference_points=ref_points, sample_freq=1)
 
     rc.save(path=file_path)
 

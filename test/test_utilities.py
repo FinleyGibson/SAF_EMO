@@ -348,9 +348,6 @@ class TestDifferenceOfHypervolumes(unittest.TestCase):
 
     @parameterized.expand([[case] for case in cases])
     def test_edge_cases(self, case):
-        print(case['doh'])
-        print(isinstance(case['doh'], float))
-        print(isinstance(case['doh'], AssertionError))
         if isinstance(case['doh'], float):
             hpv = difference_of_hypervolumes(p=case['p'],
                                              target=case['target'],
@@ -362,3 +359,90 @@ class TestDifferenceOfHypervolumes(unittest.TestCase):
                               {'p': case['p'],
                                'target': case['target'],
                                'hpv_measure': self.hpv_measure_case})
+
+
+from testsuite.utilities import targetted_hypervolumes_single_target
+class TestTargettedHypervolumesSingleTarget(unittest.TestCase):
+    # target attained
+    case_00 = {'ref_point': np.array([10., 10.]),
+               'target': np.array([[6., 7.]]),
+               'p': np.array([[1., 7.],
+                              [3., 6.],
+                              [5., 5.],
+                              [7., 4.]]),
+               'doh': (12., 4.)
+               }
+
+    # target unattained
+    case_01 = {'ref_point': np.array([10., 10.]),
+               'target': np.array([[2., 4.]]),
+               'p': np.array([[1., 7.],
+                              [3., 6.],
+                              [5., 5.],
+                              [7., 4.]]),
+               'doh': (39., 0.)
+               }
+
+    # target attained, beyond scope
+    case_02 = {'ref_point': np.array([10., 10.]),
+               'target': np.array([[9., 5.]]),
+               'p': np.array([[1., 7.],
+                              [3., 6.],
+                              [5., 5.],
+                              [7., 4.]]),
+               'doh': (5., 2.)
+               }
+
+    # target unattained, beyond scope
+    case_03 = {'ref_point': np.array([10., 10.]),
+               'target': np.array([[0., 5.]]),
+               'p': np.array([[1., 7.],
+                              [3., 6.],
+                              [5., 5.],
+                              [7., 4.]]),
+               'doh': (39., 0.)
+               }
+
+    # target edge
+    case_04 = {'ref_point': np.array([10., 10.]),
+               'target': np.array([[10., 1.]]),
+               'p': np.array([[1., 7.],
+                              [3., 6.],
+                              [5., 5.],
+                              [7., 4.]]),
+               'doh': (0., 0.)
+               }
+
+    # target edge, target outside ref_point span
+    case_05 = {'ref_point': np.array([10., 10.]),
+               'target': np.array([[11., 5.]]),
+               'p': np.array([[1., 7.],
+                              [3., 6.],
+                              [5., 5.],
+                              [7., 4.]]),
+               'doh': AssertionError
+               }
+
+    cases = [case_00,
+             case_01,
+             case_02,
+             case_03,
+             case_04,
+             case_05]
+
+    @parameterized.expand([[case] for case in cases])
+    def test__cases(self, case):
+        if isinstance(case['doh'], float):
+            value = targetted_hypervolumes_single_target(case['p'],
+                                                         case['target'],
+                                                         case['ref_point'])
+            self.assertEqual(value, case["doh"])
+
+        elif isinstance(case['doh'], AssertionError):
+            # test for errors
+            self.assertRaises(AssertionError,
+                              targetted_hypervolumes_single_target,
+                              {'p': case['p'],
+                               'target': case['target'],
+                               'ref_point': case['ref_point']})
+
