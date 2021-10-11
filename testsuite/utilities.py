@@ -23,6 +23,27 @@ def sigmoid(x, beta=1):
     return squashed
 
 
+def saf(y: np.ndarray, p: np.ndarray) -> np.ndarray:
+    """
+    Calculates summary attainment front distances.
+    Calculates the distance of n, m-dimensional points X from the
+    summary attainment front defined by points P
+
+    :param np.array p: points in the pareto front, shape[?,m]
+    :param np.array y: points for which the distance to the summary
+    attainment front is to be calculated, shape[n,m]
+
+    :return np.array: numpy array of saf distances between points in
+    X and saf defined by P, shape[X.shape]
+    """
+
+    D = np.zeros((y.shape[0], p.shape[0]))
+
+    for i, p in enumerate(p):
+        D[:, i] = np.max(p - y, axis=1).reshape(-1)
+    Dq = np.min(D, axis=1)
+    return Dq
+
 def optional_inversion(f):
     """decorator to invert the value of a function, and turn maximisation
     problem to minimization problem. Invoke by passing a keyword argument
@@ -168,6 +189,21 @@ class DifferenceOfHypervolumes:
         return difference_of_hypervolumes(p, self.target, self.measure)
 
 
+# def monte_carlo_targetted_hypervolumes(p, target, ref_point, n_samples=None):
+#
+#     if target.ndim ==1:
+#         target = target.reshape(1,-1)
+#     if ref_point.ndim ==1:
+#         ref_point = ref_point.reshape(1,-1)
+#
+#     assert target.shape[1] == ref_point.shape[1]
+#     n_obj = target.shape[1]
+#
+#     if n_samples is None:
+#         n_samples = 3e6*n_obj
+#
+#     outer_sampes = np.random.uniform(0,)
+
 def targetted_hypervolumes_single_target(p, target, ref_point):
     """
 
@@ -187,7 +223,7 @@ def targetted_hypervolumes_single_target(p, target, ref_point):
 
     # only tested for 2 objective problems
     # TODO: test/add functionality for higher dimensions - with tests
-    assert ref_point.shape[0] == 2
+    # assert ref_point.shape[0] == 2
 
     assert target.shape[0] == 1
     assert ref_point.shape[0] == target.shape[1]
@@ -270,56 +306,113 @@ def KDTree_distance(a, b):
     tree = KDTree(a)
     return tree.query(b)[0]
 
+def monte_carlo_sample_margin(lower, upper, n_samples):
+    assert lower.ndim == 1
+    assert upper.ndim == 1
+
+    frac = 1/((np.product(upper)-np.product(lower))/np.product(lower))
+    margin = 1.05
+    sufficient_samples = False
+    while not sufficient_samples:
+        ns = int(n_samples + n_samples * frac * margin)
+        samples = np.vstack([np.random.uniform(0., u, ns)
+                                   for u in upper]).T
+
+        samples = samples[np.logical_or(
+            samples[:,0]>lower[0],
+            samples[:,1]>lower[1])]
+
+        if len(samples)>n_samples:
+            sufficient_samples = True
+        else:
+            margin *= 1.1
+        print(len(samples))
+    return samples[:n_samples]
+
+
 
 if __name__ == "__main__":
-    import numpy as np
     import matplotlib.pyplot as plt
-    from pymoo.factory import get_performance_indicator
-    from testsuite.utilities import dominates
+    from time import time
 
+    ans = monte_carlo_sample_margin(np.ones(2)*1.75, np.ones(2)*2, int(1e5))
+    # print(ans)
+    print(ans.shape)
 
-    def image_case(case):
-        rp = case['ref_point']
-        t = case['target']
-        p = case['p']
+    pa = np.linspace(0, 2, 30)
+    pb = 2 - pa
+    p = np.vstack((pa, pb)).T
 
-        fig = plt.figure(figsize=[6, 6])
-        ax = fig.gca()
-        ax.scatter(*case['p'].T, c="C0", label="p")
-        ax.scatter(*case['target'].T, c="magenta", label="target")
-        ax.scatter(*case['ref_point'], c="C2", label="reference")
-        ax.set_title(
-            f" a expected: {case['doh'][0]} computed: {targetted_hypervolumes_single_target(p, t, rp)[0]} "
-            f"\n b expected: {case['doh'][1]} computed: {targetted_hypervolumes_single_target(p, t, rp)[1]}")
-        ax.grid('on')
-        ax.axis("scaled")
-        ax.set_xticks(range(0, 12))
-        ax.set_yticks(range(0, 12))
-        ax.legend(loc="lower left")
-        return fig
+    fig0 = plt.figure()
+    ax0 = fig0.gca()
+    ax0.scatter(*ans.T, s=2)
+    ax0.scatter(*p.T, s=10, c="magenta")
 
-    # target attained
-    case_00 = {'ref_point': np.array([10., 10.]),
-               'target': np.array([[6., 7.]]),
-               'p': np.array([[1., 7.],
-                              [3., 6.],
-                              [5., 5.],
-                              [7., 4.]]),
-               'doh': (12., 4.)
-               }
+    tic = time()
+    i_p = np.array([dominates(p, ai) for ai in ans])
+    toc = time()
+    i_d = np.logical_not(i_p)
+    fig1 = plt.figure()
+    ax1 = fig1.gca()
+    ax1.scatter(*ans[i_d].T, s=2, c="C1")
+    ax1.scatter(*ans[i_p].T, s=2, c="C0")
+    ax1.scatter(*p.T, s=10, c="magenta")
 
-    # target unattained
-    case_01 = {'ref_point': np.array([10., 10.]),
-               'target': np.array([[2., 3.]]),
-               'p': np.array([[1., 7.],
-                              [3., 6.],
-                              [5., 5.],
-                              [7., 4.]]),
-               'doh': (39., 0.)
-               }
-
-
-    case = case_00
-    fig = image_case(case)
-    fig.show()
+    print(toc-tic)
+    print(sum(i_p)/len(ans))
+    plt.show()
     pass
+
+
+
+    # import numpy as np
+    # import matplotlib.pyplot as plt
+    # from pymoo.factory import get_performance_indicator
+    # from testsuite.utilities import dominates
+    #
+    #
+    # def image_case(case):
+    #     rp = case['ref_point']
+    #     t = case['target']
+    #     p = case['p']
+    #
+    #     fig = plt.figure(figsize=[6, 6])
+    #     ax = fig.gca()
+    #     ax.scatter(*case['p'].T, c="C0", label="p")
+    #     ax.scatter(*case['target'].T, c="magenta", label="target")
+    #     ax.scatter(*case['ref_point'], c="C2", label="reference")
+    #     ax.set_title(
+    #         f" a expected: {case['doh'][0]} computed: {targetted_hypervolumes_single_target(p, t, rp)[0]} "
+    #         f"\n b expected: {case['doh'][1]} computed: {targetted_hypervolumes_single_target(p, t, rp)[1]}")
+    #     ax.grid('on')
+    #     ax.axis("scaled")
+    #     ax.set_xticks(range(0, 12))
+    #     ax.set_yticks(range(0, 12))
+    #     ax.legend(loc="lower left")
+    #     return fig
+    #
+    # # target attained
+    # case_00 = {'ref_point': np.array([10., 10.]),
+    #            'target': np.array([[6., 7.]]),
+    #            'p': np.array([[1., 7.],
+    #                           [3., 6.],
+    #                           [5., 5.],
+    #                           [7., 4.]]),
+    #            'doh': (12., 4.)
+    #            }
+    #
+    # # target unattained
+    # case_01 = {'ref_point': np.array([10., 10.]),
+    #            'target': np.array([[2., 3.]]),
+    #            'p': np.array([[1., 7.],
+    #                           [3., 6.],
+    #                           [5., 5.],
+    #                           [7., 4.]]),
+    #            'doh': (39., 0.)
+    #            }
+    #
+    #
+    # case = case_00
+    # fig = image_case(case)
+    # fig.show()
+    # pass

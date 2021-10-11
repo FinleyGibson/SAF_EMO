@@ -4,10 +4,12 @@ import rootpath
 import os
 import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib.figure import Figure as mpl_Figure
 from testsuite.analysis_tools import strip_problem_names
 from testsuite.analysis_tools import get_target_igd_refpoints
 from pymoo.factory import get_performance_indicator
-from testsuite.utilities import Pareto_split, DifferenceOfHypervolumes
+from testsuite.utilities import Pareto_split, DifferenceOfHypervolumes, \
+    targetted_hypervolumes_single_target
 from copy import deepcopy
 
 
@@ -96,6 +98,12 @@ class ResultsContainer:
         self.reference = [[ref_results[j] for j in np.argsort(ref_seeds)][i]
                           for i in np.argsort(self.seed).argsort()]
 
+    def get_dual_hpv_refpoint(self):
+        p = np.vstack([r.p for r in self.results])
+        t = np.vstack([r.targets for r in self.results])
+
+        return np.vstack((p, t)).max(axis=0)
+
     def get_hpv_refpoint(self, p=None, targetted=False):
         """
         computes an appropriate reference point for the dominated
@@ -128,9 +136,10 @@ class ResultsContainer:
             except TypeError:
                 pass
 
-            rp =  np.max(p, axis=0).reshape(1, -1)
+            rp = np.max(p, axis=0).reshape(1, -1)
 
         self.hpv_refpoint = rp
+
         return rp
 
     def get_igd_refpoints(self, all_refpoints):
@@ -240,6 +249,31 @@ class ResultsContainer:
         self.dohref_history = np.vstack([r.doh_history
                                          for r in self.reference])
         self.dohref_hist_x = self.reference[0].doh_hist_x
+
+    def compute_dual_hpv_history(self, reference_point=None, sample_freq=1):
+        if reference_point is None:
+            reference_point = self.get_dual_hpv_refpoint()
+
+        for result in self.results:
+            result.compute_dual_hpv_history(reference_point=reference_point,
+                                            sample_freq=sample_freq)
+        try:
+            for result in self.reference:
+                result.compute_dual_hpv_history(reference_point=reference_point,
+                                                sample_freq=sample_freq,
+                                                target=self.targets[0])
+        except TypeError:
+            assert self.reference is None
+            # no reference points present
+
+        self.dual_hpv_history = np.stack([r.dual_hpv_history
+                                           for r in self.results], axis=0)
+        self.dual_hpv_hist_x = self.results[0].dual_hpv_hist_x
+
+        # TODO: this crashes if no reference data present: fix.
+        self.dual_hpvref_history = np.stack([r.dual_hpv_history
+                                         for r in self.reference], axis=0)
+        self.dual_hpvref_hist_x = self.reference[0].dual_hpv_hist_x
 
     @staticmethod
     def _amalgamate(name, results):
@@ -365,6 +399,34 @@ class ResultsContainer:
                                      ylabel='Dominated Hypervolume',
                                      c=c)
 
+    def plot_dual_hpv(self, axis=None, c="C0", reference=False,
+                 show_individuals=False):
+        if reference:
+            attribute = self.dual_hpvref_history
+            attribute_x = self.dual_hpvref_hist_x
+        else:
+            attribute = self.dual_hpv_history
+            attribute_x = self.dual_hpv_hist_x
+
+        fig_ax = self._utility_plotter(axis=axis,
+                                       attribute=attribute[:, :, 0],
+                                       attribute_x=attribute_x,
+                                       show_individuals=show_individuals,
+                                       ylabel='Dominated Hypervolume',
+                                       c=c)
+        if isinstance(fig_ax, mpl_Figure):
+            ax = fig_ax.gca()
+        else:
+            ax = fig_ax
+
+        self._utility_plotter(axis=ax,
+                              attribute=attribute[:, :, 1],
+                              attribute_x=attribute_x,
+                              show_individuals=show_individuals,
+                              ylabel='Dominated Hypervolume',
+                              c=c)
+        return fig_ax
+
     def _utility_plotter(self, attribute, attribute_x, axis, show_individuals,
                          c, ylabel):
         """
@@ -428,7 +490,6 @@ class ResultsContainer:
             return axis
         else:
             return fig
-
 
     def get_intervals(self, measure: str, intervals: list, reference: bool=False):
         """
@@ -520,9 +581,13 @@ class Result:
         self.hpv_hist_x = None      # set by calling self.compute_hpv_history()
         self.hpv_refpoint = None    # set by calling self.compute_hpv_history()
         # difference of hypervolumes
-        self.doh_hist = None      # set by calling self.compute_doh_history()
+        self.doh_history = None      # set by calling self.compute_doh_history()
         self.doh_hist_x = None      # set by calling self.compute_doh_history()
         self.doh_refpoint = None    # set by calling self.compute_doh_history()
+        # dual hypervolumes
+        self.dual_hpv_history = None      # set by self.compute_dual_hpv_history()
+        self.dual_hpv_hist_x = None    # set by self.compute_dual_hpv_history()
+        self.dual_hpv_refpoint = None  # set by self.compute_dual_hpv_history()
 
     @staticmethod
     def load_result_from_path(path):
@@ -603,6 +668,58 @@ class Result:
         self.doh_history, self.doh_hist_x = self._compute_measure_history(
             measure=doh_measure, sample_freq=sample_freq, invert=True)
 
+    def compute_dual_hpv_history(self, reference_point, sample_freq=1,
+                                 target=None):
+        """
+        :param reference_point: np.ndarray shape(1, n_obj)
+            reference point for the dominated hypervolume computation
+        :param target: np.ndarray shape(1, n_obj)
+            single target point for the dominated hypervolume computation
+        :param sample_freq: int
+                frequency at which to sample the igd+ score. defaults to
+                1 to sample for every stage.
+        """
+        if target is None:
+            target = np.asarray(self.targets)
+        # configure and save reference points
+        if reference_point.ndim == 2:
+            reference_point = reference_point.reshape(-1)
+        assert reference_point.shape[0] == self.n_obj
+        if target.ndim == 2:
+            target = target.reshape(-1)
+        assert target.shape[0] == self.n_obj
+
+        self.dual_hpv_refpoint = reference_point
+
+        steps = range(self.n_initial+sample_freq, self.n_evaluations,
+                      sample_freq)
+        history = np.zeros((len(steps)+2, 2))
+
+        # initial state
+        history[0] = targetted_hypervolumes_single_target(
+            Pareto_split(self.y[:self.n_initial])[0],
+            target=target,
+            ref_point=reference_point)
+        
+        # final state
+        history[-1] = targetted_hypervolumes_single_target(
+            self.p,
+            target=target,
+            ref_point=reference_point)
+        # step states
+        for i, step in enumerate(steps):
+            # check all points are Pareto optimal. May not be required
+            pi = Pareto_split(self.y[:step])[0]
+            history[i+1] = targetted_hypervolumes_single_target(
+                pi,
+                target=target,
+                ref_point=reference_point)
+
+        hist_x = np.asarray([self.n_initial]+list(steps)+[self.n_evaluations])
+
+        self.dual_hpv_hist_x =  hist_x
+        self.dual_hpv_history =  history
+
     def _compute_measure_history(self, measure, sample_freq: int = 1,
                                  invert: bool = False):
         """
@@ -624,18 +741,20 @@ class Result:
 
         if invert:
             y = self.y*-1
+            p = self.p*-1
         else:
             y = self.y
+            p = self.p
 
         # initial state
-        history[0] = measure.calc(y[:self.n_initial])
+        history[0] = measure.calc(Pareto_split(y[:self.n_initial])[0])
         # final state
-        history[-1] = measure.calc(y)
+        history[-1] = measure.calc(p)
         # step states
         for i, step in enumerate(steps):
             # check all points are Pareto optimal. May not be required
-            yi = Pareto_split(y[:step])[0]
-            history[i+1] = measure.calc(yi)
+            pi = Pareto_split(y[:step])[0]
+            history[i+1] = measure.calc(pi)
 
         hist_x = np.asarray([self.n_initial]+list(steps)+[self.n_evaluations])
         return history, hist_x
@@ -679,6 +798,31 @@ class Result:
             return axis
         else:
             return fig
+        
+    def _utility_plotter(self, x, y, axis=None, c=None, label=None, plot_kwargs={}):
+        # create axes if one is not provided
+        if axis is None:
+            ax_provided = False
+            fig = plt.figure(figsize=[10,5])
+            axis = fig.gca()
+            axis.set_xlabel("Function evaluations")
+            axis.set_ylabel("Dominated Hypervolume")
+        else:
+            ax_provided = True
+
+        # plot hpv history on axes
+        c = "C0" if c is None else c
+        label = "dominated hypervolume" if label is None else label
+        try:
+            axis.plot(x, y, c=c, label=label, **plot_kwargs)
+        except Exception as e:
+            pass
+
+        # return axis if it was provided, otherwise return the figure
+        if ax_provided:
+            return axis
+        else:
+            return fig
 
     def plot_hpv(self, axis=None, c=None, label=None, plot_kwargs={}):
         """
@@ -694,31 +838,9 @@ class Result:
         :return: matplotlib.pyplot.axes OR matplotlib.pyplot.figure
             returns either the provided axis, or a new figure
         """
-
-        # create axes if one is not provided
-        if axis is None:
-            ax_provided = False
-            fig = plt.figure(figsize=[10,5])
-            axis = fig.gca()
-            axis.set_xlabel("Function evaluations")
-            axis.set_ylabel("Dominated Hypervolume")
-        else:
-            ax_provided = True
-
-        # plot hpv history on axes
-        c = "C0" if c is None else c
-        label = "dominated hypervolume" if label is None else label
-        try:
-            axis.plot(self.hpv_hist_x, self.hpv_history, c=c, label=label,
-                      **plot_kwargs)
-        except Exception as e:
-            pass
-
-        # return axis if it was provided, otherwise return the figure
-        if ax_provided:
-            return axis
-        else:
-            return fig
+        return self._utility_plotter(self.hpv_hist_x, self.hpv_history,
+                                     axis=axis, c=c, label=label,
+                                     plot_kwargs=plot_kwargs)
 
     def plot_igd(self, axis=None, c=None, label=None, plot_kwargs={}):
         """
@@ -735,27 +857,26 @@ class Result:
             returns either the provided axis, or a new figure
         """
 
-        # create axes if one is not provided
-        if axis is None:
-            ax_provided = False
-            fig = plt.figure(figsize=[10, 5])
-            axis = fig.gca()
-            axis.set_xlabel("Function evaluations")
-            axis.set_ylabel("igd+ score")
-        else:
-            ax_provided = True
+        return self._utility_plotter(self.igd_hist_x, self.igd_history,
+                                     axis=axis, c=c, label=label,
+                                     plot_kwargs=plot_kwargs)
 
-        # plot hpv history on ax
-        c = "C0" if c is None else c
-        label = "igd+ score" if label is None else label
-        axis.plot(self.igd_hist_x, self.igd_history, c=c, label=label,
-                  **plot_kwargs)
+    def plot_dual_hpv(self, axis=None, c=None, label=None, plot_kwargs={}):
 
-        # return axis if it was provided, otherwise return the figure
-        if ax_provided:
-            return axis
+        fig_ax =  self._utility_plotter(self.dual_hpv_hist_x, 
+                                        self.dual_hpv_history[:,0],
+                                        axis=axis, c=c, label=label,
+                                        plot_kwargs=plot_kwargs)
+        if isinstance(fig_ax, mpl_Figure):
+            ax = fig_ax.gca()
         else:
-            return fig
+            ax = fig_ax
+
+        fig_ax =  self._utility_plotter(self.dual_hpv_hist_x,
+                                        self.dual_hpv_history[:,0],
+                                        axis=ax, c=c, label=label,
+                                        plot_kwargs=plot_kwargs)
+        return fig_ax
 
     def plot_front(self, axis=None, c=None, label=None, **kwargs):
         """
@@ -863,22 +984,27 @@ if __name__ == "__main__":
     with open(rp_path, "r") as infile:
         rp_D = json.load(infile)
     rp = rp_D['wfg1_2obj_3dim']
-    results_container.compute_igd_history(reference_points=rp)
-    results_container.compute_hpv_history()
-    results_container.compute_doh_history()
+    results_container.compute_dual_hpv_history(sample_freq=10)
+    # results_container.compute_igd_history(reference_points=rp)
+    # results_container.compute_hpv_history()
+    # results_container.compute_doh_history()
+    #
 
-
-    fig = results_container.plot_hpv()
+    fig = results_container.plot_dual_hpv()
     ax = fig.gca()
-    results_container.plot_hpv(axis=ax, reference=True, c="C3")
-
-    fig1 = results_container.plot_igd()
-    ax1 = fig1.gca()
-    results_container.plot_igd(axis=ax1, reference=True, c="C3")
-
-    fig2 = results_container.plot_doh()
-    ax = fig2.gca()
-    results_container.plot_doh(axis=ax, reference=True, c="C3")
+    results_container.plot_dual_hpv(axis=ax, reference=True, c="C3")
+    #
+    # fig = results_container.plot_hpv()
+    # ax = fig.gca()
+    # results_container.plot_hpv(axis=ax, reference=True, c="C3")
+    #
+    # fig1 = results_container.plot_igd()
+    # ax1 = fig1.gca()
+    # results_container.plot_igd(axis=ax1, reference=True, c="C3")
+    #
+    # fig2 = results_container.plot_doh()
+    # ax = fig2.gca()
+    # results_container.plot_doh(axis=ax, reference=True, c="C3")
 
     plt.show()
     print("hello")
