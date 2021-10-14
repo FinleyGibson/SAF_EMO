@@ -62,9 +62,9 @@ def optional_inversion(f):
 
 def dominates(a: np.ndarray, b: np.ndarray,
               maximize: bool = False,
-              strict: bool =True):
+              strict: bool = True):
     """
-    returns True if a dominates b, else returns False
+    returns True if any of a dominate b, else returns False
 
     :param a: np.ndarray (n_points, point_dims)
         dominating query point
@@ -79,26 +79,54 @@ def dominates(a: np.ndarray, b: np.ndarray,
             - swaps < for <=
             - swaps > for >=
 
-    :return bool: True if a dominate b, else returns False"
+    :return bool: True if a dominates b, else returns False"
     """
-    if len(a) < 2:
-        if maximize:
-            return np.all(a > b)
-        else:
-            return np.all(a < b)
-    if a.ndim > 1:
-        return np.any([dominates(ai, b, maximize, strict) for ai in a])
+    if a.ndim < 2:
+        a = a.reshape(1, -1)
+    if b.ndim < 2:
+        b = b.reshape(1, -1)
+
+    if b.shape[0] > 1:
+        return [dominates(a, bi.reshape(1, -1)) for bi in b]
     else:
         if maximize and strict:
-            return np.any(np.all(a > b))
-        elif not maximize and strict:
-            return np.any(np.all(a < b))
+            return np.all(a > b, axis=1).any()
         elif maximize and not strict:
-            return np.any(np.all(a >= b))
+            return np.all(a >= b, axis=1).any()
+        elif not maximize and strict:
+            return np.all(a < b, axis=1).any()
         elif not maximize and not strict:
-            return np.any(np.all(a <= b))
+            return np.all(a <= b, axis=1).any()
         else:
             raise
+
+def dominated(a: np.ndarray, b: np.ndarray, maximize: bool = False,
+              strict=False):
+    """
+
+    returns True if a is dominated all of b, else returns False
+    :param np.ndarray a: dominating query points (n_points, point_dims)
+    :param np.ndarray b: dominated query points (n_points, point_dims)
+    :param bool maximize: True for finding domination relation in a
+    maximisation problem, False for minimisaiton problem/
+    :return bool: True if a dominate b, else returns False
+    """
+    if a.ndim < 2:
+        a = a.reshape(1, -1)
+    if b.ndim < 2:
+        b = b.reshape(1, -1)
+
+    if a.shape[0] > 1:
+        return [dominated(ai.reshape(1, -1), b) for ai in a]
+    else:
+        if maximize and not strict:
+            return np.all(a < b, axis=1).any()
+        elif maximize and strict:
+            return np.all(a <= b, axis=1).any()
+        elif not maximize and not strict:
+            return np.all(a > b, axis=1).any()
+        elif not maximize and strict:
+            return np.all(a >= b, axis=1).any()
 
 def Pareto_split(x_in, maximize: bool = False, return_indices=False):
     """

@@ -10,7 +10,7 @@ sys.path.append(rootpath.detect())
 import os
 
 
-# In[42]:
+# In[47]:
 
 
 import numpy as np
@@ -22,6 +22,7 @@ from testsuite.utilities import saf
 from pymoo.factory import get_performance_indicator
 from tqdm import tqdm
 import time
+import matplotlib.image as mpimg
 
 
 # In[3]:
@@ -300,6 +301,53 @@ def montecarlo_case(case, samples=1e6, ax=None):
         return fig
 
 
+# ### Nomanclature 
+# * $P$: Pareto front
+# * $\tilde{P}$: Approximation to Pareto front: $\tilde{P} = \{y_i\}^n_{i=1}$
+# * $A$: attainment front
+# * $r$: reference point
+# * $T$: targets: $T = \{t_i\}^{n_t}_{i=1}$
+# * $\tilde{t}$: target ideal $\tilde{t} = \{\tilde{t}_j\}_{j=1}^n$  where: $$\tilde{t}_j = \min_{u \in T}\{u_j\}$$
+# * $\check{t}$: target zenith $\check{t} = \{\check{t}_j\}_{j=1}^n$ where: $$\check{t}_j = \max_{u \in T}\{u_j\}$$
+# 
+# 
+# * $H(Y, r)$: Volume dominated by $Y$ referred to $r$
+
+# Region that is dominated by a set $Z$ in objective space:
+# 
+# $$ 
+# \mbox{dom}(Z) = \{ u \,|\, \exists z \in Z ~ s.t. ~ z \prec u \}
+# $$
+# 
+# ### Volume definitions
+# 
+# $$
+# V_a = H(\mbox{dom}(T) \cap \mbox{dom}(\tilde{P}), r)
+# $$
+# 
+# $$ 
+# V_b = H(\mbox{dom}(\tilde{P}) \setminus \mbox{dom}(\check{t}), r)
+# $$
+
+# ### Reference Volume definitions
+# 
+# $$
+# V_{ar} = H(\mbox{dom}(T) \cap \mbox{dom}(P), r)
+# $$
+# 
+# $$
+# V_{br} = H(\mbox{dom}(P) \setminus \mbox{dom}(\check{t}), r)
+# $$
+
+# ### Relative Hypervolume Scores 
+# $$
+# M_a = \frac{V_a}{V_{ar}} = \frac{H(\mbox{dom}(T) \cap \mbox{dom}(\tilde{P}), r)}{H(\mbox{dom}(T) \cap \mbox{dom}(P), r)}
+# $$
+# 
+# $$
+# M_b = \frac{V_b}{V_{br}} = \frac{H(\mbox{dom}(\tilde{P}) \setminus \mbox{dom}(\check{t}), r)}{H(\mbox{dom}(P) \setminus \mbox{dom}(\check{t}), r)} 
+# $$
+
 # In[8]:
 
 
@@ -473,175 +521,82 @@ cases = [case_00,
          case_11]
 
 
-# ### Nomanclature 
-# * $P$: Pareto front
-# * $\tilde{P}$: Approximation to Pareto front: $\tilde{P} = \{y_i\}^n_{i=1}$
-# * $A$: attainment front
-# * $r$: reference point
-# * $T$: targets: $T = \{t_i\}^{n_t}_{i=1}$
-# * $\tilde{t}$: target ideal $\tilde{t} = \{\tilde{t}_j\}_{j=1}^n$  where: $$\tilde{t}_j = \min_{u \in T}\{u_j\}$$
-# * $\check{t}$: target zenith $\check{t} = \{\check{t}_j\}_{j=1}^n$ where: $$\check{t}_j = \max_{u \in T}\{u_j\}$$
-# 
-# 
-# * $H(Y, r)$: Volume doniated by $Y$ referred to $r$
-
-# ### Volume Definitions
-# 
-# $$
-# V_a = H(T, r) \cap H(\tilde{P}, r)
-# $$
-# $$
-# V_b = H(P, T) \cap H(\tilde{P}, T) 
-# $$
-# 
-# #### Reference  Volumes
-# 
-# $$
-# V_{ar} = H(T, r)
-# $$
-# $$
-# V_{br} = H(P, T)
-# $$
-
-# ### Relative Hypervolume Scores 
-# $$
-# M_a = \frac{V_a}{V_{ar}} = \frac{H(T, r) \cap H(\tilde{P}, r)}{H(T, r)}
-# $$
-# 
-# $$
-# M_b = \frac{V_b}{V_{br}} = \frac{H(P, T) \cap H(\tilde{P}, T)}{H(P, T)} 
-# $$
-# 
-# where
-# $$
-# H(P, T) = \{(P, t_1) \cap (P, t_2) \cap \cdots (P, t_n)\}
-# $$
-# 
-
-# In[10]:
-
-
-
-
-
 # In[29]:
 
+if __name__ == "__main__":
 
-case = case_05
-tic = time.time()
-fig, axes = plt.subplots(1,2, figsize=[16, 8])
-image_case(case, True, 200, axes[0])
-toc = time.time()
-montecarlo_case(case, 1e6, axes[1])
-tac = time.time()
-
-axes[0].set_title("Volume definitions")
-axes[1].set_title(fr"Monte-Carlo sampled volumes")
-
-
-# In[41]:
-
-
-n_samples = int(1e6)
-resolution = int(np.sqrt(n_samples)/5)
-
-for case in tqdm(cases):
+    # compute any single case
+    n_samples = int(2e5)
+    resolution = int(np.sqrt(n_samples)/5)
+    
+    case = case_05
+    tic = time.time()
     fig, axes = plt.subplots(1,2, figsize=[16, 8])
-    tic=time.time()
     image_case(case, True, 200, axes[0])
     toc = time.time()
     montecarlo_case(case, n_samples, axes[1])
+    
     tac = time.time()
     
     axes[0].set_title("Volume definitions")
     axes[1].set_title(fr"Monte-Carlo sampled volumes")
     
-
-    fig.text(0.5, 0.05, fr"{time.strftime('%H:%M:%S', time.gmtime(tac-toc))} seconds to compute Monte-Carlo samples with {n_samples} sammples and {resolution} elements of $P$", ha="center", fontsize=18)
-    save_fig(fig, case['name']);
-
-
-# # Practical calculation  of $M_a$ and $M_b$:
-# ### definitions
-# * dominated(a, b): find the elements of a which are dominated by at least one element of b  
-# * nondominated(a, b): find the elements of a which are not dominated by at least one element of b  
-
-# ###  Monte-Carlo:
-# ##### $M_a$
-# * draw a large number of random uniform samples ($S$) between $\tilde{t}$ and $r$: $S \gets$  np.random.uniform($\tilde{t}$, r, 1e7)
-# * reduce $S$ to only those samples which are dominated by at least one of $T$: $S \gets$ dominated($S$, $T$)
-# * store as $V_{ar}$: $V_{ar} \gets S$
-# * find the elements of $V_{ar}$ which are dominated by at least one of $\tilde{P}$: $V_a \gets $dominated($V_{ar}$, $\tilde{P}$)
-# * $M_a = \frac{v_a}{v_{ar}}$
-# 
-# ##### $M_b$
-# * draw a large number of random uniform samples ($S$) between $0$ and $\check{t}$: $S \gets$  np.random.uniform($0$, $\check{t}$, 1e7)
-# * reduce $S$ to only those which are dominated by an element of $T$ and are not dominated by any of $P$:
-# $$
-# S \gets \text{dominated($S$, $T$)}
-# $$
-# $$
-# S \gets \text{nondominated($S$, $P$)}
-# $$
-# * store as $V_{br}$: $V_{br} \gets S$
-# * find the elements of $V_{br}$ which are not dominated by any of $\tilde{P}$: $V_b \gets $nondominated($V_{br}$, $\tilde{P}$)
-# * $M_b = \frac{v_b}{v_{br}}$
-# 
-# note: calculating $V_{br}$ will be expensive, but only needs to be done once for each problem configuration
-# 
-
-# ###  Exact:
-# I have given this further thought, and cannot come up with a way to perform the exact calculation without going into writing my own versin of a Fonseca-style computation, summing the volumes of the many hypercubes arsing from the numberous targets in $T$ and attained evaluations in $\tilde{P}$ (which I am not keen to do). Even if We can find some simple method in two objectives, scaling to more objectives will, i think, become very complicated, particularly with regions dominated by different $t$ which overlap. 
-
-# In[ ]:
-
-
-
-
-
-# In[9]:
-
-
-# def m1(p, t, r):
-#     p = p.copy()
-#     t = t.copy()
-#     r = r.copy()
-#     p = p[np.argsort(p[:,0])]
-#     t = t[np.argsort(t[:,0])]
     
-#     n_dim = p.shape[1]
+    # In[52]:
     
-#     T_dim = np.zeros((n_dim, n_dim))
-#     T_ext = np.zeros((n_dim, n_dim))
-#     for dim in range(n_dim):
-#         p_extr = p[np.argmin(p[:,dim])]
-#         t_extr = t[np.argmin(t[:,dim])]
-#         T_ext[dim] = t_extr.copy()
-#         t_dim = t_extr
+    
+    n_samples = int(2e5)
+    resolution = int(np.sqrt(n_samples)/5)
+    
+    for case in tqdm(cases):
+        case_name = f"figures/{case['name']}.png"
         
-#         t_dim[dim] = np.max([p_extr[dim], t_extr[dim]])
-#         T_dim[dim] = t_dim
+        if os.path.isfile(case_name):
+            fig = plt.figure(figsize=[16, 8])
+            img = mpimg.imread(case_name)
+            fig.gca().imshow(img)
+        else:
+            fig, axes = plt.subplots(1,2, figsize=[16, 8])
+            tic=time.time()
+            image_case(case, True, 200, axes[0])
+            toc = time.time()
+            montecarlo_case(case, n_samples, axes[1])
+            tac = time.time()
+            
+            axes[0].set_title("Volume definitions")
+            axes[1].set_title(fr"Monte-Carlo sampled volumes")
+            
         
-#     p_ = p.copy()
-    
-#     fig = plt.figure(figsize=[6, 6])
-#     ax = fig.gca() 
-#     ax.grid('on')
-#     ax.axis("scaled")
-#     ax.set_xticks(range(0,12)) 
-#     ax.set_yticks(range(0,12)) 
-#     ax.legend(loc="lower left")
-    
-#     ax.scatter(*p.T, c="C0")
-#     ax.scatter(*p_.T, c="C0", s=150, alpha=0.4)
-#     ax.scatter(*T_dim.T, c="C1", s=150, alpha=0.4)
-    
-#     va_measure = get_performance_indicator("hv", ref_point=r)
-#     print(T_ext)
-#     return va_measure.calc(np.vstack([T_dim, t.max(axis=0)])), va_measure.calc(np.vstack([T_ext, t.max(axis=0)]))
+            fig.text(0.5, 0.05, fr"{time.strftime('%H:%M:%S', time.gmtime(tac-toc))} seconds to compute Monte-Carlo samples with {n_samples} sammples and {resolution} elements of $P$", ha="center", fontsize=18)
+        fig.show()
+    #     save_fig(fig, case['name']);
     
     
-# va, var = m1(case_05['p'], case_05['target'], case_05['ref_point'])
-# print(va, var)
-# print(va/var)
-
+    # # Practical calculation  of $M_a$ and $M_b$:
+    # <!-- ### definitions -->
+    # * dominated(a, b): find the elements of a which are dominated by at least one element of b  
+    # * nondominated(a, b): find the elements of a which are not dominated by at least one element of b  
+    
+    # ###  Monte-Carlo:
+    # ##### $M_a$
+    # * draw a large number of random uniform samples ($S$) between $\tilde{t}$ and $r$: $S \gets$  np.random.uniform($\tilde{t}$, r, 1e7)
+    # * reduce $S$ to only those samples which are dominated by at least one of $T$: $S \gets$ dominated($S$, $T$)
+    # * store as $V_{ar}$: $V_{ar} \gets S$
+    # * find the elements of $V_{ar}$ which are dominated by at least one of $\tilde{P}$: $V_a \gets $dominated($V_{ar}$, $\tilde{P}$)
+    # * $M_a = \frac{v_a}{v_{ar}}$
+    # 
+    # ##### $M_b$
+    # * draw a large number of random uniform samples ($S$) between $0$ and $\check{t}$: $S \gets$  np.random.uniform($0$, $\check{t}$, 1e7)
+    # * reduce $S$ to only those which are dominated by an element of $T$ and are not dominated by any of $P$:
+    # $$
+    # S \gets \text{dominated($S$, $T$)}
+    # $$
+    # $$
+    # S \gets \text{nondominated($S$, $P$)}
+    # $$
+    # * store as $V_{br}$: $V_{br} \gets S$
+    # * find the elements of $V_{br}$ which are not dominated by any of $\tilde{P}$: $V_b \gets $nondominated($V_{br}$, $\tilde{P}$)
+    # * $M_b = \frac{v_b}{v_{br}}$
+    # 
+    # note: calculating $V_{br}$ will be expensive, but only needs to be done once for each problem configuration
+    # 
