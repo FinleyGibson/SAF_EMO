@@ -54,7 +54,7 @@ def sample_var_vbr(n, P, T, ref_point, ref_ideal):
 
 problem = str(sys.argv[1])
 
-n_samples_desired = int(1e2)
+n_samples_desired = int(1e3)
 
 result_path = '../../../data/directed/'
 PROBLEMS = sorted(list(os.listdir(result_path)))
@@ -99,17 +99,17 @@ for target_dir in os.listdir(problem_path):
     try:
         with open(D_path, "r") as infile:
             D = json.load(infile)
-    except FileNotFoundError:
+    except :
         D = {}
 
     if key_string in D.keys():
-        n_completed = len(D[key_string])
+        n_completed = len(D[key_string][0]) + len(D[key_string][1])
         n_samples_to_add = n_samples_desired - n_completed
     else:
         n_samples_to_add = n_samples_desired
 
     if n_samples_to_add > 0:
-        v_ar_points, v_br_points = sample_var_vbr(n=n_samples_desired,
+        v_ar_points, v_br_points = sample_var_vbr(n=n_samples_to_add,
                                                   P=igd_rp,
                                                   T=targets,
                                                   ref_point=ref_point,
@@ -119,19 +119,24 @@ for target_dir in os.listdir(problem_path):
         if key_string in D.keys():
             ar, br = D[key_string]
             ar, br = np.asarray(ar), np.asarray(br)
-            ar = np.vstack((ar, v_ar_points))
-            br = np.vstack((br, v_br_points))
 
-            D[key_string] = (ar, br)
+            if len(ar) == 0:
+                ar = ar.reshape(0, n_obj)
+            if len(br) == 0:
+                br = br.reshape(0, n_obj)
+
+            ar = np.vstack((ar, v_ar_points)).tolist()
+            br = np.vstack((br, v_br_points)).tolist()
+
         else:
-            ar = v_ar_points
-            br = v_br_points
-            D[key_string] = (ar, br)
+            ar = v_ar_points.tolist()
+            br = v_br_points.tolist()
 
-        with open(rp_path, "w") as outfile:
-            igd_rps = json.dump(D, outfile)
+        D[key_string] = (ar, br)
 
-    print("Produced ", (v_ar_points.shape[0] + v_br_points.shape[0]), "points")
-print(time.time()-tic)
+        with open(D_path, "w") as outfile:
+            json.dump(D, outfile)
 
+        print("For "+key_string+" added:", np.shape(v_ar_points)[0] + np.shape(v_br_points)[0], "points")
+        print("total points now: " , np.shape(ar)[0] + np.shape(br)[0])
 
