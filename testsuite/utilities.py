@@ -102,15 +102,6 @@ def dominates(a: np.ndarray, b: np.ndarray,
 
 def dominated(a: np.ndarray, b: np.ndarray, maximize: bool = False,
               strict=False):
-    """
-
-    returns True if a is dominated all of b, else returns False
-    :param np.ndarray a: dominating query points (n_points, point_dims)
-    :param np.ndarray b: dominated query points (n_points, point_dims)
-    :param bool maximize: True for finding domination relation in a
-    maximisation problem, False for minimisaiton problem/
-    :return bool: True if a dominate b, else returns False
-    """
     if a.ndim < 2:
         a = a.reshape(1, -1)
     if b.ndim < 2:
