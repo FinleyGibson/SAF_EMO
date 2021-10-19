@@ -3,9 +3,14 @@ import os
 import sys
 
 import numpy as np
+from multiprocessing import Pool
 from testsuite.results import ResultsContainer
 from testsuite.utilities import dominates
 import time
+import fasteners
+from tqdm import tqdm
+
+lock = fasteners.InterProcessLock('./lock.file')
 
 def trim_var(points, P, targets, ref_point):
     va_r = np.asarray(
@@ -15,7 +20,10 @@ def trim_var(points, P, targets, ref_point):
         [dominates(pareto, point) for pareto in P]) and np.any(
         [dominates(point, t) for t in targets]) for point in points])
 
-    return points[va_r], points[vb_r]
+    try:
+        return points[va_r], points[vb_r]
+    except:
+        pass
 
 
 def sample_var_vbr(n, P, T, ref_point, ref_ideal):
@@ -29,7 +37,11 @@ def sample_var_vbr(n, P, T, ref_point, ref_ideal):
     # initial samples
     v_ar_points, v_br_points = trim_var(monte_points, P, T, ref_point)
 
-    fraction_in_sample = n / (v_ar_points.shape[0] + v_br_points.shape[0])
+    try:
+        fraction_in_sample = n / (v_ar_points.shape[0] + v_br_points.shape[0])
+    except ZeroDivisionError:
+        fraction_in_sample = 10
+
     while v_ar_points.shape[0] + v_br_points.shape[0] < n:
         # sample an estimate of the number required times sampling fraction +.1
         n_to_sample = int((n-v_ar_points.shape[0] - v_br_points.shape[0])
@@ -54,7 +66,8 @@ def sample_var_vbr(n, P, T, ref_point, ref_ideal):
 
 problem = str(sys.argv[1])
 
-n_samples_desired = int(1e3)
+n_samples_desired = int(5e2)
+step_size = min(n_samples_desired, 500)
 
 result_path = '../../../data/directed/'
 PROBLEMS = sorted(list(os.listdir(result_path)))
@@ -71,8 +84,10 @@ problem_path = os.path.join(result_path, problem, "log_data")
 
 D_path = "./points.json"
 
-tic = time.time()
-for target_dir in os.listdir(problem_path):
+# for target_dir in os.listdir(problem_path):
+def worker_f(target_dir):
+    tic = time.time()
+    time.sleep(np.random.uniform(0,15))
     problem_target_path = os.path.join(problem_path, target_dir)
     reference_path = os.path.join("../../../data/undirected_comp", problem, "log_data")
     reference_path = os.path.join(reference_path, os.listdir(reference_path)[0])
@@ -97,8 +112,9 @@ for target_dir in os.listdir(problem_path):
         .replace("]", "").replace(" ", "_").replace(".", "p")
 
     try:
-        with open(D_path, "r") as infile:
-            D = json.load(infile)
+        with lock:
+            with open(D_path, "r") as infile:
+                D = json.load(infile)
     except :
         D = {}
 
@@ -108,35 +124,52 @@ for target_dir in os.listdir(problem_path):
     else:
         n_samples_to_add = n_samples_desired
 
+
+    if key_string in D.keys():
+        ar, br = D[key_string]
+        ar, br = np.asarray(ar), np.asarray(br)
+
+        if len(ar) == 0:
+            ar = ar.reshape(0, n_obj)
+        if len(br) == 0:
+            br = br.reshape(0, n_obj)
+    else:
+        ar = np.zeros((0, n_obj))
+        br = np.zeros((0, n_obj))
+
     if n_samples_to_add > 0:
-        v_ar_points, v_br_points = sample_var_vbr(n=n_samples_to_add,
-                                                  P=igd_rp,
-                                                  T=targets,
-                                                  ref_point=ref_point,
-                                                  ref_ideal=ref_ideal
-                                                  )
 
-        if key_string in D.keys():
-            ar, br = D[key_string]
-            ar, br = np.asarray(ar), np.asarray(br)
+        steps_set = [step_size]*int(n_samples_to_add//step_size)
+        if n_samples_to_add%step_size>0:
+            steps_set+= [int(n_samples_to_add%step_size)]
 
-            if len(ar) == 0:
-                ar = ar.reshape(0, n_obj)
-            if len(br) == 0:
-                br = br.reshape(0, n_obj)
+        for steps in tqdm(steps_set):
+            v_ar_points, v_br_points = sample_var_vbr(n=steps,
+                                                      P=igd_rp,
+                                                      T=targets,
+                                                      ref_point=ref_point,
+                                                      ref_ideal=ref_ideal
+                                                      )
 
-            ar = np.vstack((ar, v_ar_points)).tolist()
-            br = np.vstack((br, v_br_points)).tolist()
+            ar = np.vstack((ar, v_ar_points))
+            br = np.vstack((br, v_br_points))
 
-        else:
-            ar = v_ar_points.tolist()
-            br = v_br_points.tolist()
+            with lock:
+                try:
+                    with open(D_path, "r") as infile:
+                        D_new = json.load(infile)
+                except:
+                    D_new = {}
+                D_new[key_string] = (ar.tolist(), br.tolist())
+                with open(D_path, "w") as outfile:
+                    json.dump(D_new, outfile)
 
-        D[key_string] = (ar, br)
-
-        with open(D_path, "w") as outfile:
-            json.dump(D, outfile)
-
-        print("For "+key_string+" added:", np.shape(v_ar_points)[0] + np.shape(v_br_points)[0], "points")
+        print("For "+key_string+" added:", sum(steps_set), "points")
         print("total points now: " , np.shape(ar)[0] + np.shape(br)[0])
 
+
+if __name__ == "__main__":
+    with Pool(6) as p:
+        p.map(worker_f, os.listdir(problem_path))
+
+    # worker_f(os.listdir(problem_path)[0])
