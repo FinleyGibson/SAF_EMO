@@ -10,8 +10,6 @@ import time
 import fasteners
 from tqdm import tqdm
 
-lock = fasteners.InterProcessLock('./lock.file')
-
 def trim_var(points, P, targets, ref_point):
     va_r = np.asarray(
         [dominates(targets, point) and dominates(point, ref_point)
@@ -66,7 +64,7 @@ def sample_var_vbr(n, P, T, ref_point, ref_ideal):
 
 problem = str(sys.argv[1])
 
-n_samples_desired = int(5e2)
+n_samples_desired = int(3e2)
 step_size = min(n_samples_desired, 500)
 
 result_path = '../../../data/directed/'
@@ -82,7 +80,9 @@ with open(rp_path, "r") as infile:
 
 problem_path = os.path.join(result_path, problem, "log_data")
 
-D_path = "./points.json"
+D_path = f"./points/{problem}.json"
+lock = fasteners.InterProcessLock(f'./locks/{problem}_lock.file')
+
 
 # for target_dir in os.listdir(problem_path):
 def worker_f(target_dir):
@@ -123,7 +123,6 @@ def worker_f(target_dir):
         n_samples_to_add = n_samples_desired - n_completed
     else:
         n_samples_to_add = n_samples_desired
-
 
     if key_string in D.keys():
         ar, br = D[key_string]

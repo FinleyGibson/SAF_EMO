@@ -1,11 +1,17 @@
 import json
 import sys
 import numpy as np
+import os
 
-path = sys.argv[1] if len(sys.argv) > 1 else "./points.json"
 
-with open(path, "r") as infile:
-    D = json.load(infile)
+for i, f in enumerate(os.listdir("./points")):
+    print(f"{i}: {f}")
+    path = os.path.join("./points", f)
 
-for i, (k, (va, vb)) in enumerate(D.items()):
-    print(f"{i}: {k}: {len(va)} va points, {len(vb)} vb points, total: {len(va)+len(vb)}")
+    with open(path, "r") as infile:
+        D = json.load(infile)
+    
+    for i, (k, (va, vb)) in enumerate(D.items()):
+        print(f"{i}: {k}: {len(va)} va points, {len(vb)} vb points, total: {len(va)+len(vb)}")
+
+    print()
